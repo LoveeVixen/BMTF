@@ -1,10 +1,12 @@
 // LOVEEVIXEN
+using InputSystem;
 using UnityEngine;
 
-public class Frame : MonoBehaviour
+[System.Serializable]
+public class Frame
 {
-    private Player player1;
-    private Player player2;
-
-    
+    public PlayerInputData player1Input = new PlayerInputData();
+    public PlayerInputData player2Input = new PlayerInputData();
+    public Player player1;
+    public Player player2;
 }
