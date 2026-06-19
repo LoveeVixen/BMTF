@@ -54,21 +54,56 @@ namespace InputSystem
             PlayerInputData clone = new PlayerInputData();
 
             clone.holdingUp = original.holdingUp;
+            clone.pressingUp = original.pressingUp;
             clone.holdingRight = original.holdingRight;
+            clone.pressingRight = original.pressingRight;
             clone.holdingDown = original.holdingDown;
+            clone.pressingDown = original.pressingDown;
             clone.holdingLeft = original.holdingLeft;
+            clone.pressingLeft = original.pressingLeft;
             clone.holdingUpRight = original.holdingUpRight;
+            clone.pressingUpRight = original.pressingUpRight;
             clone.holdingDownRight = original.holdingDownRight;
+            clone.pressingDownRight = original.pressingDownRight;
             clone.holdingDownLeft = original.holdingDownLeft;
+            clone.pressingDownLeft = original.pressingDownLeft;
             clone.holdingUpLeft = original.holdingUpLeft;
+            clone.pressingUpLeft = original.pressingUpLeft;
             clone.holding0 = original.holding0;
+            clone.pressing0 = original.pressing0;
             clone.holding1 = original.holding1;
+            clone.pressing1 = original.pressing1;
             clone.holding2 = original.holding2;
+            clone.pressing2 = original.pressing2;
             clone.holding3 = original.holding3;
+            clone.pressing3 = original.pressing3;
             clone.holdingStart = original.holdingStart;
+            clone.pressingStart = original.pressingStart;
             clone.holdingSelect = original.holdingSelect;
+            clone.pressingSelect = original.pressingSelect;
 
             return clone;
+        }
+
+        public int PressingInputCount()
+        {
+            int countedInputs = 0;
+            if (pressingUp) countedInputs++;
+            if (pressingRight) countedInputs++;
+            if (pressingDown) countedInputs++;
+            if (pressingLeft) countedInputs++;
+            if (pressingUpRight) countedInputs++;
+            if (pressingDownRight) countedInputs++;
+            if (pressingDownLeft) countedInputs++;
+            if (pressingUpLeft) countedInputs++;
+            if (pressing0) countedInputs++;
+            if (pressing1) countedInputs++;
+            if (pressing2) countedInputs++;
+            if (pressing3) countedInputs++;
+            if (pressingStart) countedInputs++;
+            if (pressingSelect) countedInputs++;
+
+            return countedInputs;
         }
 
         public bool RegPressingUp  { get { return regPressingUp; } set { regPressingUp = value; } }

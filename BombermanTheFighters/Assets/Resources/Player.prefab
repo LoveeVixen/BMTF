@@ -117,7 +117,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4546968936356530921}
-  - component: {fileID: 5521535568257174688}
   m_Layer: 0
   m_Name: Character
   m_TagString: Untagged
@@ -141,28 +140,6 @@ Transform:
   - {fileID: 5627014931267597421}
   m_Father: {fileID: 7185386598895507626}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &5521535568257174688
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 551213456532605164}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &784902894217698936
 GameObject:
   m_ObjectHideFlags: 0
@@ -1046,9 +1023,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7185386598895507626}
+  - component: {fileID: 6380690008264297037}
+  - component: {fileID: 185518697369958269}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1069,6 +1048,171 @@ Transform:
   - {fileID: 4546968936356530921}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!114 &6380690008264297037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6245655008100914865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abade9eed6b9c5545b2c24bdab9f3c8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  comboReader:
+    inputs: []
+  comboChart:
+    startAttacks:
+    - playAnimation: NOCLIP
+      isGapInput: 1
+      requiredInput:
+        inputDirection: 3
+        pressing0: 0
+        pressing1: 0
+        pressing2: 0
+        pressing3: 0
+      nextCombos:
+      - playAnimation: DashForward
+        isGapInput: 0
+        requiredInput:
+          inputDirection: 3
+          pressing0: 0
+          pressing1: 0
+          pressing2: 0
+          pressing3: 0
+        nextCombos: []
+    - playAnimation: NOCLIP
+      isGapInput: 1
+      requiredInput:
+        inputDirection: 7
+        pressing0: 0
+        pressing1: 0
+        pressing2: 0
+        pressing3: 0
+      nextCombos:
+      - playAnimation: DashBackward
+        isGapInput: 0
+        requiredInput:
+          inputDirection: 7
+          pressing0: 0
+          pressing1: 0
+          pressing2: 0
+          pressing3: 0
+        nextCombos: []
+    - playAnimation: NOCLIP
+      isGapInput: 1
+      requiredInput:
+        inputDirection: 1
+        pressing0: 0
+        pressing1: 0
+        pressing2: 0
+        pressing3: 0
+      nextCombos:
+      - playAnimation: SideDash
+        isGapInput: 0
+        requiredInput:
+          inputDirection: 1
+          pressing0: 0
+          pressing1: 0
+          pressing2: 0
+          pressing3: 0
+        nextCombos: []
+    - playAnimation: NOCLIP
+      isGapInput: 1
+      requiredInput:
+        inputDirection: 5
+        pressing0: 0
+        pressing1: 0
+        pressing2: 0
+        pressing3: 0
+      nextCombos:
+      - playAnimation: SideDash
+        isGapInput: 0
+        requiredInput:
+          inputDirection: 5
+          pressing0: 0
+          pressing1: 0
+          pressing2: 0
+          pressing3: 0
+        nextCombos: []
+    - playAnimation: LeftPunch
+      isGapInput: 0
+      requiredInput:
+        inputDirection: 0
+        pressing0: 0
+        pressing1: 0
+        pressing2: 1
+        pressing3: 0
+      nextCombos:
+      - playAnimation: RightPunch
+        isGapInput: 0
+        requiredInput:
+          inputDirection: 0
+          pressing0: 0
+          pressing1: 0
+          pressing2: 0
+          pressing3: 1
+        nextCombos:
+        - playAnimation: RightKick
+          isGapInput: 0
+          requiredInput:
+            inputDirection: 0
+            pressing0: 0
+            pressing1: 1
+            pressing2: 0
+            pressing3: 0
+          nextCombos: []
+    - playAnimation: RightPunch
+      isGapInput: 0
+      requiredInput:
+        inputDirection: 0
+        pressing0: 0
+        pressing1: 0
+        pressing2: 0
+        pressing3: 1
+      nextCombos: []
+    - playAnimation: RightKick
+      isGapInput: 0
+      requiredInput:
+        inputDirection: 0
+        pressing0: 0
+        pressing1: 1
+        pressing2: 0
+        pressing3: 0
+      nextCombos: []
+  currentPerformingAttack:
+    playAnimation: NOCLIP
+    isGapInput: 0
+    requiredInput:
+      inputDirection: 0
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    nextCombos: []
+--- !u!95 &185518697369958269
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6245655008100914865}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &6453682377052719380
 GameObject:
   m_ObjectHideFlags: 0
