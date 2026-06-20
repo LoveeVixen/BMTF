@@ -1,0 +1,60 @@
+/* LOVEEVIXEN */
+body
+{
+    background-color: #232323;
+}
+
+p
+{
+    font-family: Arial, Helvetica, sans-serif;
+    color: #ffffff;
+}
+
+a
+{
+    font-family: Arial, Helvetica, sans-serif;
+    color: #7005a1;
+}
+
+/* Use this class to center contents horizontally. */
+.center
+{
+    width: 50%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.contentBox
+{
+    text-align: center;
+    font-size: 20px;
+
+    /* Content box settings */
+    width: 70%;
+    border-radius: 40px;
+    border: 10px solid #f89853;
+    background-color: #d8621e;
+    padding: 15px;
+    margin: 0 auto;
+}
+
+.title
+{
+    text-align: center;
+    color: orange;
+    font-size: 60px;
+}
+
+.note
+{
+    font-size: 20px;
+}
+
+.navigationBar
+{
+    width: 50%;
+    margin: 0 auto;
+    text-align: center;
+    padding: 15px;
+    font-size: 20px;
+}
