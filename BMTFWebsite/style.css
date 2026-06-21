@@ -1,7 +1,9 @@
 /* LOVEEVIXEN */
 body
 {
-    background-color: #232323;
+    /* background-color: #232323; */
+    background-image: url(bricktile.png);
+    background-size: 80px 80px;
 }
 
 p
@@ -32,17 +34,10 @@ a
     /* Content box settings */
     width: 70%;
     border-radius: 40px;
-    border: 10px solid #f89853;
-    background-color: #d8621e;
+    border: 10px solid #333158;
+    background-color: #2a2050;
     padding: 15px;
     margin: 0 auto;
-}
-
-.title
-{
-    text-align: center;
-    color: orange;
-    font-size: 60px;
 }
 
 .note
@@ -52,6 +47,7 @@ a
 
 .navigationBar
 {
+    color: #ffffff;
     width: 50%;
     margin: 0 auto;
     text-align: center;
