@@ -1,6 +1,6 @@
 // LOVEEVIXEN
 using InputSystem;
-using UnityEngine;
+using EntitySystem;
 
 [System.Serializable]
 public class Frame

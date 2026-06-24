@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using InputSystem;
+using EntitySystem;
 
 public class SessionManager : MonoBehaviour
 {
@@ -29,12 +30,6 @@ public class SessionManager : MonoBehaviour
         startPlayerDistance = PlayerDistance();
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -46,6 +41,7 @@ public class SessionManager : MonoBehaviour
         // Record the player's inputs on the combo reader.
         ComboReader comboReader = player.GetComboReader();
         ComboInputData[] comboInputs = comboReader.inputs.ToArray();
+        int comboInputsCount = comboInputs.Length;
         int recentIndex = comboReader.RecentIndex();
 
         if (inputData.PressingInputCount() > 0 && !inputData.pressingStart && !inputData.pressingSelect)
@@ -63,64 +59,37 @@ public class SessionManager : MonoBehaviour
             }
         }
 
-        /*if (comboInputs.Length >= 2)
+        // Check to see if player is in a state that can transition to attack state.
+        bool readyToAttack = false;
+        switch (player.GetCurrentState())
         {
-            if (comboInputs[comboReader.RecentIndex()].inputDirection == ComboInputData.InputDirection.backward && comboInputs[comboReader.RecentIndex() - 1].inputDirection == ComboInputData.InputDirection.backward)
-                player.PlayAnimation("DashBackward");
-
-            if (comboInputs[comboReader.RecentIndex()].inputDirection == ComboInputData.InputDirection.up && comboInputs[comboReader.RecentIndex() - 1].inputDirection == ComboInputData.InputDirection.up)
-            {
-                if(player.IsFacingRight())
-                    player.PlayAnimation("DashLeft");
-                else
-                    player.PlayAnimation("DashRight");
-            }
-
-            if (comboInputs[comboReader.RecentIndex()].inputDirection == ComboInputData.InputDirection.down && comboInputs[comboReader.RecentIndex() - 1].inputDirection == ComboInputData.InputDirection.down)
-            {
-                if (player.IsFacingRight())
-                    player.PlayAnimation("DashRight");
-                else
-                    player.PlayAnimation("DashLeft");
-            }
-
-            if (comboInputs[comboReader.RecentIndex()].inputDirection == ComboInputData.InputDirection.forward && comboInputs[comboReader.RecentIndex() - 1].inputDirection == ComboInputData.InputDirection.forward && player.GetCurrentState() != Player.CurrentState.running)
-                player.PlayAnimation("DashForward");
-        }*/
+            case Player.CurrentState.idle: readyToAttack = true; break;
+            case Player.CurrentState.running: readyToAttack = true; break;
+        }
 
         // Execute combo moves if combo is successful.
-        if (comboInputs.Length > 0)
+        if (player.IsReadingCombos())
         {
-            if (player.GetInputtedCombosCount() == 0 && player.IsReadingCombos())
+            // Combo initiators.
+            if (player.GetInputtedCombosCount() == 0 && readyToAttack)
             {
-                foreach (Attack attack in player.GetComboChart().startAttacks)
+                foreach (ComboGraph.Branch branch in player.GetComboGraph().branches)
                 {
-                    if(comboInputs[recentIndex].MatchesRequiredInput(attack))
-                        player.ExecuteAttack(attack);
+                    if (branch.attack.MatchesRequiredInputs(comboReader.inputs))
+                        player.ExecuteAttack(branch);
                 }
             }
-            else if (comboInputs.Length > player.GetInputtedCombosCount() && player.IsReadingCombos())
+            else
             {
-                foreach (Attack attack in player.LastPerformedCombo().nextCombos)
+                // Follow up combos.
+                int playerPerformedCombosCount = player.GetPerformedCombosList().Count;
+                if (playerPerformedCombosCount > 0)
                 {
-                    /*bool allInputsMatch = true;
-                    for(int i = comboInputs.Length - 1; i >= 0; i--)
+                    foreach (ComboGraph.Branch branch in player.GetPerformedCombosList()[playerPerformedCombosCount - 1].followUpCombos)
                     {
-                        if(i == comboInputs.Length - 1)
-                        {
-                            if(!comboInputs[i].MatchesRequiredInput(attack))
-                                allInputsMatch = false;
-                        }
-
-                        if (!comboInputs[i].MatchesRequiredInput(player.GetPerformedCombos()[i]))
-                            allInputsMatch = false;
+                        if (branch.attack.MatchesRequiredInputs(comboReader.inputs))
+                            player.ExecuteAttack(branch);
                     }
-
-                    if(allInputsMatch)
-                        player.ExecuteAttack(attack);*/
-
-                    if (comboInputs[recentIndex].MatchesRequiredInput(attack))
-                        player.ExecuteAttack(attack);
                 }
             }
         }
@@ -152,6 +121,7 @@ public class SessionManager : MonoBehaviour
             }
         }
 
+        //  Determine if player should face it's opponent depending on it's current state.
         bool faceOpponent = false;
         switch (player.GetCurrentState())
         {
@@ -171,6 +141,8 @@ public class SessionManager : MonoBehaviour
 
         CalculateOutput(player1, updateFrame.player1Input);
         CalculateOutput(player2, updateFrame.player2Input);
+        player1.OnTick();
+        player2.OnTick();
 
         // Position player center reference, and rotate for camera reference.
         centerPos.transform.position = (player1.Pos() + player2.Pos()) / 2f;
@@ -188,6 +160,7 @@ public class SessionManager : MonoBehaviour
         return updateFrame;
     }
 
+    public int GetCurrentFrame() {  return currentFrame; }
     public Player GetPlayer1() { return player1; }
     public Player GetPlayer2() { return player2; }
     public bool GetFlipCamera() {  return flipCamera; }

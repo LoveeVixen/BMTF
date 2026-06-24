@@ -40,37 +40,37 @@ namespace InputSystem
 
         public ComboInputData() { }
 
-        public bool MatchesRequiredInput(Attack attack)
+        public bool MatchesRequiredInput(ComboInputData requiredInput)
         {
             bool matches = true;
-            if(attack.requiredInput.inputDirection != InputDirection.none)
+            if(requiredInput.inputDirection != InputDirection.none)
             { 
-                if(attack.requiredInput.inputDirection != inputDirection)
+                if(requiredInput.inputDirection != inputDirection)
                     matches = false;
             }
 
-            if(attack.requiredInput.pressing0 != pressing0)
+            if(requiredInput.pressing0 != pressing0)
                 matches = false;
 
-            if (attack.requiredInput.pressing1 != pressing1)
+            if (requiredInput.pressing1 != pressing1)
                 matches = false;
 
-            if (attack.requiredInput.pressing2 != pressing2)
+            if (requiredInput.pressing2 != pressing2)
                 matches = false;
 
-            if (attack.requiredInput.pressing3 != pressing3)
+            if (requiredInput.pressing3 != pressing3)
                 matches = false;
 
-            /*if (attack.requiredInput.pressing0 && !pressing0)
+            /*if (requiredInput.pressing0 && !pressing0)
                 matches = false;
 
-            if (attack.requiredInput.pressing1 && !pressing1)
+            if (requiredInput.pressing1 && !pressing1)
                 matches = false;
 
-            if (attack.requiredInput.pressing2 && !pressing2)
+            if (requiredInput.pressing2 && !pressing2)
                 matches = false;
 
-            if (attack.requiredInput.pressing3 && !pressing3)
+            if (requiredInput.pressing3 && !pressing3)
                 matches = false;*/
 
             return matches;

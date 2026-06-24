@@ -1,11 +1,20 @@
 // LOVEEVIXEN
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace InputSystem
 {
     [System.Serializable]
-    public class ComboChart
+    [CreateAssetMenu(fileName = "ComboGraph", menuName = "Attack and Combo System/Character Move Set")]
+    public class ComboGraph : ScriptableObject
     {
-        public List<Attack> startAttacks = new List<Attack>();
+        [System.Serializable]
+        public class Branch
+        {
+            public Attack attack;
+            public Branch[] followUpCombos;
+        }
+
+        public Branch[] branches;
     }
 }
