@@ -7,19 +7,19 @@ namespace EntitySystem
 {
     public class Player : Entity
     {
-        private const float moveSpeed = 0.15f;
+        private float moveSpeed = 0.15f;
         private Player opponent;
         private Health health;
         private Animator anim;
         private string currentAnimationName = "Idle";
 
         // Player state
-        public enum CurrentState { idle, running, dashForward, dashBackward, dashLeft, dashRight, attacking, hit, lay, knockout };
+        public enum CurrentState { idle, running, dashForward, dashBackward, dashLeft, dashRight, attacking, hit, lay, rollForward, rollBackward, rollLeft, rollRight, knockout };
         private CurrentState currentState;
 
         // Run and dash settings
-        private const float runSpeed = 0.6f;
-        private const float dashSpeed = 0.5f;
+        private float runSpeed = 0.6f;
+        private float dashSpeed = 0.5f;
 
         [Header("Attack/Combo system")]
         [SerializeField] ComboReader comboReader = new ComboReader();
@@ -34,7 +34,7 @@ namespace EntitySystem
 
         // Attack stroll (Player movement while attacking)
         private bool attackStroll = false;
-        private const float attackStrollSpeed = 0.075f;
+        private float attackStrollSpeed = 0.075f;
 
         // On hit/taking damage.
         private Vector3 stumbleDirection = Vector3.zero;
@@ -42,6 +42,10 @@ namespace EntitySystem
         private int stumbleFrames;
         private int immunityFrames = 0;
         private int immunityFramesSet = 10;
+
+        // Lay/roll settings.
+        private float rollSpeed = 0.8f;
+        private bool rollMovement = false;
 
         public override void OnAwake()
         {
@@ -58,8 +62,10 @@ namespace EntitySystem
                 opponent = SessionManager.instance.GetPlayer1();
         }
 
-        public void OnTick()
+        public override void OnTick()
         {
+            base.OnTick();
+
             if (currentState == CurrentState.running)
             {
                 // Make player run to it's opponent until close enough.
@@ -93,6 +99,18 @@ namespace EntitySystem
             if(currentState == CurrentState.hit)
                 MoveDirection(stumbleDirection * stumbleSpeed);
 
+            if (currentState == CurrentState.rollForward)
+            {
+                if (SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance() && rollMovement)
+                    MoveDirection(transform.forward * rollSpeed);
+            }
+
+            if (currentState == CurrentState.rollBackward)
+            {
+                if (SessionManager.instance.PlayerDistance() < SessionManager.instance.GetMaxPlayerDistance() && rollMovement)
+                    MoveDirection(-transform.forward * rollSpeed);
+            }
+
             // Tick down timer until ready to reset combo reader.
             if (framesUntilResetComboReader > 0)
                 framesUntilResetComboReader--;
@@ -113,8 +131,17 @@ namespace EntitySystem
             if (stumbleFrames > 0)
             {
                 stumbleFrames--;
-                if (stumbleFrames == 0)
+                if (stumbleFrames == 0 && !IsAirborne())
                     Idle();
+            }
+        }
+
+        public override void OnLand()
+        {
+            base.OnLand();
+            if(currentState == CurrentState.hit)
+            {
+                Collapse();
             }
         }
 
@@ -131,6 +158,16 @@ namespace EntitySystem
             PlayAnimation("Idle");
             attackStroll = false;
             currentState = CurrentState.idle;
+            DisableAttackForAllHitboxes();
+        }
+
+        public void Lay()
+        {
+            ResetComboSystem();
+            PlayAnimation("Lay");
+            attackStroll = false;
+            rollMovement = false;
+            currentState = CurrentState.lay;
             DisableAttackForAllHitboxes();
         }
 
@@ -185,6 +222,23 @@ namespace EntitySystem
                 else
                     PlayAnimation("HighHit1");
             }
+        }
+
+        public void LaunchHit()
+        {
+            if (immunityFrames == 0)
+            {
+                currentState = CurrentState.hit;
+                ApplyImmunity();
+
+                PlayAnimation("LaunchHit");
+            }
+        }
+
+        public void Collapse()
+        {
+            PlayAnimation("Collapse");
+            stumbleSpeed = 0f;
         }
 
         public void SetStumbleDirection(Vector3 setStumbleDirection) { stumbleDirection = setStumbleDirection; }
@@ -242,6 +296,20 @@ namespace EntitySystem
         {
             MoveDirection(-transform.right * moveSpeed);
         }
+
+        public void RollForward()
+        {
+            PlayAnimation("RollForward");
+            currentState = CurrentState.rollForward;
+        }
+
+        public void RollBackward()
+        {
+            PlayAnimation("RollBackward");
+            currentState = CurrentState.rollBackward;
+        }
+
+        public void EnableRollMovement() { rollMovement = true; }
 
         public void FaceOpponent()
         {

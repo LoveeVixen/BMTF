@@ -1,8 +1,10 @@
 // LOVEEVIXEN
-using UnityEngine;
-using System.Collections.Generic;
-using InputSystem;
 using EntitySystem;
+using InputSystem;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class SessionManager : MonoBehaviour
 {
@@ -20,6 +22,30 @@ public class SessionManager : MonoBehaviour
     [SerializeField] float minPlayerDistance = 3f;
     [SerializeField] float maxPlayerDistance = 30f;
     private float startPlayerDistance;
+
+    // Attack data.
+    [System.Serializable]
+    public class RegisteredHit
+    {
+        private Hitbox target;
+        private Attack attack;
+        private Vector3 stumbleDirection;
+        private float yVelocityLaunch;
+
+        public RegisteredHit(Hitbox target, Attack attack, Vector3 stumbleDirection)
+        {
+            this.target = target;
+            this.attack = attack;
+            this.stumbleDirection = stumbleDirection;
+        }
+
+        public Hitbox GetTarget() { return target; }
+
+        public Attack GetAttack() { return attack; }
+
+        public Vector3 GetStumbleDirection() { return stumbleDirection;}
+    }
+    private List<RegisteredHit> registeredHits = new List<RegisteredHit>();
 
     private void Awake()
     {
@@ -94,7 +120,7 @@ public class SessionManager : MonoBehaviour
             }
         }
 
-        // Move player in inputted direction.
+        // Movement input while standing.
         if (player.GetCurrentState() == Player.CurrentState.idle)
         {
             if (player.IsFacingRight())
@@ -121,6 +147,25 @@ public class SessionManager : MonoBehaviour
             }
         }
 
+        // Movement input while laying.
+        if (player.GetCurrentState() == Player.CurrentState.lay)
+        {
+            if (player.IsFacingRight())
+            {
+                if (inputData.holdingLeft)
+                    player.RollBackward();
+                else if (inputData.holdingRight)
+                    player.RollForward();
+            }
+            else
+            {
+                if (inputData.holdingLeft)
+                    player.RollForward();
+                else if (inputData.holdingRight)
+                    player.RollBackward();
+            }
+        }
+
         //  Determine if player should face it's opponent depending on it's current state.
         bool faceOpponent = false;
         switch (player.GetCurrentState())
@@ -133,12 +178,41 @@ public class SessionManager : MonoBehaviour
             player.FaceOpponent();
     }
 
+    // See what hits registered in the last frame and make them take effect.
+    public void ApplyRegisteredHits()
+    {
+        foreach (RegisteredHit registeredHit in registeredHits)
+        {
+            Entity hitEntity = registeredHit.GetTarget().GetEntity();
+            Hitbox hitbox = registeredHit.GetTarget();
+            Attack attackData = registeredHit.GetAttack();
+
+            // Check that hit target is a player.
+            Player player = hitEntity as Player;
+            if(player != null)
+            {
+                player.SetStumbleFrames(attackData.stumbleFrames);
+                player.SetStumbleDirection(registeredHit.GetStumbleDirection());
+                player.SetStumbleSpeed(attackData.stumbleSpeed);
+                player.SetYVelocity(attackData.yVelocityLaunch);
+
+                if (attackData.attackType == Attack.AttackType.stumble)
+                    player.HighHit();
+                else if(attackData.attackType == Attack.AttackType.launch)
+                    player.LaunchHit();
+            }
+        }
+
+        registeredHits.RemoveRange(0, registeredHits.Count);
+    }
+
     Frame UpdateFrame()
     {
         Frame updateFrame = new Frame();
         updateFrame.player1Input = PlayerInputData.CloneData(InputReader.Player1());
         updateFrame.player2Input = PlayerInputData.CloneData(InputReader.Player2());
 
+        ApplyRegisteredHits();
         CalculateOutput(player1, updateFrame.player1Input);
         CalculateOutput(player2, updateFrame.player2Input);
         player1.OnTick();
@@ -158,6 +232,11 @@ public class SessionManager : MonoBehaviour
         currentFrame++;
         frames.Add(updateFrame);
         return updateFrame;
+    }
+
+    public void AddRegisteredHit(Hitbox target, Attack attack, Vector3 stumbleDirection)
+    {
+        registeredHits.Add(new RegisteredHit(target, attack, stumbleDirection));
     }
 
     public int GetCurrentFrame() {  return currentFrame; }

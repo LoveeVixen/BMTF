@@ -46,15 +46,14 @@ namespace EntitySystem
                     foreach (Hitbox relatedHitbox in entity.GetHitboxesList())
                         relatedHitbox.HasHitTarget();
 
+                    // Calculate direction hit target will stumble towards after being hit.
                     Player player = otherHitbox.GetEntity() as Player;
+                    Vector3 stumbleDir = new Vector3(-otherHitbox.GetEntity().transform.forward.x, 0f, -otherHitbox.GetEntity().transform.forward.z);
                     if (player != null)
-                    {
-                        Vector3 stumbleDir = new Vector3(entity.transform.forward.x, 0f, entity.transform.forward.z);
-                        player.SetStumbleFrames(performingAttack.stumbleFrames);
-                        player.SetStumbleDirection(stumbleDir);
-                    }
+                        stumbleDir = new Vector3(entity.transform.forward.x, 0f, entity.transform.forward.z);
 
-                    otherHitbox.Hit(performingAttack);
+                    // Register hit into session manager.
+                    SessionManager.instance.AddRegisteredHit(otherHitbox, performingAttack, stumbleDir);
                 }
             }
         }
@@ -74,18 +73,6 @@ namespace EntitySystem
                 // Reset attack references.
                 hasHit = false;
                 performingAttack = null;
-            }
-        }
-
-        public void Hit(Attack attack)
-        {
-            Player player = entity as Player;
-            if(player != null)
-            {
-                player.SetStumbleSpeed(attack.stumbleSpeed);
-
-                if(attack.attackType == Attack.AttackType.stumble)
-                    player.HighHit();
             }
         }
 

@@ -1,7 +1,7 @@
 // LOVEEVIXEN
 using UnityEngine;
 
-public class Camera : MonoBehaviour
+public class Cam : MonoBehaviour
 {
     private Transform target;
     [SerializeField] Vector3 lookAtOffset = new Vector3(0f, 6f, 0f);

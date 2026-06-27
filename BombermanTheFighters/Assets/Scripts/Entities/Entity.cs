@@ -12,6 +12,11 @@ namespace EntitySystem
         [SerializeField] Material attackMaterial;
         private List<Hitbox> hitboxes = new List<Hitbox>();
 
+        // Entity physics.
+        private const float gravity = 9.81f;
+        private float yVel;
+        private bool airborne;
+
         private void Awake()
         {
             // Setup hitboxes.
@@ -23,6 +28,31 @@ namespace EntitySystem
         }
 
         public virtual void OnAwake() { }
+        public virtual void OnTick()
+        {
+            // Check that the entity is airborne.
+            if(transform.position.y > 0f)
+                airborne = true;
+
+            // Apply movement on Y axis.
+            transform.position += (transform.up * yVel);
+            if (airborne)
+            {
+                // Apply gravity.
+                yVel -= gravity / 200f;
+
+                // Ground player once they reach the floor.
+                if (transform.position.y <= 0f)
+                {
+                    yVel = 0f;
+                    transform.position = new Vector3(transform.position.x, 0f, transform.position.z);
+                    airborne = false;
+                    OnLand();
+                }
+            }
+        }
+
+        public virtual void OnLand() { }
 
         // Round entity's position to be by 1 decimal place.
         public void SnapPosition()
@@ -37,6 +67,8 @@ namespace EntitySystem
         {
             return transform.position;
         }
+
+        public void SetYVelocity(float setYVel) { yVel = setYVel; }
 
         public Hitbox FindHitbox(string hitboxName)
         {
@@ -55,5 +87,7 @@ namespace EntitySystem
 
         public Material GetNormalMaterial() { return normalMaterial; }
         public Material GetAttackMaterial() { return attackMaterial; }
+        public float GetGravity() {  return gravity; }
+        public bool IsAirborne() { return airborne; }
     }
 }
