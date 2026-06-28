@@ -1,6 +1,7 @@
 // LOVEEVIXEN
 using InputSystem;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
@@ -23,6 +24,8 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         Application.targetFrameRate = targetFramerate;
+        Stage.LoadStagesFromResources();
+        Stage.LoadStageIntoScene(Stage.Find("Debug"));
     }
 
     // Update is called once per frame
