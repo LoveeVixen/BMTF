@@ -243,8 +243,8 @@ MonoBehaviour:
     y: 0
     width: 1779
     height: 995
-  m_MinSize: {x: 202, y: 226}
-  m_MaxSize: {x: 4002, y: 4026}
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 15}
   m_Panes:
   - {fileID: 15}
@@ -300,8 +300,8 @@ MonoBehaviour:
     y: 0
     width: 485
     height: 1293
-  m_MinSize: {x: 275, y: 50}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 276, y: 76}
+  m_MaxSize: {x: 4001, y: 4026}
   m_ActualView: {fileID: 21}
   m_Panes:
   - {fileID: 21}
@@ -451,7 +451,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: b8d1ffffd0d1ffffe4d5ffffe4e4fffffce4ffff40e9ffff1cfbffff92c70000
+      m_ExpandedIDs: e248ffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1165,7 +1165,7 @@ MonoBehaviour:
       m_Fade:
         m_Target: 0
         speed: 2
-        m_Value: 1
+        m_Value: 0
       m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 0.4}
       m_Pivot: {x: 0, y: 0, z: 0}
       m_Size: {x: 1, y: 1}
@@ -1175,7 +1175,7 @@ MonoBehaviour:
   m_Rotation:
     m_Target: {x: -0.191696, y: 0.27209276, z: -0.05590975, w: -0.941456}
     speed: 2
-    m_Value: {x: -0.19208618, y: 0.2649915, z: -0.05446374, w: -0.9433536}
+    m_Value: {x: -0.19169602, y: 0.27209276, z: -0.05590975, w: -0.9414561}
   m_Size:
     m_Target: 9.453949
     speed: 2
@@ -1396,7 +1396,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts
+    - Assets/Audio/Voices/Announcer/CharacterNames
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -1406,17 +1406,17 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Scripts
+  - Assets/Audio/Voices/Announcer/CharacterNames
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\Semfh\Documents\Github Repos\BMTF\BombermanTheFighters
   m_LockTracker:
     m_IsLocked: 0
   m_LastLocalAssetsSearchArea: 1
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 84}
-    m_SelectedIDs: 40b10000
-    m_LastClickedID: 45376
-    m_ExpandedIDs: 0000000040af000032b1000074b1000076b10000d8b10000dcb1000000ca9a3bffffff7f
+    scrollPos: {x: 0, y: 79}
+    m_SelectedIDs: d4f50000
+    m_LastClickedID: 62932
+    m_ExpandedIDs: 0000000052f5000056f50000d0f50000d2f5000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1445,7 +1445,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 0000000040af0000
+    m_ExpandedIDs: 
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1473,7 +1473,7 @@ MonoBehaviour:
   m_ListAreaState:
     m_SelectedInstanceIDs: 
     m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 0
+    m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: c62300006c020000f86f0000846e0000303300001e7700008471000090b2000098bb00006a720000b4760000ce7200005e350000e2720000b27100000000000046b00000b6730000b8b30000d46e000082b300008cb3000088200100a8b3000050b800009cf30000
     m_RenameOverlay:
       m_UserAcceptedRename: 0

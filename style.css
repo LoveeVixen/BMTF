@@ -56,6 +56,21 @@ a
     margin: 0 auto;
 }
 
+.inputGuideBox
+{
+    text-align: left;
+    font-size: 20px;
+    color: #ffffff;
+
+    /* Content box settings */
+    width: 70%;
+    border-radius: 40px;
+    border: 10px solid #3b3b3b;
+    background-color: #1e1e1f;
+    padding: 15px;
+    margin: 0 auto;
+}
+
 .note
 {
     font-size: 20px;
