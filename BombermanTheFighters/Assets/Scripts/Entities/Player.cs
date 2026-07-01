@@ -11,14 +11,16 @@ namespace EntitySystem
         private Player opponent;
         private Health health;
         private Animator anim;
+        private int walkDirection = 0; // 0 = Idle, 1 = forward, 2 = backward, 3 = left, 4 = right.
         private string currentAnimationName = "Idle";
+        private GameObject loadedCharacterPrefab;
 
         // Player state
         public enum CurrentState { idle, running, dashForward, dashBackward, dashLeft, dashRight, attacking, hit, lay, rollForward, rollBackward, rollLeft, rollRight, knockout };
         private CurrentState currentState;
 
         // Run and dash settings
-        private float runSpeed = 0.6f;
+        private float runSpeed = 0.7f;
         private float dashSpeed = 0.5f;
 
         [Header("Attack/Combo system")]
@@ -134,6 +136,9 @@ namespace EntitySystem
                 if (stumbleFrames == 0 && !IsAirborne())
                     Idle();
             }
+
+            // Setup animator.
+            anim.SetInteger("WalkDirection", walkDirection);
         }
 
         public override void OnLand()
@@ -275,25 +280,34 @@ namespace EntitySystem
             immunityFrames = immunityFramesSet;
         }
 
+        public void StopMovement()
+        {
+            walkDirection = 0;
+        }
+
         public void MoveForward()
         {
+            walkDirection = 1;
             if (SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance())
                 MoveDirection(transform.forward * moveSpeed);
         }
 
         public void MoveBackward()
         {
+            walkDirection = 2;
             if (SessionManager.instance.PlayerDistance() < SessionManager.instance.GetMaxPlayerDistance())
                 MoveDirection(-transform.forward * moveSpeed);
         }
 
         public void SideStepRight()
         {
+            walkDirection = 4;
             MoveDirection(transform.right * moveSpeed);
         }
 
         public void SideStepLeft()
         {
+            walkDirection = 3;
             MoveDirection(-transform.right * moveSpeed);
         }
 
@@ -353,8 +367,32 @@ namespace EntitySystem
             readCombos = true;
         }
 
+        // Load a character prefab into this player gameobject.
+        public void LoadCharacter(string characterName)
+        {
+            Character characterData = GameManager.instance.FindCharacter(characterName);
+
+            // Clear last loaded character prefab if there is one.
+            if (loadedCharacterPrefab != null)
+                Destroy(loadedCharacterPrefab);
+
+            // Instantiate new character prefab into player.
+            GameObject characterObj = (GameObject)Instantiate(Resources.Load(characterData.GetCharacterPath(0)), transform.position, Quaternion.identity, transform);
+            characterObj.transform.Rotate(transform.rotation.eulerAngles);
+            characterObj.name = "Character";
+            loadedCharacterPrefab = characterObj;
+
+            // Setup animator.
+            anim.runtimeAnimatorController = characterData.runtimeAnimator;
+            Idle();
+
+            // Setup character hitbox.
+            SetupCharacterHitbox();
+        }
+
         public Health GetHealth() { return health; }
         public CurrentState GetCurrentState() { return currentState; }
+        public string GetCurrentAnimationName() { return currentAnimationName; }
 
         public ComboReader GetComboReader() { return comboReader; }
 

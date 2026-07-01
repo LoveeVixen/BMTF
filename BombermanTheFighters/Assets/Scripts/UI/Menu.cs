@@ -1,34 +1,46 @@
 // LOVEEVIXEN
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
-public class Menu : MonoBehaviour
+namespace UI
 {
-    private GameObject container;
-
-    private void Awake()
+    public class Menu : MonoBehaviour
     {
-        container = transform.GetChild(0).gameObject;
-    }
+        private bool isOpen = true;
+        private GameObject container;
+        [SerializeField] Button selectButtonOnOpen;
 
-    public void Open()
-    {
-        container.SetActive(true);
-    }
+        private void Awake()
+        {
+            container = transform.GetChild(0).gameObject;
+        }
 
-    public void Close()
-    {
-        container.SetActive(false);
-    }
+        public void Open()
+        {
+            container.SetActive(true);
+            isOpen = true;
 
-    public void LoadScene(string sceneName)
-    {
-        SceneManager.LoadScene(sceneName);
-    }
+            if(selectButtonOnOpen != null)
+                selectButtonOnOpen.Select();
+        }
 
-    public void ExitApplication()
-    {
-        Application.Quit();
+        public void Close()
+        {
+            container.SetActive(false);
+            isOpen = false;
+        }
+
+        public void LoadScene(string sceneName)
+        {
+            SceneManager.LoadScene(sceneName);
+        }
+
+        public void ExitApplication()
+        {
+            Application.Quit();
+        }
+
+        public bool IsOpen() { return isOpen; }
     }
 }

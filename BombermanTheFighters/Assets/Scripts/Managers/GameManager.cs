@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     private int targetFramerate = 60;
+    [SerializeField] List<Character> characters = new List<Character>();
 
     private void Awake()
     {
@@ -25,7 +26,6 @@ public class GameManager : MonoBehaviour
     {
         Application.targetFrameRate = targetFramerate;
         Stage.LoadStagesFromResources();
-        Stage.LoadStageIntoScene(Stage.Find("Debug"));
     }
 
     // Update is called once per frame
@@ -334,5 +334,18 @@ public class GameManager : MonoBehaviour
         InputReader.Player2().pressing3 = Input.GetButtonDown("ThreeP2") || Input.GetKeyDown(InputReader.threeP2);
         InputReader.Player2().pressingStart = Input.GetButtonDown("StartP2") || Input.GetKeyDown(InputReader.startP2);
         InputReader.Player2().pressingSelect = Input.GetButtonDown("SelectP2") || Input.GetKeyDown(InputReader.selectP2);
+    }
+
+    // Return a character by it's name.
+    public Character FindCharacter(string characterName)
+    {
+        foreach(Character character in characters)
+        {
+            if(character.name == characterName)
+                return character;
+        }
+
+        Debug.Log("Unable to find character with name: " + characterName);
+        return null;
     }
 }

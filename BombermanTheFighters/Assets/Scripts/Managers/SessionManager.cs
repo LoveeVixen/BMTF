@@ -18,7 +18,7 @@ public class SessionManager : MonoBehaviour
     [SerializeField] bool flipCamera;
 
     [Header("Player Positioning")]
-    [SerializeField] float minPlayerDistance = 3f;
+    [SerializeField] float minPlayerDistance = 0.5f;
     [SerializeField] float maxPlayerDistance = 30f;
     private float startPlayerDistance;
 
@@ -55,6 +55,14 @@ public class SessionManager : MonoBehaviour
         startPlayerDistance = PlayerDistance();
     }
 
+    // Called upon first frame.
+    private void Start()
+    {
+        Stage.LoadStageIntoScene(Stage.Find("Debug"));
+        player1.LoadCharacter("Shirobon");
+        player2.LoadCharacter("Kurobon");
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -68,6 +76,46 @@ public class SessionManager : MonoBehaviour
         ComboInputData[] comboInputs = comboReader.inputs.ToArray();
         int comboInputsCount = comboInputs.Length;
         int recentIndex = comboReader.RecentIndex();
+
+        // Movement input while standing.
+        if (player.GetCurrentState() == Player.CurrentState.idle)
+        {
+            if (player.IsFacingRight())
+            {
+                if (inputData.holdingLeft) player.MoveBackward();
+                else if (inputData.holdingRight) player.MoveForward();
+                else if (inputData.holdingUp) player.SideStepLeft();
+                else if (inputData.holdingDown) player.SideStepRight();
+                else player.StopMovement();
+            }
+            else
+            {
+                if (inputData.holdingLeft) player.MoveForward();
+                else if (inputData.holdingRight) player.MoveBackward();
+                else if (inputData.holdingUp) player.SideStepRight();
+                else if (inputData.holdingDown) player.SideStepLeft();
+                else player.StopMovement();
+            }
+        }
+
+        // Movement input while laying.
+        if (player.GetCurrentState() == Player.CurrentState.lay)
+        {
+            if (player.IsFacingRight())
+            {
+                if (inputData.holdingLeft)
+                    player.RollBackward();
+                else if (inputData.holdingRight)
+                    player.RollForward();
+            }
+            else
+            {
+                if (inputData.holdingLeft)
+                    player.RollForward();
+                else if (inputData.holdingRight)
+                    player.RollBackward();
+            }
+        }
 
         if (inputData.PressingInputCount() > 0 && !inputData.pressingStart && !inputData.pressingSelect)
         {
@@ -93,6 +141,7 @@ public class SessionManager : MonoBehaviour
         }
 
         // Execute combo moves if combo is successful.
+        bool executedAttack = false;
         if (player.IsReadingCombos())
         {
             // Combo initiators.
@@ -101,7 +150,10 @@ public class SessionManager : MonoBehaviour
                 foreach (ComboGraph.Branch branch in player.GetComboGraph().branches)
                 {
                     if (branch.attack.MatchesRequiredInputs(comboReader.inputs))
+                    {
                         player.ExecuteAttack(branch);
+                        executedAttack = true;
+                    }
                 }
             }
             else
@@ -113,55 +165,12 @@ public class SessionManager : MonoBehaviour
                     foreach (ComboGraph.Branch branch in player.GetPerformedCombosList()[playerPerformedCombosCount - 1].followUpCombos)
                     {
                         if (branch.attack.MatchesRequiredInputs(comboReader.inputs))
+                        {
                             player.ExecuteAttack(branch);
+                            executedAttack = true;
+                        }
                     }
                 }
-            }
-        }
-
-        // Movement input while standing.
-        if (player.GetCurrentState() == Player.CurrentState.idle)
-        {
-            if (player.IsFacingRight())
-            {
-                if (inputData.holdingLeft)
-                    player.MoveBackward();
-                else if (inputData.holdingRight)
-                    player.MoveForward();
-                else if (inputData.holdingUp)
-                    player.SideStepLeft();
-                else if (inputData.holdingDown)
-                    player.SideStepRight();
-            }
-            else
-            {
-                if (inputData.holdingLeft)
-                    player.MoveForward();
-                else if (inputData.holdingRight)
-                    player.MoveBackward();
-                else if (inputData.holdingUp)
-                    player.SideStepRight();
-                else if (inputData.holdingDown)
-                    player.SideStepLeft();
-            }
-        }
-
-        // Movement input while laying.
-        if (player.GetCurrentState() == Player.CurrentState.lay)
-        {
-            if (player.IsFacingRight())
-            {
-                if (inputData.holdingLeft)
-                    player.RollBackward();
-                else if (inputData.holdingRight)
-                    player.RollForward();
-            }
-            else
-            {
-                if (inputData.holdingLeft)
-                    player.RollForward();
-                else if (inputData.holdingRight)
-                    player.RollBackward();
             }
         }
 

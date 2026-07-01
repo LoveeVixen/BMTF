@@ -19,11 +19,7 @@ namespace EntitySystem
 
         private void Awake()
         {
-            // Setup hitboxes.
-            Hitbox[] hb = GetComponentsInChildren<Hitbox>();
-            foreach (Hitbox hitbox in hb)
-                hitboxes.Add(hitbox);
-
+            SetupCharacterHitbox();
             OnAwake();
         }
 
@@ -61,6 +57,13 @@ namespace EntitySystem
             float y = Mathf.Round(transform.position.y * 10f) * 0.1f;
             float z = Mathf.Round(transform.position.z * 10f) * 0.1f;
             transform.position = new Vector3(x, y, z);
+        }
+
+        public void SetupCharacterHitbox()
+        {
+            Hitbox[] hb = GetComponentsInChildren<Hitbox>();
+            foreach (Hitbox hitbox in hb)
+                hitboxes.Add(hitbox);
         }
 
         public Vector3 Pos()
