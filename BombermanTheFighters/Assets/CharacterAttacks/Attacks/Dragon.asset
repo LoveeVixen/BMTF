@@ -34,6 +34,6 @@ MonoBehaviour:
   enableAttackStroll: 1
   stumbleSpeed: 1
   yVelocityLaunch: 0
-  stumbleFrames: 20
+  stumbleTime: 0.3
   attackType: 0
   playLeftFacingAnimation: 

@@ -10,9 +10,9 @@ public class WorldSpaceSprite : MonoBehaviour
         cam = Camera.main;
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
+        // Always look at camera.
         transform.LookAt(cam.transform);
     }
 }

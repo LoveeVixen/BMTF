@@ -1,5 +1,4 @@
 // LOVEEVIXEN
-
 namespace InputSystem
 {
     [System.Serializable]

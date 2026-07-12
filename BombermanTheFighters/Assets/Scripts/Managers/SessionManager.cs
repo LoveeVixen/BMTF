@@ -1,21 +1,32 @@
 // LOVEEVIXEN
 using EntitySystem;
+using Fusion;
+using Fusion.Sockets;
 using InputSystem;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UI;
 using UnityEngine;
 
-public class SessionManager : MonoBehaviour
+public class SessionManager : MonoBehaviour, INetworkRunnerCallbacks
 {
     public static SessionManager instance;
 
+    private bool initiated = false;
     private List<Frame> frames = new List<Frame>();
     private int currentFrame = 0;
-
-    private Player player1;
-    private Player player2;
+    private Player[] players = new Player[2];
     private Transform centerPos;
     [SerializeField] bool flipCamera;
+    private bool roundBegun = false;
+    private SessionUI sessionUI;
+    private NetworkRunner runner;
+    private bool offlineSession;
+
+    [Header("Player Spawn Settings")]
+    [SerializeField] NetworkObject playerPrefab;
+    [SerializeField][Range(1f, 10f)] float spawnGapBetweenOpponents = 9f;
 
     [Header("Player Positioning")]
     [SerializeField] float minPlayerDistance = 0.5f;
@@ -26,165 +37,179 @@ public class SessionManager : MonoBehaviour
     [System.Serializable]
     public class RegisteredHit
     {
-        private Hitbox target;
-        private Attack attack;
-        private Vector3 stumbleDirection;
-        private float yVelocityLaunch;
+        private EntityHitbox target;
+        private AttackType attackType;
+        private NetworkHitData hitData;
 
-        public RegisteredHit(Hitbox target, Attack attack, Vector3 stumbleDirection)
+        public RegisteredHit(NetworkHitData hitData)
         {
-            this.target = target;
-            this.attack = attack;
-            this.stumbleDirection = stumbleDirection;
+            this.target = EntityHitbox.FromID(hitData.hitboxID);
+            this.attackType = (AttackType)hitData.attackType;
+            this.hitData = hitData;
         }
 
-        public Hitbox GetTarget() { return target; }
+        public EntityHitbox GetTarget() { return target; }
+        public AttackType GetAttackType() { return attackType; }
 
-        public Attack GetAttack() { return attack; }
-
-        public Vector3 GetStumbleDirection() { return stumbleDirection;}
+        public NetworkHitData GetHitData() { return hitData; }
     }
     private List<RegisteredHit> registeredHits = new List<RegisteredHit>();
 
     private void Awake()
     {
         instance = this;
-        player1 = GameObject.Find("Player1").GetComponent<Player>();
-        player2 = GameObject.Find("Player2").GetComponent<Player>();
-        centerPos = GameObject.Find("PlayerCenterPosition").transform;
-        startPlayerDistance = PlayerDistance();
+        NetworkManager.instance.GetRunner().AddCallbacks(this);
+        sessionUI = FindFirstObjectByType<SessionUI>();
+        runner = NetworkManager.instance.GetRunner();
+        offlineSession = runner.GameMode == GameMode.Single;
     }
 
-    // Called upon first frame.
-    private void Start()
+    void FixedUpdate()
     {
-        Stage.LoadStageIntoScene(Stage.Find("Debug"));
-        player1.LoadCharacter("Shirobon");
-        player2.LoadCharacter("Kurobon");
+        // Position player center reference, and rotate for camera reference.
+        if (initiated)
+        {
+            if (roundBegun)
+                ApplyRegisteredHits();
+            
+            // Calculate center position between both players.
+            centerPos.transform.position = (players[0].Pos() + players[1].Pos()) / 2f;
+
+            // Manipulate camera movement.
+            if (!flipCamera)
+                centerPos.LookAt(players[0].Pos());
+            else
+                centerPos.LookAt(players[1].Pos());
+
+            centerPos.rotation = Quaternion.Euler(0f, centerPos.rotation.eulerAngles.y + 90f, 0f);
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        UpdateFrame();
+        // Record tick for replay data.
+        RecordFrame();
     }
 
-    void CalculateOutput(Player player, PlayerInputData inputData)
+    public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
+
+    public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
+
+    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) { }
+
+    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
+
+    public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
+
+    public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) { }
+
+    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
+
+    public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) { }
+
+    public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) { }
+
+    public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) { }
+
+    public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) { }
+
+    public void OnInput(NetworkRunner runner, NetworkInput input) { }
+
+    public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
+
+    public void OnConnectedToServer(NetworkRunner runner) { }
+
+    public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) { }
+
+    public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) { }
+
+    public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) { }
+
+    public void OnSceneLoadDone(NetworkRunner runner)
     {
-        // Record the player's inputs on the combo reader.
-        ComboReader comboReader = player.GetComboReader();
-        ComboInputData[] comboInputs = comboReader.inputs.ToArray();
-        int comboInputsCount = comboInputs.Length;
-        int recentIndex = comboReader.RecentIndex();
-
-        // Movement input while standing.
-        if (player.GetCurrentState() == Player.CurrentState.idle)
-        {
-            if (player.IsFacingRight())
-            {
-                if (inputData.holdingLeft) player.MoveBackward();
-                else if (inputData.holdingRight) player.MoveForward();
-                else if (inputData.holdingUp) player.SideStepLeft();
-                else if (inputData.holdingDown) player.SideStepRight();
-                else player.StopMovement();
-            }
-            else
-            {
-                if (inputData.holdingLeft) player.MoveForward();
-                else if (inputData.holdingRight) player.MoveBackward();
-                else if (inputData.holdingUp) player.SideStepRight();
-                else if (inputData.holdingDown) player.SideStepLeft();
-                else player.StopMovement();
-            }
-        }
-
-        // Movement input while laying.
-        if (player.GetCurrentState() == Player.CurrentState.lay)
-        {
-            if (player.IsFacingRight())
-            {
-                if (inputData.holdingLeft)
-                    player.RollBackward();
-                else if (inputData.holdingRight)
-                    player.RollForward();
-            }
-            else
-            {
-                if (inputData.holdingLeft)
-                    player.RollForward();
-                else if (inputData.holdingRight)
-                    player.RollBackward();
-            }
-        }
-
-        if (inputData.PressingInputCount() > 0 && !inputData.pressingStart && !inputData.pressingSelect)
-        {
-            player.GetComboReader().inputs.Add(new ComboInputData(inputData, player.IsFacingRight()));
-            player.StartResetComboReaderTimer();
-        }
-
-        if(comboInputs.Length > 0)
-        {
-            if (player.GetCurrentState() == Player.CurrentState.running)
-            {
-                if (comboInputs[recentIndex].inputDirection == ComboInputData.InputDirection.backward || comboInputs[recentIndex].inputDirection == ComboInputData.InputDirection.up || comboInputs[recentIndex].inputDirection == ComboInputData.InputDirection.down)
-                    player.Idle();
-            }
-        }
-
-        // Check to see if player is in a state that can transition to attack state.
-        bool readyToAttack = false;
-        switch (player.GetCurrentState())
-        {
-            case Player.CurrentState.idle: readyToAttack = true; break;
-            case Player.CurrentState.running: readyToAttack = true; break;
-        }
-
-        // Execute combo moves if combo is successful.
-        bool executedAttack = false;
-        if (player.IsReadingCombos())
-        {
-            // Combo initiators.
-            if (player.GetInputtedCombosCount() == 0 && readyToAttack)
-            {
-                foreach (ComboGraph.Branch branch in player.GetComboGraph().branches)
-                {
-                    if (branch.attack.MatchesRequiredInputs(comboReader.inputs))
-                    {
-                        player.ExecuteAttack(branch);
-                        executedAttack = true;
-                    }
-                }
-            }
-            else
-            {
-                // Follow up combos.
-                int playerPerformedCombosCount = player.GetPerformedCombosList().Count;
-                if (playerPerformedCombosCount > 0)
-                {
-                    foreach (ComboGraph.Branch branch in player.GetPerformedCombosList()[playerPerformedCombosCount - 1].followUpCombos)
-                    {
-                        if (branch.attack.MatchesRequiredInputs(comboReader.inputs))
-                        {
-                            player.ExecuteAttack(branch);
-                            executedAttack = true;
-                        }
-                    }
-                }
-            }
-        }
-
-        //  Determine if player should face it's opponent depending on it's current state.
-        bool faceOpponent = false;
-        switch (player.GetCurrentState())
-        {
-            case Player.CurrentState.idle: faceOpponent = true; break;
-            case Player.CurrentState.running: faceOpponent = true; break;
-        }
-
-        if(faceOpponent)
-            player.FaceOpponent();
+        Initiate();
     }
+
+    public void OnSceneLoadStart(NetworkRunner runner) { }
+
+    // Session setup.
+    #region
+    void Initiate()
+    {
+        if (!initiated)
+        {
+            centerPos = GameObject.Find("PlayerCenterPosition").transform;
+
+            // Spawn players.
+            NetworkObject player1Obj = null;
+            NetworkObject player2Obj = null;
+            PlayerRef hostPlayerRef = PlayerRef.FromIndex(1);
+            PlayerRef clientPlayerRef = PlayerRef.None;
+            Vector3 player1Spawn = new Vector3((-spawnGapBetweenOpponents / 2f), 0f, 0f);
+            Vector3 player2Spawn = new Vector3((spawnGapBetweenOpponents / 2f), 0f, 0f);
+            startPlayerDistance = spawnGapBetweenOpponents;
+
+            if (offlineSession)
+            {
+                // Instantiate players for offline play.
+                player1Obj = runner.Spawn(playerPrefab, player1Spawn, Quaternion.Euler(0f, 90f, 0f), hostPlayerRef);
+                player2Obj = runner.Spawn(playerPrefab, player2Spawn, Quaternion.Euler(0f, 270f, 0f), hostPlayerRef);
+                
+                // Setup local player numbers for each local player to control their own character.
+                PlayerController player1Ctrl = player1Obj.GetComponent<PlayerController>();
+                PlayerController player2Ctrl = player2Obj.GetComponent<PlayerController>();
+                player1Ctrl.LocalPlayerNumber = 1;
+                player2Ctrl.LocalPlayerNumber = 2;
+            }
+            else if (NetworkManager.instance.GetRunner().IsServer)
+            {
+                // Find client player ref.
+                foreach (PlayerRef playerRef in runner.ActivePlayers)
+                {
+                    if (playerRef != hostPlayerRef)
+                    {
+                        clientPlayerRef = playerRef;
+                        break;
+                    }
+                }
+
+                // Instantiate players for online play, either side is controlled with player 1's inputs.
+                player1Obj = runner.Spawn(playerPrefab, player1Spawn, Quaternion.Euler(0f, 90f, 0f), hostPlayerRef);
+                player2Obj = runner.Spawn(playerPrefab, player2Spawn, Quaternion.Euler(0f, 270f, 0f), clientPlayerRef);
+            }
+
+            // Load stage.
+            Stage.LoadStageIntoScene(Stage.Find("Debug"));
+
+            // Begin first round.
+            StartCoroutine(BeginRound());
+
+            // Finish initiating.
+            initiated = true;
+        }
+    }
+
+    public void ConfirmLoadedPlayer(Player player)
+    {
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (players[i] == null)
+            {
+                players[i] = player;
+
+                if (player.HasInputAuthority)
+                {
+                    if (i == 0)
+                        player.RPC_LoadCharacter("Shirobon");
+                    else
+                        player.RPC_LoadCharacter("Kurobon");
+                }
+
+                return;
+            }
+        }
+    }
+    #endregion
 
     // See what hits registered in the last frame and make them take effect.
     public void ApplyRegisteredHits()
@@ -192,67 +217,77 @@ public class SessionManager : MonoBehaviour
         foreach (RegisteredHit registeredHit in registeredHits)
         {
             Entity hitEntity = registeredHit.GetTarget().GetEntity();
-            Hitbox hitbox = registeredHit.GetTarget();
-            Attack attackData = registeredHit.GetAttack();
-
-            // Check that hit target is a player.
-            Player player = hitEntity as Player;
-            if(player != null)
+            if (hitEntity.HasInputAuthority)
             {
-                player.SetStumbleFrames(attackData.stumbleFrames);
-                player.SetStumbleDirection(registeredHit.GetStumbleDirection());
-                player.SetStumbleSpeed(attackData.stumbleSpeed);
-                player.SetYVelocity(attackData.yVelocityLaunch);
+                EntityHitbox hitbox = registeredHit.GetTarget();
 
-                if (attackData.attackType == Attack.AttackType.stumble)
-                    player.HighHit();
-                else if(attackData.attackType == Attack.AttackType.launch)
-                    player.LaunchHit();
+                // Check that hit target is a player.
+                Player player = hitEntity as Player;
+                if (player != null)
+                {
+                    player.SetStumbleTimer(registeredHit.GetHitData().stumbleTime);
+                    player.SetStumbleDirection(registeredHit.GetHitData().stumbleDirection);
+                    player.SetStumbleSpeed(registeredHit.GetHitData().stumbleSpeed);
+                    player.SetYVelocity(registeredHit.GetHitData().yVelocityLaunch);
+
+                    if (registeredHit.GetAttackType() == AttackType.stumble)
+                        player.HighHit();
+                    else if (registeredHit.GetAttackType() == AttackType.launch)
+                        player.LaunchHit();
+                }
             }
         }
 
         registeredHits.RemoveRange(0, registeredHits.Count);
     }
 
-    Frame UpdateFrame()
+    Frame RecordFrame()
     {
-        Frame updateFrame = new Frame();
-        updateFrame.player1Input = PlayerInputData.CloneData(InputReader.Player1());
-        updateFrame.player2Input = PlayerInputData.CloneData(InputReader.Player2());
-
-        ApplyRegisteredHits();
-        CalculateOutput(player1, updateFrame.player1Input);
-        CalculateOutput(player2, updateFrame.player2Input);
-        player1.OnTick();
-        player2.OnTick();
-
-        // Position player center reference, and rotate for camera reference.
-        centerPos.transform.position = (player1.Pos() + player2.Pos()) / 2f;
-
-        if (!flipCamera)
-            centerPos.LookAt(player1.Pos());
-        else
-            centerPos.LookAt(player2.Pos());
-
-        centerPos.rotation = Quaternion.Euler(0f, centerPos.rotation.eulerAngles.y + 90f, 0f);
+        Frame frame = new Frame();
 
         // Add frame to frames list.
         currentFrame++;
-        frames.Add(updateFrame);
-        return updateFrame;
+        frames.Add(frame);
+        return frame;
     }
 
-    public void AddRegisteredHit(Hitbox target, Attack attack, Vector3 stumbleDirection)
+    public void AddRegisteredHit(NetworkHitData hitData)
     {
-        registeredHits.Add(new RegisteredHit(target, attack, stumbleDirection));
+        registeredHits.Add(new RegisteredHit(hitData));
     }
 
+    IEnumerator BeginRound()
+    {
+        yield return new WaitForSeconds(0.25f);
+
+        // Set 'opponent' as the opposing player for each player.
+        foreach (Player player in players)
+            player.SetOpponent();
+
+        sessionUI.DisplayAnnouncement("Round 1");
+
+        yield return new WaitForSeconds(1f);
+
+        sessionUI.DisplayAnnouncement("Round 1", "Ready?");
+
+        yield return new WaitForSeconds(1f);
+
+        sessionUI.DisplayAnnouncement("Fight!");
+
+        yield return new WaitForSeconds(0.5f);
+
+        sessionUI.ClearAnnouncement();
+        roundBegun = true;
+    }
+
+    public bool HasInitiated() { return initiated; }
     public int GetCurrentFrame() {  return currentFrame; }
-    public Player GetPlayer1() { return player1; }
-    public Player GetPlayer2() { return player2; }
+    public Player GetPlayer(int index) { return players[index]; }
+    public Transform GetPlayerCenterPos() { return centerPos; }
     public bool GetFlipCamera() {  return flipCamera; }
-    public float PlayerDistance() { return Vector3.Distance(player1.Pos(), player2.Pos()); }
+    public float PlayerDistance() { return Vector3.Distance(players[0].Pos(), players[1].Pos()); }
     public float GetMinPlayerDistance() {  return minPlayerDistance; }
     public float GetMaxPlayerDistance() { return maxPlayerDistance; }
     public float GetStartPlayerDistance() { return startPlayerDistance; }
+    public bool HasRoundBegun() {  return roundBegun; }
 }

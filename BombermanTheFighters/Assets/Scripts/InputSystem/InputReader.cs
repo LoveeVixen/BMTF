@@ -1,5 +1,6 @@
 // LOVEEVIXEN
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace InputSystem
 {
@@ -12,6 +13,14 @@ namespace InputSystem
 
         public static PlayerInputData Player1() { return player1; }
         public static PlayerInputData Player2() { return player2; }
+
+        public static PlayerInputData[] AllPlayersInputData()
+        {
+            List<PlayerInputData> list = new List<PlayerInputData>();
+            list.Add(Player1());
+            list.Add(Player2());
+            return list.ToArray();
+        }
 
         // Player 1 keyboard input.
         public static KeyCode upP1 = KeyCode.W;

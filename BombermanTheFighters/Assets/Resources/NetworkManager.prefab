@@ -44,4 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 937f2d9c23efd064285b96aed70f6730, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  networkRunnerPrefab: {fileID: 1470355574934315423, guid: f650b3feac88fbf448c947f53f2c8020, type: 3}
+  runnerPrefab: {fileID: 1470355574934315423, guid: f650b3feac88fbf448c947f53f2c8020, type: 3}
+  networkDataSyncPrefab: {fileID: 710525231708177411, guid: 2eb695f76c7b5c84aabc85fce958ef45, type: 3}
+  networkClientControllerPrefab: {fileID: 7698738587314994657, guid: 4c694275d2f92ee4f926ba37d238b99f, type: 3}

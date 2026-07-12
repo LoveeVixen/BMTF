@@ -1,4 +1,5 @@
 // LOVEEVIXEN
+using Fusion;
 using UnityEngine;
 
 namespace InputSystem
@@ -13,7 +14,7 @@ namespace InputSystem
         public bool pressing2;
         public bool pressing3;
 
-        public ComboInputData(PlayerInputData data, bool facingRight)
+        /*public ComboInputData(PlayerInputData data, bool facingRight)
         {
             if (data.pressingUp)
                 inputDirection = InputDirection.up;
@@ -36,6 +37,31 @@ namespace InputSystem
             pressing1 = data.pressing1;
             pressing2 = data.pressing2;
             pressing3 = data.pressing3;
+        }*/
+
+        public ComboInputData(NetworkButtons pressedInputs, bool facingRight)
+        {
+            if (pressedInputs.IsSet(NetworkInputHandler.Inputs.pressingUp))
+                inputDirection = InputDirection.up;
+            else if (pressedInputs.IsSet(NetworkInputHandler.Inputs.pressingUpRight) && facingRight || pressedInputs.IsSet(NetworkInputHandler.Inputs.pressingUpLeft) && !facingRight)
+                inputDirection = InputDirection.upForward;
+            else if (pressedInputs.IsSet(NetworkInputHandler.Inputs.pressingRight) && facingRight || pressedInputs.IsSet(NetworkInputHandler.Inputs.pressingLeft) && !facingRight)
+                inputDirection = InputDirection.forward;
+            else if (pressedInputs.IsSet(NetworkInputHandler.Inputs.pressingDownRight) && facingRight || pressedInputs.IsSet(NetworkInputHandler.Inputs.pressingDownLeft) && !facingRight)
+                inputDirection = InputDirection.downForward;
+            else if (pressedInputs.IsSet(NetworkInputHandler.Inputs.pressingDown))
+                inputDirection = InputDirection.down;
+            else if (pressedInputs.IsSet(NetworkInputHandler.Inputs.pressingDownLeft) && facingRight || pressedInputs.IsSet(NetworkInputHandler.Inputs.pressingDownRight) && !facingRight)
+                inputDirection = InputDirection.downBackward;
+            else if (pressedInputs.IsSet(NetworkInputHandler.Inputs.pressingLeft) && facingRight || pressedInputs.IsSet(NetworkInputHandler.Inputs.pressingRight) && !facingRight)
+                inputDirection = InputDirection.backward;
+            else if (pressedInputs.IsSet(NetworkInputHandler.Inputs.pressingUpLeft) && facingRight || pressedInputs.IsSet(NetworkInputHandler.Inputs.pressingUpRight) && !facingRight)
+                inputDirection = InputDirection.upBackward;
+
+            pressing0 = pressedInputs.IsSet(NetworkInputHandler.Inputs.pressing0);
+            pressing1 = pressedInputs.IsSet(NetworkInputHandler.Inputs.pressing1);
+            pressing2 = pressedInputs.IsSet(NetworkInputHandler.Inputs.pressing2);
+            pressing3 = pressedInputs.IsSet(NetworkInputHandler.Inputs.pressing3);
         }
 
         public ComboInputData() { }

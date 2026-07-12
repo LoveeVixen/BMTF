@@ -45,5 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   flipCamera: 0
+  playerPrefab: {fileID: 5277918511930836484, guid: 2da5cee169c686b4c84024a258d0eaae, type: 3}
+  spawnGapBetweenOpponents: 9
   minPlayerDistance: 3
   maxPlayerDistance: 30

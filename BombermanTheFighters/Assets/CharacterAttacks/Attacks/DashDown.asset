@@ -28,6 +28,7 @@ MonoBehaviour:
   avoidApplyingAttackCooldown: 1
   enableAttackStroll: 1
   stumbleSpeed: 1
-  stumbleFrames: 20
+  yVelocityLaunch: 0
+  stumbleTime: 0.3
   attackType: 0
   playLeftFacingAnimation: DashLeft

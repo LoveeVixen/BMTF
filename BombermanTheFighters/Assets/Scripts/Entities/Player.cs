@@ -1,4 +1,5 @@
 // LOVEEVIXEN
+using Fusion;
 using InputSystem;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +12,10 @@ namespace EntitySystem
         private Player opponent;
         private Health health;
         private Animator anim;
-        private int walkDirection = 0; // 0 = Idle, 1 = forward, 2 = backward, 3 = left, 4 = right.
+        private NetworkMecanimAnimator networkAnim;
+        private enum WalkDirection { idle, forward, backward, left, right};
+        private WalkDirection walkDirection = WalkDirection.idle;
+        [Networked] private WalkDirection lastWalkDirection { get; set; }
         private string currentAnimationName = "Idle";
         private GameObject loadedCharacterPrefab;
 
@@ -26,10 +30,10 @@ namespace EntitySystem
         [Header("Attack/Combo system")]
         [SerializeField] ComboReader comboReader = new ComboReader();
         [SerializeField] ComboGraph comboGraph;
-        private int resetComboReaderSet = 20;
-        private int framesUntilResetComboReader;
-        private int attackCooldownFramesSet = 4;
-        private int attackCooldownFrames;
+        private float resetComboReaderTime = 0.25f;
+        private float resetComboReaderTimer;
+        private float attackCooldownTime = 0.2f;
+        private float attackCooldownTimer;
         [SerializeField] List<ComboGraph.Branch> performedCombos = new List<ComboGraph.Branch>();
         private bool readCombos = true;
         private int inputtedCombosCount = 0;
@@ -41,9 +45,9 @@ namespace EntitySystem
         // On hit/taking damage.
         private Vector3 stumbleDirection = Vector3.zero;
         private float stumbleSpeed = 1f;
-        private int stumbleFrames;
-        private int immunityFrames = 0;
-        private int immunityFramesSet = 10;
+        private float stumbleTimer;
+        private float immunityTime = 0.02f;
+        private float immunityTimer = 0f;
 
         // Lay/roll settings.
         private float rollSpeed = 0.8f;
@@ -54,14 +58,13 @@ namespace EntitySystem
             base.OnAwake();
             health = GetComponent<Health>();
             anim = GetComponent<Animator>();
+            networkAnim = GetComponent<NetworkMecanimAnimator>();
         }
 
         private void Start()
         {
-            if (this == SessionManager.instance.GetPlayer1())
-                opponent = SessionManager.instance.GetPlayer2();
-            else
-                opponent = SessionManager.instance.GetPlayer1();
+            // Confirm to session manager that this player has been instantiated.
+            SessionManager.instance.ConfirmLoadedPlayer(this);
         }
 
         public override void OnTick()
@@ -114,31 +117,62 @@ namespace EntitySystem
             }
 
             // Tick down timer until ready to reset combo reader.
-            if (framesUntilResetComboReader > 0)
-                framesUntilResetComboReader--;
+            if (resetComboReaderTimer > 0f)
+            {
+                resetComboReaderTimer -= GetRunner().DeltaTime;
+                if(resetComboReaderTimer < 0f)
+                    resetComboReaderTimer = 0f;
+            }
 
             // Once timer is at zero, reset the combo reader as soon as the player isn't in attacking state.
-            if (framesUntilResetComboReader == 0 && currentState != CurrentState.attacking)
+            if (resetComboReaderTimer == 0f && currentState != CurrentState.attacking)
                 ResetComboSystem();
 
             // Tick down timer until player can do initiating attacks again.
-            if (attackCooldownFrames > 0 && currentState != CurrentState.attacking)
-                attackCooldownFrames--;
-
-            // Tick down timer until player is no longer immune.
-            if (immunityFrames > 0)
-                immunityFrames--;
-
-            // Tick down timer until player is no longer stumbling.
-            if (stumbleFrames > 0)
+            if (attackCooldownTimer > 0f && currentState != CurrentState.attacking)
             {
-                stumbleFrames--;
-                if (stumbleFrames == 0 && !IsAirborne())
-                    Idle();
+                attackCooldownTimer -= GetRunner().DeltaTime;
+                if (attackCooldownTimer < 0f)
+                    attackCooldownTimer = 0f;
             }
 
+            // Tick down timer until player is no longer immune.
+            if (immunityTimer > 0f)
+            {
+                immunityTimer -= GetRunner().DeltaTime;
+                if(immunityTimer < 0f)
+                    immunityTimer = 0f;
+            }
+
+            // Tick down timer until player is no longer stumbling.
+            if (stumbleTimer > 0f)
+            {
+                stumbleTimer -= GetRunner().DeltaTime;
+                if(stumbleTimer < 0f)
+                    stumbleTimer = 0f;
+
+                if (stumbleTimer == 0f && !IsAirborne())
+                    Idle();
+            }
+        }
+
+        public override void FixedUpdateNetwork()
+        {
+            base.FixedUpdateNetwork();
+
             // Setup animator.
-            anim.SetInteger("WalkDirection", walkDirection);
+            if (HasStateAuthority)
+                lastWalkDirection = walkDirection;
+        }
+
+        public override void Render()
+        {
+            base.Render();
+            anim.SetBool("Idle", lastWalkDirection == WalkDirection.idle);
+            anim.SetBool("Forward", lastWalkDirection == WalkDirection.forward);
+            anim.SetBool("Backward", lastWalkDirection == WalkDirection.backward);
+            anim.SetBool("Left", lastWalkDirection == WalkDirection.left);
+            anim.SetBool("Right", lastWalkDirection == WalkDirection.right);
         }
 
         public override void OnLand()
@@ -152,8 +186,8 @@ namespace EntitySystem
 
         void MoveDirection(Vector3 direction)
         {
-            transform.position += direction;
-            SnapPosition();
+            NetworkTransform().Teleport(transform.position += direction);
+            //SnapPosition();
         }
 
         // Call this at the end of each attack animation clip using the Unity animation event feature.
@@ -162,7 +196,7 @@ namespace EntitySystem
             ResetComboSystem();
             PlayAnimation("Idle");
             attackStroll = false;
-            currentState = CurrentState.idle;
+            SetCurrentState(CurrentState.idle);
             DisableAttackForAllHitboxes();
         }
 
@@ -172,24 +206,24 @@ namespace EntitySystem
             PlayAnimation("Lay");
             attackStroll = false;
             rollMovement = false;
-            currentState = CurrentState.lay;
+            SetCurrentState(CurrentState.lay);
             DisableAttackForAllHitboxes();
         }
 
         // Perform an attack.
         public void ExecuteAttack(ComboGraph.Branch branch)
         {
-            if (attackCooldownFrames == 0 || performedCombos.Count > 0)
+            if (attackCooldownTimer == 0 || performedCombos.Count > 0)
             {
                 // Make sure no hitboxes are already in attack mode.
                 DisableAttackForAllHitboxes();
 
-                // Prevent player from performing anymore attacks for a given amount of frames.
+                // Prevent player from performing anymore attacks for a given amount of time.
                 readCombos = false;
 
                 // Apply attack cooldown for initiating attacks. Cooldown doesn't apply to follow up combos.
                 if(!branch.attack.avoidApplyingAttackCooldown)
-                    attackCooldownFrames = attackCooldownFramesSet;
+                    attackCooldownTimer = attackCooldownTime;
 
                 // Play attack animation.
                 bool hasAltLeftFacingAnimation = branch.attack.playLeftFacingAnimation != "";
@@ -202,7 +236,7 @@ namespace EntitySystem
                 attackStroll = branch.attack.enableAttackStroll;  
 
                 if (!branch.attack.avoidPlayerStateUpdate)
-                    currentState = CurrentState.attacking;
+                    SetCurrentState(CurrentState.attacking);
 
                 // Pass attack data to hitboxes about to enable attack mode.
                 SetPerformingAttackForHitboxes(branch.attack);
@@ -217,9 +251,9 @@ namespace EntitySystem
         #region
         public void HighHit()
         {
-            if (immunityFrames == 0)
+            if (immunityTimer == 0)
             {
-                currentState = CurrentState.hit;
+                SetCurrentState(CurrentState.hit);
                 ApplyImmunity();
 
                 if(currentAnimationName == "HighHit1")
@@ -231,9 +265,9 @@ namespace EntitySystem
 
         public void LaunchHit()
         {
-            if (immunityFrames == 0)
+            if (immunityTimer == 0)
             {
-                currentState = CurrentState.hit;
+                SetCurrentState(CurrentState.hit);
                 ApplyImmunity();
 
                 PlayAnimation("LaunchHit");
@@ -253,20 +287,20 @@ namespace EntitySystem
 
         public void AttackWithHitbox(string hitboxName)
         {
-            Hitbox hitbox = FindHitbox(hitboxName);
+            EntityHitbox hitbox = FindHitbox(hitboxName);
             hitbox.AttackOnCollision(true);
         }
 
         public void SetPerformingAttackForHitboxes(Attack setAttack)
         {
-            foreach (Hitbox hitbox in GetHitboxesList())
+            foreach (EntityHitbox hitbox in GetHitboxesList())
                 hitbox.SetPerformingAttack(setAttack);
         }
 
         // Make sure no hitboxes are in attack mode.
         void DisableAttackForAllHitboxes()
         {
-            foreach (Hitbox hitbox in GetHitboxesList())
+            foreach (EntityHitbox hitbox in GetHitboxesList())
                 hitbox.AttackOnCollision(false);
         }
 
@@ -277,66 +311,86 @@ namespace EntitySystem
 
         void ApplyImmunity()
         {
-            immunityFrames = immunityFramesSet;
+            immunityTimer = immunityTime;
         }
 
         public void StopMovement()
         {
-            walkDirection = 0;
+            walkDirection = WalkDirection.idle;
         }
 
         public void MoveForward()
         {
-            walkDirection = 1;
+            walkDirection = WalkDirection.forward;
             if (SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance())
                 MoveDirection(transform.forward * moveSpeed);
         }
 
         public void MoveBackward()
         {
-            walkDirection = 2;
+            walkDirection = WalkDirection.backward;
             if (SessionManager.instance.PlayerDistance() < SessionManager.instance.GetMaxPlayerDistance())
                 MoveDirection(-transform.forward * moveSpeed);
         }
 
         public void SideStepRight()
         {
-            walkDirection = 4;
+            walkDirection = WalkDirection.right;
             MoveDirection(transform.right * moveSpeed);
         }
 
         public void SideStepLeft()
         {
-            walkDirection = 3;
+            walkDirection = WalkDirection.left;
             MoveDirection(-transform.right * moveSpeed);
         }
 
         public void RollForward()
         {
             PlayAnimation("RollForward");
-            currentState = CurrentState.rollForward;
+            SetCurrentState(CurrentState.rollForward);
         }
 
         public void RollBackward()
         {
             PlayAnimation("RollBackward");
-            currentState = CurrentState.rollBackward;
+            SetCurrentState(CurrentState.rollBackward);
         }
 
         public void EnableRollMovement() { rollMovement = true; }
 
+        public void SetOpponent()
+        {
+            Player[] players = FindObjectsByType<Player>(FindObjectsSortMode.None);
+            foreach (Player player in players)
+            {
+                if (player != this)
+                {
+                    opponent = player;
+                    return;
+                }
+            }
+        }
+
         public void FaceOpponent()
         {
             transform.LookAt(opponent.Pos());
-            transform.rotation = Quaternion.Euler(0f, transform.rotation.eulerAngles.y, 0f);
+            NetworkTransform().Teleport(Pos(), Quaternion.Euler(0f, transform.rotation.eulerAngles.y, 0f));
         }
 
         public void StartResetComboReaderTimer()
         {
-            framesUntilResetComboReader = resetComboReaderSet;
+            resetComboReaderTimer = resetComboReaderTime;
         }
 
         public void PlayAnimation(string animName)
+        {
+            if(HasInputAuthority)
+                RPC_PlayAnimation(animName);
+        }
+
+        [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+        void RPC_PlayAnimation(string animName)
         {
             anim.Play(animName);
             currentAnimationName = animName;
@@ -346,14 +400,14 @@ namespace EntitySystem
         {
             bool facingRight = false;
 
-            if (this == SessionManager.instance.GetPlayer1() && !SessionManager.instance.GetFlipCamera())
+            if (this == SessionManager.instance.GetPlayer(0) && !SessionManager.instance.GetFlipCamera())
                 facingRight = true;
-            else if (this == SessionManager.instance.GetPlayer1())
+            else if (this == SessionManager.instance.GetPlayer(0))
                 facingRight = false;
 
-            if (this == SessionManager.instance.GetPlayer2() && SessionManager.instance.GetFlipCamera())
+            if (this == SessionManager.instance.GetPlayer(1) && SessionManager.instance.GetFlipCamera())
                 facingRight = true;
-            else if (this == SessionManager.instance.GetPlayer2())
+            else if (this == SessionManager.instance.GetPlayer(1))
                 facingRight = false;
 
             return facingRight;
@@ -368,7 +422,8 @@ namespace EntitySystem
         }
 
         // Load a character prefab into this player gameobject.
-        public void LoadCharacter(string characterName)
+        [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+        public void RPC_LoadCharacter(string characterName)
         {
             Character characterData = GameManager.instance.FindCharacter(characterName);
 
@@ -381,13 +436,27 @@ namespace EntitySystem
             characterObj.transform.Rotate(transform.rotation.eulerAngles);
             characterObj.name = "Character";
             loadedCharacterPrefab = characterObj;
+            gameObject.name = characterName;
 
             // Setup animator.
             anim.runtimeAnimatorController = characterData.runtimeAnimator;
+
             Idle();
 
             // Setup character hitbox.
             SetupCharacterHitbox();
+        }
+
+        void SetCurrentState(CurrentState setCurrentState)
+        {
+            if(HasInputAuthority)
+                RPC_SetCurrentState((int)setCurrentState);
+        }
+
+        [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+        void RPC_SetCurrentState(int setCurrentState)
+        {
+            currentState = (CurrentState)setCurrentState;
         }
 
         public Health GetHealth() { return health; }
@@ -409,7 +478,7 @@ namespace EntitySystem
         public List<ComboGraph.Branch> GetPerformedCombosList() { return performedCombos; }
 
         public ComboGraph.Branch LastPerformedCombo() { return performedCombos[performedCombos.Count - 1]; }
-        public void SetStumbleFrames(int setStumbleFrames) { stumbleFrames = setStumbleFrames; }
+        public void SetStumbleTimer(float setStumbleTimer) { stumbleTimer = setStumbleTimer; }
 
         // Universal character attacks/abilities
         #region

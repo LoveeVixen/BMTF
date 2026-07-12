@@ -1,9 +1,10 @@
 // LOVEEVIXEN
 using UnityEngine;
+using Fusion;
 
 namespace EntitySystem
 {
-    public class Health : MonoBehaviour
+    public class Health : NetworkBehaviour
     {
         private float health = 100f;
         private float maxHealth = 100f;

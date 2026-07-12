@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace InputSystem
 {
-    [System.Serializable]
+    public enum AttackType { stumble, launch, stun };
+
     [CreateAssetMenu(fileName = "Attack", menuName = "Attack and Combo System/Attack", order = 1)]
     public class Attack : ScriptableObject
     {
@@ -19,8 +20,7 @@ namespace InputSystem
         [Header("Opponent hit effect")]
         public float stumbleSpeed = 1f;
         [Range(0f, 1.5f)]public float yVelocityLaunch = 0f;
-        public int stumbleFrames = 20;
-        public enum AttackType { stumble, launch, stun };
+        public float stumbleTime = 0.3f;
         public AttackType attackType;
 
         [Header("While facing left")]
