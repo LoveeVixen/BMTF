@@ -1,6 +1,7 @@
 // LOVEEVIXEN
-using Fusion;
 using InputSystem;
+using Photon.Pun;
+using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,14 +9,20 @@ namespace EntitySystem
 {
     public class Player : Entity
     {
-        private float moveSpeed = 0.15f;
+        [Header("Movement Speed")]
+        [SerializeField] float moveSpeed = 0.15f;
+        [SerializeField] float runSpeed = 0.7f;
+        [SerializeField] float dashSpeed = 0.5f;
+        [SerializeField] float attackStrollSpeed = 1f;
+        [SerializeField] float rollSpeed = 0.8f;
+        private bool rollMovement = false;
+
         private Player opponent;
         private Health health;
         private Animator anim;
-        private NetworkMecanimAnimator networkAnim;
+        private PlayerInputData lastInputData;
         private enum WalkDirection { idle, forward, backward, left, right};
         private WalkDirection walkDirection = WalkDirection.idle;
-        [Networked] private WalkDirection lastWalkDirection { get; set; }
         private string currentAnimationName = "Idle";
         private GameObject loadedCharacterPrefab;
 
@@ -23,16 +30,12 @@ namespace EntitySystem
         public enum CurrentState { idle, running, dashForward, dashBackward, dashLeft, dashRight, attacking, hit, lay, rollForward, rollBackward, rollLeft, rollRight, knockout };
         private CurrentState currentState;
 
-        // Run and dash settings
-        private float runSpeed = 0.7f;
-        private float dashSpeed = 0.5f;
-
         [Header("Attack/Combo system")]
         [SerializeField] ComboReader comboReader = new ComboReader();
         [SerializeField] ComboGraph comboGraph;
-        private float resetComboReaderTime = 0.25f;
+        [SerializeField] float resetComboReaderTime = 0.3f;
         private float resetComboReaderTimer;
-        private float attackCooldownTime = 0.2f;
+        [SerializeField] float attackCooldownTime = 0.2f;
         private float attackCooldownTimer;
         [SerializeField] List<ComboGraph.Branch> performedCombos = new List<ComboGraph.Branch>();
         private bool readCombos = true;
@@ -40,25 +43,19 @@ namespace EntitySystem
 
         // Attack stroll (Player movement while attacking)
         private bool attackStroll = false;
-        private float attackStrollSpeed = 0.075f;
 
         // On hit/taking damage.
         private Vector3 stumbleDirection = Vector3.zero;
         private float stumbleSpeed = 1f;
         private float stumbleTimer;
-        private float immunityTime = 0.02f;
+        [SerializeField] float immunityTime = 0.02f;
         private float immunityTimer = 0f;
-
-        // Lay/roll settings.
-        private float rollSpeed = 0.8f;
-        private bool rollMovement = false;
 
         public override void OnAwake()
         {
             base.OnAwake();
             health = GetComponent<Health>();
             anim = GetComponent<Animator>();
-            networkAnim = GetComponent<NetworkMecanimAnimator>();
         }
 
         private void Start()
@@ -67,59 +64,188 @@ namespace EntitySystem
             SessionManager.instance.ConfirmLoadedPlayer(this);
         }
 
+        public override void Output()
+        {
+            // Record the player's inputs on the combo reader.
+            PlayerInputData inputData = lastInputData;
+            ComboInputData[] comboInputs = comboReader.inputs.ToArray();
+            int comboInputsCount = comboInputs.Length;
+            int recentIndex = comboReader.RecentIndex();
+
+            // Movement input while standing.
+            if (currentState == CurrentState.idle)
+            {
+                if (IsFacingRight())
+                {
+                    if (inputData.holdingLeft)
+                        MoveBackward();
+                    else if (inputData.holdingRight)
+                        MoveForward();
+                    else if (inputData.holdingUp)
+                        SideStepLeft();
+                    else if (inputData.holdingDown)
+                        SideStepRight();
+                    else
+                        StopMovement();
+                }
+                else
+                {
+                    if (inputData.holdingLeft)
+                        MoveForward();
+                    else if (inputData.holdingRight)
+                        MoveBackward();
+                    else if (inputData.holdingUp)
+                        SideStepRight();
+                    else if (inputData.holdingDown)
+                        SideStepLeft();
+                    else
+                        StopMovement();
+                }
+            }
+
+            // Movement input while laying.
+            if (currentState == CurrentState.lay)
+            {
+                if (IsFacingRight())
+                {
+                    if (inputData.holdingLeft)
+                        RollBackward();
+                    else if (inputData.holdingRight)
+                        RollForward();
+                }
+                else
+                {
+                    if (inputData.holdingLeft)
+                        RollForward();
+                    else if (inputData.holdingRight)
+                        RollBackward();
+                }
+            }
+
+            if (inputData.PressingInputCount() > 0 && !inputData.pressingStart && !inputData.pressingSelect)
+            {
+                comboReader.inputs.Add(new ComboInputData(inputData, IsFacingRight()));
+                ResetComboReaderTimer();
+            }
+
+            if (comboInputs.Length > 0)
+            {
+                if (currentState == CurrentState.running)
+                {
+                    if (comboInputs[recentIndex].inputDirection == ComboInputData.InputDirection.backward || comboInputs[recentIndex].inputDirection == ComboInputData.InputDirection.up || comboInputs[recentIndex].inputDirection == ComboInputData.InputDirection.down)
+                        Idle();
+                }
+            }
+
+            // Check to see if player is in a state that can transition to attack state.
+            bool readyToAttack = false;
+            switch (currentState)
+            {
+                case CurrentState.idle: readyToAttack = true; break;
+                case CurrentState.running: readyToAttack = true; break;
+            }
+
+            // Execute combo moves if combo is successful.
+            if (IsReadingCombos())
+            {
+                // Combo initiators.
+                if (GetInputtedCombosCount() == 0 && readyToAttack)
+                {
+                    foreach (ComboGraph.Branch branch in comboGraph.branches)
+                    {
+                        if (branch.attack.MatchesRequiredInputs(comboReader.inputs))
+                            ExecuteAttack(branch);
+                    }
+                }
+                else
+                {
+                    // Follow up combos.
+                    int playerPerformedCombosCount = performedCombos.Count;
+                    if (playerPerformedCombosCount > 0)
+                    {
+                        foreach (ComboGraph.Branch branch in performedCombos[playerPerformedCombosCount - 1].followUpCombos)
+                        {
+                            if (branch.attack.MatchesRequiredInputs(comboReader.inputs))
+                                ExecuteAttack(branch);
+                        }
+                    }
+                }
+            }
+
+            //  Determine if player should face it's opponent depending on it's current state.
+            bool faceOpponent = false;
+            switch (currentState)
+            {
+                case CurrentState.idle: faceOpponent = true; break;
+                case CurrentState.running: faceOpponent = true; break;
+            }
+
+            if (faceOpponent)
+                FaceOpponent();
+        }
+
+        public void OutputInputData(PlayerInputData inputData)
+        {
+            lastInputData = inputData;
+        }
+
         public override void OnTick()
         {
             base.OnTick();
 
-            if (currentState == CurrentState.running)
+            if (photonView.IsMine)
             {
-                // Make player run to it's opponent until close enough.
-                if (SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance())
-                    MoveDirection(transform.forward * runSpeed);
-                else
-                    Idle();
-            }
+                // Player output movement.
+                if (currentState == CurrentState.running)
+                {
+                    // Make player run to it's opponent until close enough.
+                    if (SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance())
+                        MoveDirection(transform.forward * runSpeed);
+                    else
+                        Idle();
+                }
 
-            if (currentState == CurrentState.dashForward)
-            {
-                if (SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance())
-                    MoveDirection(transform.forward * dashSpeed);
-            }
+                if (currentState == CurrentState.dashForward)
+                {
+                    if (SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance())
+                        MoveDirection(transform.forward * dashSpeed);
+                }
 
-            if (currentState == CurrentState.dashBackward)
-            {
-                if (SessionManager.instance.PlayerDistance() < SessionManager.instance.GetMaxPlayerDistance())
-                    MoveDirection(-transform.forward * dashSpeed);
-            }
+                if (currentState == CurrentState.dashBackward)
+                {
+                    if (SessionManager.instance.PlayerDistance() < SessionManager.instance.GetMaxPlayerDistance())
+                        MoveDirection(-transform.forward * dashSpeed);
+                }
 
-            if (currentState == CurrentState.dashLeft)
-                MoveDirection(-transform.right * dashSpeed);
+                if (currentState == CurrentState.dashLeft)
+                    MoveDirection(-transform.right * dashSpeed);
 
-            if (currentState == CurrentState.dashRight)
-                MoveDirection(transform.right * dashSpeed);
+                if (currentState == CurrentState.dashRight)
+                    MoveDirection(transform.right * dashSpeed);
 
-            if(currentState == CurrentState.attacking && attackStroll && SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance())
-                MoveDirection(transform.forward * attackStrollSpeed);
+                if (currentState == CurrentState.attacking && attackStroll && SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance())
+                    MoveDirection(transform.forward * attackStrollSpeed);
 
-            if(currentState == CurrentState.hit)
-                MoveDirection(stumbleDirection * stumbleSpeed);
+                if (currentState == CurrentState.hit)
+                    MoveDirection(stumbleDirection * stumbleSpeed);
 
-            if (currentState == CurrentState.rollForward)
-            {
-                if (SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance() && rollMovement)
-                    MoveDirection(transform.forward * rollSpeed);
-            }
+                if (currentState == CurrentState.rollForward)
+                {
+                    if (SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance() && rollMovement)
+                        MoveDirection(transform.forward * rollSpeed);
+                }
 
-            if (currentState == CurrentState.rollBackward)
-            {
-                if (SessionManager.instance.PlayerDistance() < SessionManager.instance.GetMaxPlayerDistance() && rollMovement)
-                    MoveDirection(-transform.forward * rollSpeed);
+                if (currentState == CurrentState.rollBackward)
+                {
+                    if (SessionManager.instance.PlayerDistance() < SessionManager.instance.GetMaxPlayerDistance() && rollMovement)
+                        MoveDirection(-transform.forward * rollSpeed);
+                }
             }
 
             // Tick down timer until ready to reset combo reader.
             if (resetComboReaderTimer > 0f)
             {
-                resetComboReaderTimer -= GetRunner().DeltaTime;
+                resetComboReaderTimer -= Time.deltaTime;
                 if(resetComboReaderTimer < 0f)
                     resetComboReaderTimer = 0f;
             }
@@ -131,7 +257,7 @@ namespace EntitySystem
             // Tick down timer until player can do initiating attacks again.
             if (attackCooldownTimer > 0f && currentState != CurrentState.attacking)
             {
-                attackCooldownTimer -= GetRunner().DeltaTime;
+                attackCooldownTimer -= Time.deltaTime;
                 if (attackCooldownTimer < 0f)
                     attackCooldownTimer = 0f;
             }
@@ -139,7 +265,7 @@ namespace EntitySystem
             // Tick down timer until player is no longer immune.
             if (immunityTimer > 0f)
             {
-                immunityTimer -= GetRunner().DeltaTime;
+                immunityTimer -= Time.deltaTime;
                 if(immunityTimer < 0f)
                     immunityTimer = 0f;
             }
@@ -147,47 +273,33 @@ namespace EntitySystem
             // Tick down timer until player is no longer stumbling.
             if (stumbleTimer > 0f)
             {
-                stumbleTimer -= GetRunner().DeltaTime;
+                stumbleTimer -= Time.deltaTime;
                 if(stumbleTimer < 0f)
                     stumbleTimer = 0f;
 
                 if (stumbleTimer == 0f && !IsAirborne())
                     Idle();
             }
-        }
-
-        public override void FixedUpdateNetwork()
-        {
-            base.FixedUpdateNetwork();
 
             // Setup animator.
-            if (HasStateAuthority)
-                lastWalkDirection = walkDirection;
-        }
-
-        public override void Render()
-        {
-            base.Render();
-            anim.SetBool("Idle", lastWalkDirection == WalkDirection.idle);
-            anim.SetBool("Forward", lastWalkDirection == WalkDirection.forward);
-            anim.SetBool("Backward", lastWalkDirection == WalkDirection.backward);
-            anim.SetBool("Left", lastWalkDirection == WalkDirection.left);
-            anim.SetBool("Right", lastWalkDirection == WalkDirection.right);
+            anim.SetBool("Idle", walkDirection == WalkDirection.idle);
+            anim.SetBool("Forward", walkDirection == WalkDirection.forward);
+            anim.SetBool("Backward", walkDirection == WalkDirection.backward);
+            anim.SetBool("Left", walkDirection == WalkDirection.left);
+            anim.SetBool("Right", walkDirection == WalkDirection.right);
         }
 
         public override void OnLand()
         {
             base.OnLand();
             if(currentState == CurrentState.hit)
-            {
                 Collapse();
-            }
         }
 
         void MoveDirection(Vector3 direction)
         {
-            NetworkTransform().Teleport(transform.position += direction);
-            //SnapPosition();
+            if(photonView.IsMine)
+                transform.position += (direction * Time.deltaTime);
         }
 
         // Call this at the end of each attack animation clip using the Unity animation event feature.
@@ -375,21 +487,21 @@ namespace EntitySystem
         public void FaceOpponent()
         {
             transform.LookAt(opponent.Pos());
-            NetworkTransform().Teleport(Pos(), Quaternion.Euler(0f, transform.rotation.eulerAngles.y, 0f));
+            transform.rotation = Quaternion.Euler(0f, transform.rotation.eulerAngles.y, 0f);
         }
 
-        public void StartResetComboReaderTimer()
+        public void ResetComboReaderTimer()
         {
             resetComboReaderTimer = resetComboReaderTime;
         }
 
         public void PlayAnimation(string animName)
         {
-            if(HasInputAuthority)
-                RPC_PlayAnimation(animName);
+            if (photonView.IsMine)
+                photonView.RPC("RPC_PlayAnimation", RpcTarget.All, animName);
         }
 
-        [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+        [PunRPC]
         void RPC_PlayAnimation(string animName)
         {
             anim.Play(animName);
@@ -422,8 +534,14 @@ namespace EntitySystem
         }
 
         // Load a character prefab into this player gameobject.
-        [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
-        public void RPC_LoadCharacter(string characterName)
+        public void LoadCharacter(string characterName)
+        {
+            if (photonView.IsMine)
+                photonView.RPC("RPC_LoadCharacter", RpcTarget.All, characterName);
+        }
+
+        [PunRPC]
+        void RPC_LoadCharacter(string characterName)
         {
             Character characterData = GameManager.instance.FindCharacter(characterName);
 
@@ -440,6 +558,10 @@ namespace EntitySystem
 
             // Setup animator.
             anim.runtimeAnimatorController = characterData.runtimeAnimator;
+            PhotonAnimatorView animView = GetComponent<PhotonAnimatorView>();
+
+            for (int i = 0; i < animView.GetSynchronizedParameters().Count; i++)
+                animView.GetSynchronizedParameters()[i].SynchronizeType = PhotonAnimatorView.SynchronizeType.Continuous;
 
             Idle();
 
@@ -449,11 +571,11 @@ namespace EntitySystem
 
         void SetCurrentState(CurrentState setCurrentState)
         {
-            if(HasInputAuthority)
+            if(photonView.IsMine)
                 RPC_SetCurrentState((int)setCurrentState);
         }
 
-        [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+        [PunRPC]
         void RPC_SetCurrentState(int setCurrentState)
         {
             currentState = (CurrentState)setCurrentState;

@@ -1,15 +1,14 @@
 // LOVEEVIXEN
 using EntitySystem;
-using Fusion;
-using Fusion.Sockets;
 using InputSystem;
+using Photon.Pun;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UI;
 using UnityEngine;
 
-public class SessionManager : MonoBehaviour, INetworkRunnerCallbacks
+public class SessionManager : MonoBehaviour
 {
     public static SessionManager instance;
 
@@ -19,19 +18,23 @@ public class SessionManager : MonoBehaviour, INetworkRunnerCallbacks
     private Player[] players = new Player[2];
     private Transform centerPos;
     [SerializeField] bool flipCamera;
-    private bool roundBegun = false;
     private SessionUI sessionUI;
-    private NetworkRunner runner;
     private bool offlineSession;
 
     [Header("Player Spawn Settings")]
-    [SerializeField] NetworkObject playerPrefab;
+    [SerializeField] string playerPrefabPath = "Player";
     [SerializeField][Range(1f, 10f)] float spawnGapBetweenOpponents = 9f;
+    private int clientsLoaded;
 
     [Header("Player Positioning")]
     [SerializeField] float minPlayerDistance = 0.5f;
     [SerializeField] float maxPlayerDistance = 30f;
     private float startPlayerDistance;
+    private bool allPlayersLoaded;
+
+    // Match and round settings.
+    private bool roundBegun = false;
+    private bool endMatch = false;
 
     // Attack data.
     [System.Serializable]
@@ -39,9 +42,9 @@ public class SessionManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         private EntityHitbox target;
         private AttackType attackType;
-        private NetworkHitData hitData;
+        private HitData hitData;
 
-        public RegisteredHit(NetworkHitData hitData)
+        public RegisteredHit(HitData hitData)
         {
             this.target = EntityHitbox.FromID(hitData.hitboxID);
             this.attackType = (AttackType)hitData.attackType;
@@ -51,23 +54,20 @@ public class SessionManager : MonoBehaviour, INetworkRunnerCallbacks
         public EntityHitbox GetTarget() { return target; }
         public AttackType GetAttackType() { return attackType; }
 
-        public NetworkHitData GetHitData() { return hitData; }
+        public HitData GetHitData() { return hitData; }
     }
     private List<RegisteredHit> registeredHits = new List<RegisteredHit>();
 
     private void Awake()
     {
         instance = this;
-        NetworkManager.instance.GetRunner().AddCallbacks(this);
         sessionUI = FindFirstObjectByType<SessionUI>();
-        runner = NetworkManager.instance.GetRunner();
-        offlineSession = runner.GameMode == GameMode.Single;
+        offlineSession = PhotonNetwork.OfflineMode;
     }
 
     void FixedUpdate()
     {
-        // Position player center reference, and rotate for camera reference.
-        if (initiated)
+        if (initiated && allPlayersLoaded && !endMatch)
         {
             if (roundBegun)
                 ApplyRegisteredHits();
@@ -91,47 +91,6 @@ public class SessionManager : MonoBehaviour, INetworkRunnerCallbacks
         RecordFrame();
     }
 
-    public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
-
-    public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
-
-    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) { }
-
-    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
-
-    public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
-
-    public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) { }
-
-    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
-
-    public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) { }
-
-    public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) { }
-
-    public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) { }
-
-    public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) { }
-
-    public void OnInput(NetworkRunner runner, NetworkInput input) { }
-
-    public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
-
-    public void OnConnectedToServer(NetworkRunner runner) { }
-
-    public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) { }
-
-    public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) { }
-
-    public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) { }
-
-    public void OnSceneLoadDone(NetworkRunner runner)
-    {
-        Initiate();
-    }
-
-    public void OnSceneLoadStart(NetworkRunner runner) { }
-
     // Session setup.
     #region
     void Initiate()
@@ -141,10 +100,8 @@ public class SessionManager : MonoBehaviour, INetworkRunnerCallbacks
             centerPos = GameObject.Find("PlayerCenterPosition").transform;
 
             // Spawn players.
-            NetworkObject player1Obj = null;
-            NetworkObject player2Obj = null;
-            PlayerRef hostPlayerRef = PlayerRef.FromIndex(1);
-            PlayerRef clientPlayerRef = PlayerRef.None;
+            GameObject player1Obj = null;
+            GameObject player2Obj = null;
             Vector3 player1Spawn = new Vector3((-spawnGapBetweenOpponents / 2f), 0f, 0f);
             Vector3 player2Spawn = new Vector3((spawnGapBetweenOpponents / 2f), 0f, 0f);
             startPlayerDistance = spawnGapBetweenOpponents;
@@ -152,30 +109,30 @@ public class SessionManager : MonoBehaviour, INetworkRunnerCallbacks
             if (offlineSession)
             {
                 // Instantiate players for offline play.
-                player1Obj = runner.Spawn(playerPrefab, player1Spawn, Quaternion.Euler(0f, 90f, 0f), hostPlayerRef);
-                player2Obj = runner.Spawn(playerPrefab, player2Spawn, Quaternion.Euler(0f, 270f, 0f), hostPlayerRef);
+                player1Obj = PhotonNetwork.Instantiate(playerPrefabPath, player1Spawn, Quaternion.Euler(0f, 90f, 0f));
+                player2Obj = PhotonNetwork.Instantiate(playerPrefabPath, player2Spawn, Quaternion.Euler(0f, 270f, 0f));
                 
                 // Setup local player numbers for each local player to control their own character.
                 PlayerController player1Ctrl = player1Obj.GetComponent<PlayerController>();
                 PlayerController player2Ctrl = player2Obj.GetComponent<PlayerController>();
-                player1Ctrl.LocalPlayerNumber = 1;
-                player2Ctrl.LocalPlayerNumber = 2;
+                player1Ctrl.ReadFromInputData(InputReader.Player1());
+                player2Ctrl.ReadFromInputData(InputReader.Player2());
             }
-            else if (NetworkManager.instance.GetRunner().IsServer)
+            else
             {
-                // Find client player ref.
-                foreach (PlayerRef playerRef in runner.ActivePlayers)
+                // Instantiate local client's player for online play using player 1's controls.
+                if (PhotonNetwork.IsMasterClient)
                 {
-                    if (playerRef != hostPlayerRef)
-                    {
-                        clientPlayerRef = playerRef;
-                        break;
-                    }
+                    player1Obj = PhotonNetwork.Instantiate(playerPrefabPath, player1Spawn, Quaternion.Euler(0f, 90f, 0f));
+                    PlayerController playerCtrl = player1Obj.GetComponent<PlayerController>();
+                    playerCtrl.ReadFromInputData(InputReader.Player1());
                 }
-
-                // Instantiate players for online play, either side is controlled with player 1's inputs.
-                player1Obj = runner.Spawn(playerPrefab, player1Spawn, Quaternion.Euler(0f, 90f, 0f), hostPlayerRef);
-                player2Obj = runner.Spawn(playerPrefab, player2Spawn, Quaternion.Euler(0f, 270f, 0f), clientPlayerRef);
+                else
+                {
+                    player2Obj = PhotonNetwork.Instantiate(playerPrefabPath, player2Spawn, Quaternion.Euler(0f, 270f, 0f));
+                    PlayerController playerCtrl = player2Obj.GetComponent<PlayerController>();
+                    playerCtrl.ReadFromInputData(InputReader.Player1());
+                }
             }
 
             // Load stage.
@@ -191,25 +148,56 @@ public class SessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void ConfirmLoadedPlayer(Player player)
     {
+        if (offlineSession)
+        {
+            for(int i = 0; i < players.Length; i++)
+            {
+                if (players[i] == null)
+                {
+                    players[i] = player;
+                    if(i == 0)
+                        player.LoadCharacter("Shirobon");
+                    else if(i == 1)
+                        player.LoadCharacter("Kurobon");
+
+                    break;
+                }
+            }
+        }
+        else
+        {
+            if (player.photonView.Owner.IsMasterClient)
+            {
+                players[0] = player;
+                player.LoadCharacter("Shirobon");
+            }
+            else
+            {
+                players[1] = player;
+                player.LoadCharacter("Kurobon");
+            }
+        }
+
+        // Check that all players have been loaded in.
+        bool confirmedAllPlayersLoaded = true;
         for (int i = 0; i < players.Length; i++)
         {
             if (players[i] == null)
             {
-                players[i] = player;
-
-                if (player.HasInputAuthority)
-                {
-                    if (i == 0)
-                        player.RPC_LoadCharacter("Shirobon");
-                    else
-                        player.RPC_LoadCharacter("Kurobon");
-                }
-
-                return;
+                confirmedAllPlayersLoaded = false;
+                break;
             }
         }
+
+        if (confirmedAllPlayersLoaded)
+            allPlayersLoaded = true;
     }
     #endregion
+
+    public void EndMatch()
+    {
+        endMatch = true;
+    }
 
     // See what hits registered in the last frame and make them take effect.
     public void ApplyRegisteredHits()
@@ -217,7 +205,7 @@ public class SessionManager : MonoBehaviour, INetworkRunnerCallbacks
         foreach (RegisteredHit registeredHit in registeredHits)
         {
             Entity hitEntity = registeredHit.GetTarget().GetEntity();
-            if (hitEntity.HasInputAuthority)
+            if (hitEntity.photonView.IsMine)
             {
                 EntityHitbox hitbox = registeredHit.GetTarget();
 
@@ -248,19 +236,36 @@ public class SessionManager : MonoBehaviour, INetworkRunnerCallbacks
         // Add frame to frames list.
         currentFrame++;
         frames.Add(frame);
+
+        // Clear up previous frames if there becomes too many.
+        int maxRecordedFrames = 1000;
+        if(frames.Count > maxRecordedFrames)
+        {
+            int removeCount = frames.Count - maxRecordedFrames;
+            frames.RemoveRange(0, removeCount);
+        }
+
         return frame;
     }
 
-    public void AddRegisteredHit(NetworkHitData hitData)
+    public void AddRegisteredHit(HitData hitData)
     {
         registeredHits.Add(new RegisteredHit(hitData));
     }
 
+    public void AddLoadedClient()
+    {
+        clientsLoaded++;
+        if (clientsLoaded >= PhotonNetwork.CurrentRoom.Players.Count)
+            Initiate();
+    }
+
     IEnumerator BeginRound()
     {
-        yield return new WaitForSeconds(0.25f);
-
         // Set 'opponent' as the opposing player for each player.
+        while (!allPlayersLoaded)
+            yield return new WaitForSeconds(0.01f);
+
         foreach (Player player in players)
             player.SetOpponent();
 

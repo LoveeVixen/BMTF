@@ -1,8 +1,8 @@
 // LOVEEVIXEN
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Fusion;
 
 namespace UI
 {
@@ -43,27 +43,33 @@ namespace UI
 
         public void OfflineGame()
         {
-            _ = NetworkManager.instance.HostOfflineSession();
+            NetworkManager.instance.HostOfflineSession();
         }
 
         public void HostRoom()
         {
-            _ = NetworkManager.instance.HostSession();
+            NetworkManager.instance.HostSession();
         }
 
         public void JoinRoom(InputField roomNameInput)
         {
-            _ = NetworkManager.instance.JoinSession(roomNameInput.text);
+            NetworkManager.instance.JoinSession(roomNameInput.text);
         }
 
         public void LeaveRoom()
         {
-            _ = NetworkManager.instance.LeaveSession();
+            NetworkManager.instance.LeaveSession();
+        }
+
+        public void DisplayNicknameOnInputField(InputField nicknameInput)
+        {
+            nicknameInput.text = PhotonNetwork.NickName;
         }
 
         public void SetNickname(InputField nicknameInput)
         {
-            NetworkManager.instance.NicknameOnJoin = nicknameInput.text;
+            if (nicknameInput.text != "")
+                NetworkManager.instance.SetNickname(nicknameInput.text);
         }
 
         public void LoadScene(string sceneName)
@@ -73,7 +79,13 @@ namespace UI
 
         public void BeginMatch()
         {
-            NetworkManager.instance.GetRunner().LoadScene("Game");
+            NetworkClient networkClient = FindFirstObjectByType<NetworkClient>();
+            networkClient.photonView.RPC("BeginMatch", RpcTarget.All);
+        }
+
+        public void DisconnectFromServer()
+        {
+            PhotonNetwork.Disconnect();
         }
 
         public void ExitApplication()

@@ -19,7 +19,7 @@ namespace InputSystem
 
         [Header("Opponent hit effect")]
         public float stumbleSpeed = 1f;
-        [Range(0f, 1.5f)]public float yVelocityLaunch = 0f;
+        public float yVelocityLaunch = 0f;
         public float stumbleTime = 0.3f;
         public AttackType attackType;
 

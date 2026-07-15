@@ -22,8 +22,8 @@ MonoBehaviour:
   avoidPlayerStateUpdate: 0
   avoidApplyingAttackCooldown: 0
   enableAttackStroll: 1
-  stumbleSpeed: 0.7
-  yVelocityLaunch: 0.5
+  stumbleSpeed: 35
+  yVelocityLaunch: 30
   stumbleTime: 0.3
   attackType: 1
   playLeftFacingAnimation: 

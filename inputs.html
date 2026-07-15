@@ -37,19 +37,94 @@
             <p>Attack One: B</p>
             <p>Attack Two: X</p>
             <p>Attack Three: Y</p>
+        </div>
 
-            <u>Inputs (Assumed facing right)</u>
+        </br>
+        <p style="font-size: 30px;">Click on a character to see their movesets!</p>
+        <button onclick="DisplayCharacterMoveset('Shirobon')" style="background:none; border: none;"><img src="WebsiteContents/logo.gif" width="100"></button>
 
-            <p>Two-jab to roundhouse</p>
-            <img src="WebsiteContents/Inputs/2.png" width="60" alt="2">
-            <img src="WebsiteContents/Inputs/3.png" width="60" alt="3">
-            <img src="WebsiteContents/Inputs/1.png" width="60" alt="1">
-
-            <p>Dragon initiate. (Currently this only initiates an animation. This will be used as a base point for various attacks/combos.)</p>
-            <img src="WebsiteContents/Inputs/right.png" width="60" alt="Forward">
-            <img src="WebsiteContents/Inputs/neutral.png" width="60" alt="Neutral">
-            <img src="WebsiteContents/Inputs/down.png" width="60" alt="Down">
-            <img src="WebsiteContents/Inputs/downright.png" width="60" alt="Down-forward">
+        <div class="inputGuideBox">
+            <h2 id="characterNameDisplay"></h2>
+            <h3 id="facingDirection"></h3>
+            <p id="moveList"></p>
         </div>
     </div>
+
+
+    <script>
+        class Character
+        {
+            combos = [];
+
+            constructor(s_name)
+            {
+                this.s_name = s_name;
+                characters.push(this);
+            }
+        }
+        var characters = []; // Stores all character instances.
+
+        class Combo
+        {
+            constructor(s_name, inputs = [], s_tip)
+            { 
+                this.s_name = s_name;
+                this.inputs = inputs;
+                
+                if(s_tip != null)
+                    this.s_tip = s_tip;
+            }
+        }
+
+        // Returns character data by the character's name.
+        function FindCharacterByName(s_characterName)
+        {
+            for(let i = 0; i < characters.length; i++)
+            {
+                if(characters[i].s_name == s_characterName)
+                    return characters[i];
+            }
+            
+            return null;
+        }
+
+        const characterNameDisplay = document.getElementById("characterNameDisplay");
+        const facingDirection = document.getElementById("facingDirection");
+        const movesetList = document.getElementById("moveList");
+
+        function DisplayCharacterMoveset(s_characterName)
+        {
+            characterData = FindCharacterByName(s_characterName);
+
+            characterNameDisplay.innerHTML = characterData.s_name + "</br>";
+            facingDirection.innerHTML = "Assumed facing right </br>";
+            movesetList.innerHTML = "";
+
+            for(let i = 0; i < characterData.combos.length; i++)
+            {
+                movesetList.innerHTML += characterData.combos[i].s_name + "</br>";
+                if(characterData.combos[i].s_tip != null)
+                    movesetList.innerHTML += characterData.combos[i].s_tip + "</br>"
+
+                for(let e = 0; e < characterData.combos[i].inputs.length; e++)
+                {
+                    inputPath = "WebsiteContents/Inputs/" + characterData.combos[i].inputs[e] + ".png";
+                    movesetList.innerHTML += "<img src='" + inputPath + "'width='60' alt='" + inputPath + "'>";
+                }
+
+                movesetList.innerHTML += "</br>";
+                movesetList.innerHTML += "<img src='WebsiteContents/divider.png' width='650' alt='Moveset divider'>";
+                movesetList.innerHTML += "</br>";
+            }
+        }
+
+        // Defining playable characters.
+        var shirobon = new Character("Shirobon");
+        shirobon.combos.push(new Combo("Two-jab to roundhouse", ["2", "3", "1"]));
+        shirobon.combos.push(new Combo("Dragon initiate", ["f", "n", "d", "fd"]));
+
+        var kurobon = new Character("Kurobon");
+        kurobon.combos.push(new Combo("Two-jab to roundhouse", ["2", "3", "1"]));
+        kurobon.combos.push(new Combo("Dragon initiate", "f", ["n", "d", "fd"]));
+    </script>
 </html>

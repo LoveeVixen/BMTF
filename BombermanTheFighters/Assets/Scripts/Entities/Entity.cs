@@ -1,16 +1,15 @@
 // LOVEEVIXEN
-using Fusion;
 using InputSystem;
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.Analytics.IAnalytic;
 
 namespace EntitySystem
 {
-    public struct NetworkHitData : INetworkStruct
+    public struct HitData
     {
-        public int hitboxID;
+        public string hitboxID;
         public float stumbleSpeed;
         public float yVelocityLaunch;
         public float stumbleTime;
@@ -18,11 +17,8 @@ namespace EntitySystem
         public Vector3 stumbleDirection;
     }
 
-    public class Entity : NetworkBehaviour
+    public class Entity : MonoBehaviourPunCallbacks
     {
-        private NetworkTransform networkTransform;
-        private NetworkRunner runner;
-
         [Header("Entity Hitbox")]
         [SerializeField] GameObject hitboxDisplayPrefab;
         [SerializeField] Material normalMaterial;
@@ -36,19 +32,17 @@ namespace EntitySystem
 
         private void Awake()
         {
-            networkTransform = GetComponent<NetworkTransform>();
-            runner = NetworkManager.instance.GetRunner();
             SetupCharacterHitbox();
             OnAwake();
         }
 
-        public override void FixedUpdateNetwork()
+        private void Update()
         {
-            base.FixedUpdateNetwork();
             OnTick();
         }
 
         public virtual void OnAwake() { }
+        public virtual void Output() { }
         public virtual void OnTick()
         {
             // Check that the entity is airborne.
@@ -56,18 +50,18 @@ namespace EntitySystem
                 airborne = true;
 
             // Apply movement on Y axis.
-            networkTransform.Teleport(transform.position + (transform.up * yVel));
+            transform.position += (transform.up * yVel) * Time.deltaTime;
             if (airborne)
             {
                 // Apply gravity.
-                yVel -= gravity / 200f;
+                yVel -= (gravity * 15f) * Time.deltaTime;
 
                 // Ground player once they reach the floor.
                 if (transform.position.y <= 0f)
                 {
                     yVel = 0f;
                     Vector3 snapToGround = new Vector3(transform.position.x, 0f, transform.position.z);
-                    networkTransform.Teleport(snapToGround);
+                    transform.position = snapToGround;
                     airborne = false;
                     OnLand();
                 }
@@ -82,7 +76,8 @@ namespace EntitySystem
             float x = Mathf.Round(transform.position.x * 10f) * 0.1f;
             float y = Mathf.Round(transform.position.y * 10f) * 0.1f;
             float z = Mathf.Round(transform.position.z * 10f) * 0.1f;
-            networkTransform.Teleport(new Vector3(x, y, z));
+
+            transform.position = new Vector3(x, y, z);
         }
 
         public void SetupCharacterHitbox()
@@ -113,36 +108,34 @@ namespace EntitySystem
 
         public void RegisterHit(EntityHitbox otherHitbox, Attack attack, Vector3 stumbleDirection)
         {
-            int hitboxID = otherHitbox.HitboxID();
-            float attackStumbleSpeed = attack.stumbleSpeed;
-            float attackYVelLaunch = attack.yVelocityLaunch;
-            float attackStumbleTime = attack.stumbleTime;
-            int attackType = (int)attack.attackType;
-            float attackStumbleDirX = stumbleDirection.x;
-            float attackStumbleDirY = stumbleDirection.y;
-            float attackStumbleDirZ = stumbleDirection.z;
+            string hitboxID = otherHitbox.HitboxID();
+            float stumbleSpeed = attack.stumbleSpeed;
+            float yVel = attack.yVelocityLaunch;
+            float stumbleTime = attack.stumbleTime;
+            int type = (int)attack.attackType;
+            float stumbleX = stumbleDirection.x;
+            float stumbleY = stumbleDirection.y;
+            float stumbleZ = stumbleDirection.z;
 
-            NetworkHitData hitData = new NetworkHitData
-            {
-                hitboxID = hitboxID,
-                stumbleSpeed = attackStumbleSpeed,
-                yVelocityLaunch = attackYVelLaunch,
-                stumbleTime = attackStumbleTime,
-                attackType = attackType,
-                stumbleDirection = new Vector3(attackStumbleDirX, attackStumbleDirY, attackStumbleDirZ)
-            };
-
-            RPC_RegisterHit(hitData);
+            photonView.RPC("RPC_RegisterHit", RpcTarget.All, hitboxID, stumbleSpeed, yVel, stumbleTime, type, stumbleX, stumbleY, stumbleZ);
         }
 
-        [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
-        public void RPC_RegisterHit(NetworkHitData hitData)
+        [PunRPC]
+        public void RPC_RegisterHit(string hitboxID, float stumbleSpeed, float yVel, float stumbleTime, int type, float stumbleX, float stumbleY, float stumbleZ)
         {
+            HitData hitData = new HitData
+            {
+                hitboxID = hitboxID,
+                stumbleSpeed = stumbleSpeed,
+                yVelocityLaunch = yVel,
+                stumbleTime = stumbleTime,
+                attackType = type,
+                stumbleDirection = new Vector3(stumbleX, stumbleY, stumbleZ)
+            };
+
             SessionManager.instance.AddRegisteredHit(hitData);
         }
 
-        public NetworkTransform NetworkTransform() { return networkTransform; }
-        public NetworkRunner GetRunner() { return runner; }
         public GameObject GetHitboxDisplayPrefab() { return hitboxDisplayPrefab; }
         public List<EntityHitbox> GetHitboxesList() {  return hitboxes; }
 

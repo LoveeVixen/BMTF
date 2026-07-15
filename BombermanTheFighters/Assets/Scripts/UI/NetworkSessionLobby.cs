@@ -1,12 +1,11 @@
 // LOVEEVIXEN
-using Fusion;
-using UI;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI
 {
-    public class NetworkSessionLobby : MonoBehaviour
+    public class NetworkSessionLobby : MonoBehaviourPunCallbacks
     {
         public static NetworkSessionLobby instance;
 
@@ -16,71 +15,67 @@ namespace UI
         [SerializeField] Text rightClientNickname;
         [SerializeField] Button startMatchButton;
         [SerializeField] Button[] hostOnlyButtons;
-        private float updatePlayerListTime = 0.5f;
-        private float updatePlayerListTimer;
 
         private void Awake()
         {
             instance = this;
             menu = GetComponent<Menu>();
-            updatePlayerListTimer = updatePlayerListTime;
         }
 
         private void Update()
         {
-            if(updatePlayerListTimer > 0f)
-            {
-                updatePlayerListTimer -= Time.deltaTime;
-                if(updatePlayerListTimer <= 0f)
-                {
-                    updatePlayerListTimer = updatePlayerListTime;
-                    UpdatePlayerListDisplay();
-                }
-            }
+            UpdatePlayerListDisplay();
         }
 
         private void FixedUpdate()
         {
-            if (menu.IsOpen() && NetworkManager.instance.GetRunner() != null)
+            if (menu.IsOpen() && PhotonNetwork.InRoom)
             {
                 // Disable/enable host-only buttons depending on if this client is the host or not.
-                bool isServer = NetworkManager.instance.GetRunner().IsServer;
+                bool isServer = PhotonNetwork.IsMasterClient;
                 foreach (Button button in hostOnlyButtons)
                     button.interactable = isServer;
 
                 // Prevent starting match until there are at least two clients present in room.
-                bool canStartMatch = NetworkManager.instance.GetRunner().IsServer && NetworkManager.instance.GetRunner().SessionInfo.PlayerCount > 1;
+                bool canStartMatch = PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount > 1;
                 startMatchButton.interactable = canStartMatch;
             }
         }
 
         public void UpdateSessionNameText()
         {
-            sessionName.text = NetworkManager.instance.GetRunner().SessionInfo.Name;
+            sessionName.text = PhotonNetwork.CurrentRoom.Name;
         }
 
         void UpdatePlayerListDisplay()
         {
             // Display nicknames of users currently present in the session.
-            NetworkDataSync[] dataSyncs = FindObjectsByType<NetworkDataSync>(FindObjectsSortMode.InstanceID);
-
-            string leftName = "";
-            string rightName = "";
-            foreach (NetworkDataSync dataSync in dataSyncs)
+            string[] names = new string[2];
+            for(int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
-                if(dataSync.startFacingRight)
-                    leftName = dataSync.nickname.ToString();
-                else
-                    rightName = dataSync.nickname.ToString();
+                if (names.Length > i)
+                    names[i] = PhotonNetwork.PlayerList[i].NickName;
             }
 
-            leftClientNickname.text = leftName;
-            rightClientNickname.text = rightName;
+            leftClientNickname.text = names[0];
+            rightClientNickname.text = names[1];
         }
 
         public Menu GetMenu()
         {
             return menu;
+        }
+
+        public override void OnCreatedRoom()
+        {
+            base.OnCreatedRoom();
+            UpdateSessionNameText();
+        }
+
+        public override void OnJoinedRoom()
+        {
+            base.OnJoinedRoom();
+            UpdateSessionNameText();
         }
     }
 }

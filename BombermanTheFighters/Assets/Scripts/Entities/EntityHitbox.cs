@@ -19,11 +19,13 @@ namespace EntitySystem
         private Entity entity;
         private Attack performingAttack;
         private static List<EntityHitbox> allHitboxes = new List<EntityHitbox>();
+        private string hitboxID;
 
         private void Awake()
         {
             col = GetComponent<BoxCollider>();
             entity = GetComponentInParent<Entity>();
+            hitboxID = "HITBOX_" + entity.photonView.ViewID.ToString();
 
             // Setup debug display.
             display = Instantiate(entity.GetHitboxDisplayPrefab(), transform);
@@ -39,7 +41,7 @@ namespace EntitySystem
 
         private void OnTriggerEnter(Collider other)
         {
-            if (entity.HasInputAuthority)
+            if (entity.photonView.IsMine)
             {
                 // Check that the hitbox has collided into another hitbox belonging to a different entity.
                 EntityHitbox otherHitbox = other.gameObject.GetComponent<EntityHitbox>();
@@ -93,21 +95,22 @@ namespace EntitySystem
             display.SetActive(displayHitbox);
         }
 
-        // Find this hitbox's index value in the list of all existing hitboxes.
-        public int HitboxID()
+        // Find this hitbox's ID in the list of all existing hitboxes.
+        public string HitboxID()
         {
-            for(int i = 0; i < allHitboxes.Count; i++)
-            {
-                if (allHitboxes[i] == this)
-                    return i;
-            }
-
-            return -1;
+            return hitboxID;
         }
 
-        public static EntityHitbox FromID(int hitboxID)
+        public static EntityHitbox FromID(string id)
         {
-            return allHitboxes[hitboxID];
+            foreach(EntityHitbox hb in allHitboxes)
+            {
+                if(hb.HitboxID() == id)
+                    return hb;
+            }
+
+            Debug.Log("Could not find hitbox with ID: " + id);
+            return null;
         }
 
         public Entity GetEntity() {  return entity; }

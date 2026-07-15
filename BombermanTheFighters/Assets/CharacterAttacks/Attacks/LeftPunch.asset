@@ -22,7 +22,7 @@ MonoBehaviour:
   avoidPlayerStateUpdate: 0
   avoidApplyingAttackCooldown: 0
   enableAttackStroll: 1
-  stumbleSpeed: 0.08
+  stumbleSpeed: 3.25
   yVelocityLaunch: 0
   stumbleTime: 0.3
   attackType: 0
