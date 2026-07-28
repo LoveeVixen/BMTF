@@ -5,9 +5,9 @@ using Photon.Pun;
 
 namespace ChatSystem
 {
-    public class TextChat : MonoBehaviour
+    public class TextChat
     {
-        private static bool isOpen = false;
+        private static string savedMessage = "";
 
         // Input.
         public static KeyCode chatInput = KeyCode.T;
@@ -21,27 +21,34 @@ namespace ChatSystem
         public static void SendChatMessage(string msg)
         {
             Color c = Color.white;
-            NetworkClient networkClient = FindFirstObjectByType<NetworkClient>();
-            networkClient.photonView.RPC("RPC_SendMessage", RpcTarget.All, PhotonNetwork.NickName, msg, c.r, c.g, c.b, c.r, c.g, c.b);
+            NetworkClient networkClient = MonoBehaviour.FindFirstObjectByType<NetworkClient>();
+            networkClient.photonView.RPC("RPC_SendMessage", RpcTarget.All, LocalNickname(), msg, c.r, c.g, c.b, c.r, c.g, c.b);
+            savedMessage = "";
         }
 
         public static void SendChatMessage(string sender, string msg)
         {
             Color c = Color.white;
-            NetworkClient networkClient = FindFirstObjectByType<NetworkClient>();
+            NetworkClient networkClient = MonoBehaviour.FindFirstObjectByType<NetworkClient>();
             networkClient.photonView.RPC("RPC_SendMessage", RpcTarget.All, sender, msg, c.r, c.g, c.b, c.r, c.g, c.b);
+            savedMessage = "";
         }
 
         public static void SendChatMessage(string sender, string msg, Color senderColor, Color msgColor)
         {
             Color sc = senderColor;
             Color mc = msgColor;
-            NetworkClient networkClient = FindFirstObjectByType<NetworkClient>();
+            NetworkClient networkClient = MonoBehaviour.FindFirstObjectByType<NetworkClient>();
             networkClient.photonView.RPC("RPC_SendMessage", RpcTarget.All, sender, msg, sc.r, sc.g, sc.b, mc.r, mc.g, mc.b);
+            savedMessage = "";
         }
 
-        public static void Open() { isOpen = true; }
-        public static void Close() { isOpen = false; }
-        public static bool IsOpen() {  return isOpen; }
+        // Basic return methods. Edit these to be based on that of which online-multiplayer service you're using.
+        #region
+        public static string LocalNickname() { return PhotonNetwork.NickName; }
+        public static bool IsConnectedToSession() { return PhotonNetwork.InRoom && !PhotonNetwork.OfflineMode; }
+        #endregion
+
+        public static string SavedMessage { get { return savedMessage; } set { savedMessage = value; } }
     }
 }

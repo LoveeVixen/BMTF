@@ -4,10 +4,13 @@ using UI;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
+using ChatSystem;
+using Audio;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
     public static NetworkManager instance;
+    private bool openLobbyOnLoadOnlineScene;
 
     private void Awake()
     {
@@ -143,6 +146,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         NetworkFailurePrompt.instance.DisplayFailure("Failed to join session.", message + ". Return code " + returnCode);
     }
 
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        base.OnPlayerEnteredRoom(newPlayer);
+        TextChat.SendChatMessage("SYSTEM", newPlayer.NickName + " has joined.", Color.yellow, Color.yellow);
+    }
+
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         base.OnPlayerLeftRoom(otherPlayer);
@@ -151,10 +160,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         if (SessionManager.instance != null)
         {
             PhotonNetwork.LeaveRoom();
-            SessionManager.instance.EndMatch();
+            SessionManager.instance.EndSession();
+            AudioManager.instance.StopMusic();
             NetworkFailurePrompt.instance.GetMenu().Open();
             NetworkFailurePrompt.instance.DisplayFailure("Disconnected from session.", "Client has left.");
         }
+
+        TextChat.SendChatMessage("SYSTEM", otherPlayer.NickName + " has disconnected.", Color.yellow, Color.yellow);
     }
 
     public override void OnMasterClientSwitched(Player newMasterClient)
@@ -176,11 +188,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
             // End match if one was running.
             if (SessionManager.instance != null)
-                SessionManager.instance.EndMatch();
+            {
+                AudioManager.instance.StopMusic();
+                SessionManager.instance.EndSession();
+            }
 
             // Show client reason for shutdown if it was an error.
             NetworkFailurePrompt.instance.GetMenu().Open();
             NetworkFailurePrompt.instance.DisplayFailure("Network error.", cause.ToString());
         }
     }
+
+    public bool OpenLobbyOnLoadOnlineScene { get { return openLobbyOnLoadOnlineScene; } set { openLobbyOnLoadOnlineScene = value; } }
 }

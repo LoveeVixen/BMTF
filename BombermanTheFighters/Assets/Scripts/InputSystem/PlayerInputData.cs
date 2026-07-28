@@ -1,4 +1,6 @@
 // LOVEEVIXEN
+using UnityEngine;
+
 namespace InputSystem
 {
     [System.Serializable]
@@ -103,6 +105,27 @@ namespace InputSystem
             if (pressingSelect) countedInputs++;
 
             return countedInputs;
+        }
+
+        public void PrintPressedInputs()
+        {
+            string printMessage = "";
+            if (pressingUp) printMessage += "UP ";
+            if (pressingRight) printMessage += "RIGHT ";
+            if (pressingDown) printMessage += "DOWN ";
+            if (pressingLeft) printMessage += "LEFT ";
+            if (pressingUpRight) printMessage += "UP-RIGHT ";
+            if (pressingDownRight) printMessage += "DOWN-RIGHT ";
+            if (pressingDownLeft) printMessage += "DOWN-LEFT ";
+            if (pressingUpLeft) printMessage += "UP-LEFT ";
+            if (pressing0) printMessage += "0 ";
+            if (pressing1) printMessage += "1 ";
+            if (pressing2) printMessage += "2 ";
+            if (pressing3) printMessage += "3 ";
+            if (pressingStart) printMessage += "START ";
+            if (pressingSelect) printMessage += "SELECT ";
+
+            if(printMessage != "") Debug.Log(printMessage);
         }
 
         public bool RegPressingUp  { get { return regPressingUp; } set { regPressingUp = value; } }

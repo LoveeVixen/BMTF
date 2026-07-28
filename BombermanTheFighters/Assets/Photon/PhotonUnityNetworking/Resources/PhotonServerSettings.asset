@@ -46,6 +46,14 @@ MonoBehaviour:
   - AddLoadedClient
   - BeginMatch
   - RPC_SendMessage
+  - RPC_EndRound
+  - RPC_NextRound
+  - RPC_ConcludeWinner
+  - RPC_ExitGameScene
+  - RPC_PlayVoice
+  - RPC_Sound
+  - RPC_PlaySound
+  - RPC_Explode
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

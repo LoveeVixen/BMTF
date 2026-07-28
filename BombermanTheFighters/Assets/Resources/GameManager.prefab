@@ -53,6 +53,10 @@ MonoBehaviour:
       uiColor: {r: 1, g: 1, b: 1, a: 1}
     uiIcon: []
     showCharacterInMenu: 0
+    announceNameSound: Character Name
+    attackSound: Attack
+    hitSound: Hit
+    knockoutSound: KO
   - name: Shirobon
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
@@ -61,6 +65,10 @@ MonoBehaviour:
       uiColor: {r: 1, g: 1, b: 1, a: 1}
     uiIcon: []
     showCharacterInMenu: 1
+    announceNameSound: Announcer_Shirobon
+    attackSound: Bomberman_Attack
+    hitSound: Shirobon_Hit
+    knockoutSound: Shirobon_KO
   - name: Kurobon
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
@@ -69,3 +77,7 @@ MonoBehaviour:
       uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
     uiIcon: []
     showCharacterInMenu: 1
+    announceNameSound: Announcer_Kurobon
+    attackSound: Bomberman_Attack
+    hitSound: Kurobon_Hit
+    knockoutSound: Kurobon_KO

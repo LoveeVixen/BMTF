@@ -1,4 +1,5 @@
 // LOVEEVIXEN
+using Audio;
 using InputSystem;
 using Photon.Pun;
 using System.Collections;
@@ -10,6 +11,7 @@ namespace EntitySystem
     public struct HitData
     {
         public string hitboxID;
+        public float damage;
         public float stumbleSpeed;
         public float yVelocityLaunch;
         public float stumbleTime;
@@ -17,8 +19,10 @@ namespace EntitySystem
         public Vector3 stumbleDirection;
     }
 
-    public class Entity : MonoBehaviourPunCallbacks
+    public class Entity : MonoBehaviourPunCallbacks, IPunObservable
     {
+        private Health health;
+
         [Header("Entity Hitbox")]
         [SerializeField] GameObject hitboxDisplayPrefab;
         [SerializeField] Material normalMaterial;
@@ -27,11 +31,13 @@ namespace EntitySystem
 
         // Entity physics.
         private const float gravity = 9.81f;
+        [SerializeField] bool effectedByGravity = true;
         private float yVel;
         private bool airborne;
 
         private void Awake()
         {
+            health = GetComponent<Health>();
             SetupCharacterHitbox();
             OnAwake();
         }
@@ -39,6 +45,18 @@ namespace EntitySystem
         private void Update()
         {
             OnTick();
+        }
+
+        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+        {
+            if(stream.IsWriting)
+            {
+                stream.SendNext(health.CurrentHealth);
+            }
+            else if(stream.IsReading)
+            {
+                health.CurrentHealth = (float)stream.ReceiveNext();
+            }
         }
 
         public virtual void OnAwake() { }
@@ -50,25 +68,36 @@ namespace EntitySystem
                 airborne = true;
 
             // Apply movement on Y axis.
-            transform.position += (transform.up * yVel) * Time.deltaTime;
+            if(photonView.IsMine)
+                transform.position += (transform.up * yVel) * Time.deltaTime;
+
             if (airborne)
             {
                 // Apply gravity.
-                yVel -= (gravity * 15f) * Time.deltaTime;
+                if(effectedByGravity && photonView.IsMine) yVel -= (gravity * 15f) * Time.deltaTime;
 
                 // Ground player once they reach the floor.
                 if (transform.position.y <= 0f)
                 {
-                    yVel = 0f;
-                    Vector3 snapToGround = new Vector3(transform.position.x, 0f, transform.position.z);
-                    transform.position = snapToGround;
-                    airborne = false;
+                    if (photonView.IsMine)
+                    {
+                        yVel = 0f;
+                        Vector3 snapToGround = new Vector3(transform.position.x, 0f, transform.position.z);
+                        transform.position = snapToGround;
+                        airborne = false;
+                    }
+
                     OnLand();
                 }
             }
         }
 
         public virtual void OnLand() { }
+
+        public void MoveTo(Vector3 setPosition)
+        {
+            transform.position = setPosition;
+        }
 
         // Round entity's position to be by 1 decimal place.
         public void SnapPosition()
@@ -109,6 +138,7 @@ namespace EntitySystem
         public void RegisterHit(EntityHitbox otherHitbox, Attack attack, Vector3 stumbleDirection)
         {
             string hitboxID = otherHitbox.HitboxID();
+            float damage = attack.damage;
             float stumbleSpeed = attack.stumbleSpeed;
             float yVel = attack.yVelocityLaunch;
             float stumbleTime = attack.stumbleTime;
@@ -117,15 +147,16 @@ namespace EntitySystem
             float stumbleY = stumbleDirection.y;
             float stumbleZ = stumbleDirection.z;
 
-            photonView.RPC("RPC_RegisterHit", RpcTarget.All, hitboxID, stumbleSpeed, yVel, stumbleTime, type, stumbleX, stumbleY, stumbleZ);
+            photonView.RPC("RPC_RegisterHit", RpcTarget.All, hitboxID, damage, stumbleSpeed, yVel, stumbleTime, type, stumbleX, stumbleY, stumbleZ);
         }
 
         [PunRPC]
-        public void RPC_RegisterHit(string hitboxID, float stumbleSpeed, float yVel, float stumbleTime, int type, float stumbleX, float stumbleY, float stumbleZ)
+        public void RPC_RegisterHit(string hitboxID, float damage, float stumbleSpeed, float yVel, float stumbleTime, int type, float stumbleX, float stumbleY, float stumbleZ)
         {
             HitData hitData = new HitData
             {
                 hitboxID = hitboxID,
+                damage = damage,
                 stumbleSpeed = stumbleSpeed,
                 yVelocityLaunch = yVel,
                 stumbleTime = stumbleTime,
@@ -136,6 +167,7 @@ namespace EntitySystem
             SessionManager.instance.AddRegisteredHit(hitData);
         }
 
+        public Health GetHealth() { return health; }
         public GameObject GetHitboxDisplayPrefab() { return hitboxDisplayPrefab; }
         public List<EntityHitbox> GetHitboxesList() {  return hitboxes; }
 
@@ -143,5 +175,6 @@ namespace EntitySystem
         public Material GetAttackMaterial() { return attackMaterial; }
         public float GetGravity() {  return gravity; }
         public bool IsAirborne() { return airborne; }
+        public bool EffectedByGravity { get { return effectedByGravity; } set { effectedByGravity = value; } }
     }
 }

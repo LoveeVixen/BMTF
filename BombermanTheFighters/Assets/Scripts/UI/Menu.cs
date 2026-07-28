@@ -94,5 +94,19 @@ namespace UI
         }
 
         public bool IsOpen() { return isOpen; }
+        public Button GetSelectButtonOnOpen() {  return selectButtonOnOpen; }
+
+        // Find which menu is currently open.
+        public static Menu FindCurrentlyOpenMenu()
+        {
+            Menu[] menus = FindObjectsByType<Menu>(FindObjectsSortMode.None);
+            foreach(Menu menu in menus)
+            {
+                if (menu.IsOpen())
+                    return menu;
+            }
+
+            return null;
+        }
     }
 }

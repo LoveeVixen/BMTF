@@ -1,6 +1,8 @@
 // LOVEEVIXEN
 using UnityEngine;
+using System.Collections.Generic;
 using EntitySystem;
+using UI;
 
 namespace InputSystem
 {
@@ -25,7 +27,12 @@ namespace InputSystem
         {
             if (SessionManager.instance.HasRoundBegun())
             {
-                player.OutputInputData(PlayerInputData.CloneData(readInput));
+                PlayerInputData outputInputData = new PlayerInputData();
+
+                if (FeedInput())
+                    outputInputData = PlayerInputData.CloneData(readInput);
+                
+                player.OutputInputData(outputInputData);
                 player.Output();
             }
         }
@@ -33,6 +40,15 @@ namespace InputSystem
         public void ReadFromInputData(PlayerInputData setReadInput)
         {
             readInput = setReadInput;
+        }
+
+        public bool FeedInput()
+        {
+            bool feedInput = true;
+            if(TextChatUI.instance.IsOpen())
+                feedInput = false;
+
+            return feedInput;
         }
     }
 }

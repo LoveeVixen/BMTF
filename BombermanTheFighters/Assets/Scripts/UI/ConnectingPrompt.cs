@@ -19,10 +19,22 @@ public class ConnectingPrompt : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        if(PhotonNetwork.IsConnected)
-            openMenuOnConnect.Open();
+        if (!NetworkManager.instance.OpenLobbyOnLoadOnlineScene)
+        {
+            // Connect client to Photon Network.
+            if (PhotonNetwork.IsConnected)
+                openMenuOnConnect.Open();
+            else
+                PhotonNetwork.ConnectUsingSettings();
+        }
         else
-            PhotonNetwork.ConnectUsingSettings();
+        {
+            // Go straight to lobby.
+            NetworkManager.instance.OpenLobbyOnLoadOnlineScene = false;
+            NetworkSessionLobby lobby = FindFirstObjectByType<NetworkSessionLobby>();
+            lobby.GetMenu().Open();
+            lobby.UpdateSessionNameText();
+        }
     }
 
     public override void OnConnectedToMaster()

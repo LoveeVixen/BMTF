@@ -1,0 +1,181 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &60917639987392721
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7327511689150982289}
+  - component: {fileID: 3793166114409799750}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7327511689150982289
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60917639987392721}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3793166114409799750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60917639987392721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00d2fdfe350b81d409f3cc7ecba9aa7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioObjectPrefab: {fileID: 1170730294066931199, guid: b8c043f63ebb7a34cb1a0745c510f02a, type: 3}
+  musicPlayerPrefab: {fileID: 5653241765274812409, guid: b3bb80001c8a29f4bbd8c553a3cb97f4, type: 3}
+  sounds:
+  - name: Announcer_One
+    clips:
+    - {fileID: 8300000, guid: 1fdd83098f16cae438c347e3e6fcc90c, type: 3}
+  - name: Announcer_Two
+    clips:
+    - {fileID: 8300000, guid: 6fe40718317de4340b668f8f9c34eb88, type: 3}
+  - name: Announcer_Three
+    clips:
+    - {fileID: 8300000, guid: b799dd75643558740a9000de2cccb0a6, type: 3}
+  - name: Announcer_Four
+    clips:
+    - {fileID: 8300000, guid: 2a0df6d1cde848b45833a83ba968d662, type: 3}
+  - name: Announcer_Five
+    clips:
+    - {fileID: 8300000, guid: 3c666f8e4f9da90458a840417edb9957, type: 3}
+  - name: Announcer_Six
+    clips:
+    - {fileID: 8300000, guid: 5ef60559a1c301e4eb4873e015425ac0, type: 3}
+  - name: Announcer_Seven
+    clips:
+    - {fileID: 8300000, guid: 4e79890f902ddb742959b2c9dd3a1ef3, type: 3}
+  - name: Announcer_Eight
+    clips:
+    - {fileID: 8300000, guid: bd03b0eb9904cba4daab19334949087c, type: 3}
+  - name: Announcer_Nine
+    clips:
+    - {fileID: 8300000, guid: b996692752064b84284074f2bb46449a, type: 3}
+  - name: Announcer_Round
+    clips:
+    - {fileID: 8300000, guid: 174f2274c5fdb584c8b392f8d67f4d97, type: 3}
+  - name: Announcer_Final_Round
+    clips:
+    - {fileID: 8300000, guid: fb20e36f48eed03468b044b1d8b20f0c, type: 3}
+  - name: Announcer_Fight
+    clips:
+    - {fileID: 8300000, guid: 3035bd517e79c424d8feeb1528dd7392, type: 3}
+  - name: Announcer_KO
+    clips:
+    - {fileID: 8300000, guid: 7eddbfd961e41394f8366bb800bceb83, type: 3}
+  - name: Announcer_Double_KO
+    clips:
+    - {fileID: 8300000, guid: b475aea476846ee44bb21df229433bf0, type: 3}
+  - name: Announcer_Perfect
+    clips:
+    - {fileID: 8300000, guid: dc74b09ed048d6c408351c8aeb120060, type: 3}
+  - name: Announcer_Time_Up
+    clips:
+    - {fileID: 8300000, guid: fb3d667a7fdd3554aac18ca3a7aa5f1d, type: 3}
+  - name: Announcer_Draw
+    clips:
+    - {fileID: 8300000, guid: e42dc52a0764de6488d496811fad5fe5, type: 3}
+  - name: Announcer_You_Win
+    clips:
+    - {fileID: 8300000, guid: 93bb15f24683e6742948f4b2b14dd0dd, type: 3}
+  - name: Announcer_You_Lose
+    clips:
+    - {fileID: 8300000, guid: 34a58ec8065e91140bf72bc1bbd9a177, type: 3}
+  - name: Announcer_Win
+    clips:
+    - {fileID: 8300000, guid: 64f98dbbef744c747b5d72affe6be631, type: 3}
+  - name: Announcer_Continue
+    clips:
+    - {fileID: 8300000, guid: 85b94f39a6a35a84ca22762dade51467, type: 3}
+  - name: Announcer_Game_Over
+    clips:
+    - {fileID: 8300000, guid: aeec171af85f18f419660f1eae497704, type: 3}
+  - name: Announcer_Shirobon
+    clips:
+    - {fileID: 8300000, guid: ab8182cb54f4efd4885790e75478be09, type: 3}
+  - name: Announcer_Kurobon
+    clips:
+    - {fileID: 8300000, guid: e7a484caa0c41c6489702a22bfc8dc97, type: 3}
+  - name: Announcer_Pretty_Bomber
+    clips:
+    - {fileID: 8300000, guid: d7eb6db8e9b533e478b17c21b2b1e840, type: 3}
+  - name: Announcer_Regulus
+    clips:
+    - {fileID: 8300000, guid: 065aa50b1c0caf545a08c860892ed0ba, type: 3}
+  - name: Announcer_Lilith
+    clips:
+    - {fileID: 8300000, guid: 088ea41c7310e354080de70bef107d1e, type: 3}
+  - name: Announcer_Max
+    clips:
+    - {fileID: 8300000, guid: a4739c837cd631c4181188cb2c43bffe, type: 3}
+  - name: Announcer_Honey
+    clips:
+    - {fileID: 8300000, guid: c4afc158ac2de004a8c4b707c4286365, type: 3}
+  - name: Announcer_Kotetsu
+    clips:
+    - {fileID: 8300000, guid: bbf4642ab2e64ed4e878c8afb0908ed5, type: 3}
+  - name: Announcer_Plasma_Bomber
+    clips:
+    - {fileID: 8300000, guid: 8e6df4c25a1816c4885448c6d906132d, type: 3}
+  - name: Hit
+    clips:
+    - {fileID: 8300000, guid: d69437ccb8f77a247ba073c79d38c2c8, type: 3}
+    - {fileID: 8300000, guid: 07541f9009b14094db24d0f37bf780d7, type: 3}
+    - {fileID: 8300000, guid: d0011895b31135f47b775f8c040d6b19, type: 3}
+  - name: Critical_Hit
+    clips:
+    - {fileID: 8300000, guid: 114fd9c905df21d44bb1976600b5f947, type: 3}
+  - name: Explosion
+    clips:
+    - {fileID: 8300000, guid: 8ce938620af88a743a9853ecd11031ff, type: 3}
+    - {fileID: 8300000, guid: f0f46e8708ebe6549a93f04ba226820d, type: 3}
+  - name: Bomberman_Attack
+    clips:
+    - {fileID: 8300000, guid: a5caf1afef3b787478ffd192304d9cc6, type: 3}
+    - {fileID: 8300000, guid: a6cd4b65e4ceedd46a90bed17cf45738, type: 3}
+    - {fileID: 8300000, guid: ca64d1f71f5ded0408d00ccd983a7cc8, type: 3}
+    - {fileID: 8300000, guid: da69cec6568ff8a49998624bda1ac7f7, type: 3}
+  - name: Shirobon_Hit
+    clips:
+    - {fileID: 8300000, guid: b87650a4f9c2fde40bd2ae68f58db879, type: 3}
+    - {fileID: 8300000, guid: 1b73a9fd8df68b24187f5d33495aabfc, type: 3}
+  - name: Kurobon_Hit
+    clips:
+    - {fileID: 8300000, guid: ee96403be9e69534c98136e6ca046a79, type: 3}
+    - {fileID: 8300000, guid: 7743a54ce582a1f48a420eaebb905232, type: 3}
+  - name: Shirobon_KO
+    clips:
+    - {fileID: 8300000, guid: 4145f73fa62233244a2eacd5829d73c3, type: 3}
+  - name: Kurobon_KO
+    clips:
+    - {fileID: 8300000, guid: 11b312b6bb35c3e44a5fe8a212bfa2c2, type: 3}
+  music:
+  - name: Debug
+    intro: {fileID: 8300000, guid: 407aab004d5ae8d4c9aeb94b292d2634, type: 3}
+    loop: {fileID: 8300000, guid: 92d9b6521aab6d44487c73458c5c853e, type: 3}
+  - name: Cold Cold Heart
+    intro: {fileID: 8300000, guid: 28c2dafd4a625db4d8bd1214dc4426ee, type: 3}
+    loop: {fileID: 8300000, guid: 7100ac84182b70844be04b3af259a32f, type: 3}

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    private int targetFramerate = 60;
     [SerializeField] List<Character> characters = new List<Character>();
 
     private void Awake()

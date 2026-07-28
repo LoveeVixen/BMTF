@@ -1,7 +1,7 @@
 // LOVEEVIXEN
+using Audio;
 using InputSystem;
 using Photon.Pun;
-using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,18 +16,19 @@ namespace EntitySystem
         [SerializeField] float attackStrollSpeed = 1f;
         [SerializeField] float rollSpeed = 0.8f;
         private bool rollMovement = false;
+        private bool halfWaveDashMovement = false;
 
         private Player opponent;
-        private Health health;
         private Animator anim;
         private PlayerInputData lastInputData;
         private enum WalkDirection { idle, forward, backward, left, right};
         private WalkDirection walkDirection = WalkDirection.idle;
         private string currentAnimationName = "Idle";
         private GameObject loadedCharacterPrefab;
+        private Character loadedCharacter;
 
         // Player state
-        public enum CurrentState { idle, running, dashForward, dashBackward, dashLeft, dashRight, attacking, hit, lay, rollForward, rollBackward, rollLeft, rollRight, knockout };
+        public enum CurrentState { idle, running, dashForward, dashBackward, dashLeft, dashRight, waveDash, attacking, hit, lay, rollForward, rollBackward, rollLeft, rollRight };
         private CurrentState currentState;
 
         [Header("Attack/Combo system")]
@@ -40,6 +41,8 @@ namespace EntitySystem
         [SerializeField] List<ComboGraph.Branch> performedCombos = new List<ComboGraph.Branch>();
         private bool readCombos = true;
         private int inputtedCombosCount = 0;
+        private Transform weldingLimb;
+        private Bomb weldBomb;
 
         // Attack stroll (Player movement while attacking)
         private bool attackStroll = false;
@@ -51,11 +54,21 @@ namespace EntitySystem
         [SerializeField] float immunityTime = 0.02f;
         private float immunityTimer = 0f;
 
+        // Combining attack inputs.
+        private enum CombineDirection { none, up, upRight, right, downRight, down, downLeft, left, upLeft };
+        private CombineDirection combineDirection = CombineDirection.none;
+        private bool combine0 = false;
+        private bool combine1 = false;
+        private bool combine2 = false;
+        private bool combine3 = false;
+        private float combineInputTime = 0.02f;
+        private float combineInputTimer = 0f;
+
         public override void OnAwake()
         {
             base.OnAwake();
-            health = GetComponent<Health>();
             anim = GetComponent<Animator>();
+            combineInputTimer = combineInputTime;
         }
 
         private void Start()
@@ -122,14 +135,30 @@ namespace EntitySystem
                 }
             }
 
+            // Record player inputs on combo reader to later see if player has successfully done any combos.
             if (inputData.PressingInputCount() > 0 && !inputData.pressingStart && !inputData.pressingSelect)
             {
-                comboReader.inputs.Add(new ComboInputData(inputData, IsFacingRight()));
-                ResetComboReaderTimer();
+                // Begin timer until combined attack inputs are applied.
+                if(combineInputTimer == 0f) combineInputTimer = combineInputTime;
+
+                if (inputData.pressingUp) combineDirection = CombineDirection.up;
+                else if (inputData.pressingRight) combineDirection = CombineDirection.right;
+                else if (inputData.pressingDown) combineDirection = CombineDirection.down;
+                else if (inputData.pressingLeft) combineDirection = CombineDirection.left;
+                else if (inputData.pressingUpRight) combineDirection = CombineDirection.upRight;
+                else if (inputData.pressingDownRight) combineDirection = CombineDirection.downRight;
+                else if (inputData.pressingDownLeft) combineDirection = CombineDirection.downLeft;
+                else if (inputData.pressingUpLeft) combineDirection = CombineDirection.upLeft;
+
+                if (inputData.pressing0) combine0 = true;
+                if (inputData.pressing1) combine1 = true;
+                if (inputData.pressing2) combine2 = true;
+                if (inputData.pressing3) combine3 = true;
             }
 
             if (comboInputs.Length > 0)
             {
+                // Cancel running state.
                 if (currentState == CurrentState.running)
                 {
                     if (comboInputs[recentIndex].inputDirection == ComboInputData.InputDirection.backward || comboInputs[recentIndex].inputDirection == ComboInputData.InputDirection.up || comboInputs[recentIndex].inputDirection == ComboInputData.InputDirection.down)
@@ -143,6 +172,11 @@ namespace EntitySystem
             {
                 case CurrentState.idle: readyToAttack = true; break;
                 case CurrentState.running: readyToAttack = true; break;
+                case CurrentState.waveDash: readyToAttack = true; break;
+                case CurrentState.dashForward: readyToAttack = true; break;
+                case CurrentState.dashBackward: readyToAttack = true; break;
+                case CurrentState.dashLeft: readyToAttack = true; break;
+                case CurrentState.dashRight: readyToAttack = true; break;
             }
 
             // Execute combo moves if combo is successful.
@@ -186,7 +220,8 @@ namespace EntitySystem
 
         public void OutputInputData(PlayerInputData inputData)
         {
-            lastInputData = inputData;
+            if(!GetHealth().IsKnockedOut())
+                lastInputData = inputData;
         }
 
         public override void OnTick()
@@ -205,29 +240,42 @@ namespace EntitySystem
                         Idle();
                 }
 
+                float calcDashSpeed = dashSpeed;
+                if (currentState == CurrentState.waveDash)
+                {
+                    if (SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance())
+                    {
+                        if (halfWaveDashMovement) calcDashSpeed /= 2f;
+                        MoveDirection(transform.forward * calcDashSpeed);
+                    }
+                }
+
                 if (currentState == CurrentState.dashForward)
                 {
                     if (SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance())
-                        MoveDirection(transform.forward * dashSpeed);
+                        MoveDirection(transform.forward * calcDashSpeed);
                 }
 
                 if (currentState == CurrentState.dashBackward)
                 {
                     if (SessionManager.instance.PlayerDistance() < SessionManager.instance.GetMaxPlayerDistance())
-                        MoveDirection(-transform.forward * dashSpeed);
+                        MoveDirection(-transform.forward * calcDashSpeed);
                 }
 
                 if (currentState == CurrentState.dashLeft)
-                    MoveDirection(-transform.right * dashSpeed);
+                    MoveDirection(-transform.right * calcDashSpeed);
 
                 if (currentState == CurrentState.dashRight)
-                    MoveDirection(transform.right * dashSpeed);
+                    MoveDirection(transform.right * calcDashSpeed);
 
                 if (currentState == CurrentState.attacking && attackStroll && SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance())
                     MoveDirection(transform.forward * attackStrollSpeed);
 
                 if (currentState == CurrentState.hit)
+                {
+                    if (weldBomb != null) DropBomb();
                     MoveDirection(stumbleDirection * stumbleSpeed);
+                }
 
                 if (currentState == CurrentState.rollForward)
                 {
@@ -240,7 +288,53 @@ namespace EntitySystem
                     if (SessionManager.instance.PlayerDistance() < SessionManager.instance.GetMaxPlayerDistance() && rollMovement)
                         MoveDirection(-transform.forward * rollSpeed);
                 }
+
+                // Make sure player is not standing when they're KO.
+                if(GetHealth().IsKnockedOut())
+                {
+                    if (weldBomb != null) DropBomb();
+
+                    if (currentState == CurrentState.idle)
+                        DizzyFall();
+                }
+
+                // Tick down attack input combine timer until it reaches zero.
+                if (SessionManager.instance.HasRoundBegun())
+                {
+                    if (combineInputTimer > 0f)
+                    {
+                        combineInputTimer -= Time.deltaTime;
+                        if (combineInputTimer < 0f)
+                            combineInputTimer = 0f;
+                    }
+
+                    if (combineInputTimer == 0f)
+                    {
+                        PlayerInputData combinedInputData = PlayerInputData.CloneData(lastInputData);
+                        combinedInputData.pressingUp = combineDirection == CombineDirection.up;
+                        combinedInputData.pressingRight = combineDirection == CombineDirection.right;
+                        combinedInputData.pressingDown = combineDirection == CombineDirection.down;
+                        combinedInputData.pressingLeft = combineDirection == CombineDirection.left;
+                        combinedInputData.pressingUpRight = combineDirection == CombineDirection.upRight;
+                        combinedInputData.pressingDownRight = combineDirection == CombineDirection.downRight;
+                        combinedInputData.pressingDownLeft = combineDirection == CombineDirection.downLeft;
+                        combinedInputData.pressingUpLeft = combineDirection == CombineDirection.upLeft;
+                        combinedInputData.pressing0 = combine0;
+                        combinedInputData.pressing1 = combine1;
+                        combinedInputData.pressing2 = combine2;
+                        combinedInputData.pressing3 = combine3;
+
+                        if (combinedInputData.PressingInputCount() > 0 && !combinedInputData.pressingStart && !combinedInputData.pressingSelect)
+                        {
+                            comboReader.inputs.Add(new ComboInputData(combinedInputData, IsFacingRight()));
+                            ResetComboReaderTimer();
+                        }
+                    }
+                }
             }
+
+            if(weldBomb != null && weldBomb.photonView.IsMine)
+                weldBomb.MoveTo(weldingLimb.position);
 
             // Tick down timer until ready to reset combo reader.
             if (resetComboReaderTimer > 0f)
@@ -302,6 +396,24 @@ namespace EntitySystem
                 transform.position += (direction * Time.deltaTime);
         }
 
+        // Entity sound methods.
+        #region
+
+        // Play a sound, treated as a voice from the entity.
+        public void PlayVoice(string soundName)
+        {
+            photonView.RPC("RPC_PlayVoice", RpcTarget.All, soundName);
+        }
+
+        [PunRPC]
+        void RPC_PlayVoice(string soundName)
+        {
+            SoundProperties properties = new SoundProperties();
+            properties.follow = transform;
+            AudioManager.instance.PlaySound(soundName, Pos(), properties);
+        }
+        #endregion
+
         // Call this at the end of each attack animation clip using the Unity animation event feature.
         public void Idle()
         {
@@ -345,7 +457,13 @@ namespace EntitySystem
                     PlayAnimation(branch.attack.playAnimation);
 
                 // Make player move while attacking.
-                attackStroll = branch.attack.enableAttackStroll;  
+                attackStroll = branch.attack.enableAttackStroll;
+
+                // Play attack sound.
+                if(branch.attack.playSoundOnExecute == Attack.PlaySoundOnExecute.playCharacterAttack)
+                    PlayVoice(loadedCharacter.attackSound);
+                else if(branch.attack.playSoundOnExecute == Attack.PlaySoundOnExecute.playOverrideSound)
+                    PlayVoice(branch.attack.playOverrideSound);
 
                 if (!branch.attack.avoidPlayerStateUpdate)
                     SetCurrentState(CurrentState.attacking);
@@ -390,6 +508,12 @@ namespace EntitySystem
         {
             PlayAnimation("Collapse");
             stumbleSpeed = 0f;
+        }
+
+        public void DizzyFall()
+        {
+            SetCurrentState(CurrentState.hit);
+            PlayAnimation("DizzyFall");
         }
 
         public void SetStumbleDirection(Vector3 setStumbleDirection) { stumbleDirection = setStumbleDirection; }
@@ -470,6 +594,7 @@ namespace EntitySystem
         }
 
         public void EnableRollMovement() { rollMovement = true; }
+        public void ReduceWaveDashMovement() {  halfWaveDashMovement = true; }
 
         public void SetOpponent()
         {
@@ -493,6 +618,11 @@ namespace EntitySystem
         public void ResetComboReaderTimer()
         {
             resetComboReaderTimer = resetComboReaderTime;
+            combineDirection = CombineDirection.none;
+            combine0 = false;
+            combine1 = false;
+            combine2 = false;
+            combine3 = false;
         }
 
         public void PlayAnimation(string animName)
@@ -512,14 +642,14 @@ namespace EntitySystem
         {
             bool facingRight = false;
 
-            if (this == SessionManager.instance.GetPlayer(0) && !SessionManager.instance.GetFlipCamera())
+            if (this == SessionManager.instance.GetParticipate(0).GetPlayer() && !SessionManager.instance.GetFlipCamera())
                 facingRight = true;
-            else if (this == SessionManager.instance.GetPlayer(0))
+            else if (this == SessionManager.instance.GetParticipate(0).GetPlayer())
                 facingRight = false;
 
-            if (this == SessionManager.instance.GetPlayer(1) && SessionManager.instance.GetFlipCamera())
+            if (this == SessionManager.instance.GetParticipate(1).GetPlayer() && SessionManager.instance.GetFlipCamera())
                 facingRight = true;
-            else if (this == SessionManager.instance.GetPlayer(1))
+            else if (this == SessionManager.instance.GetParticipate(1).GetPlayer())
                 facingRight = false;
 
             return facingRight;
@@ -554,6 +684,7 @@ namespace EntitySystem
             characterObj.transform.Rotate(transform.rotation.eulerAngles);
             characterObj.name = "Character";
             loadedCharacterPrefab = characterObj;
+            loadedCharacter = characterData;
             gameObject.name = characterName;
 
             // Setup animator.
@@ -567,6 +698,9 @@ namespace EntitySystem
 
             // Setup character hitbox.
             SetupCharacterHitbox();
+
+            // Setup welding limb for where held weapons will be positioned.
+            weldingLimb = FindHitbox("RightHand").transform;
         }
 
         void SetCurrentState(CurrentState setCurrentState)
@@ -581,13 +715,13 @@ namespace EntitySystem
             currentState = (CurrentState)setCurrentState;
         }
 
-        public Health GetHealth() { return health; }
         public CurrentState GetCurrentState() { return currentState; }
         public string GetCurrentAnimationName() { return currentAnimationName; }
 
         public ComboReader GetComboReader() { return comboReader; }
 
         public ComboGraph GetComboGraph(){ return comboGraph; }
+        public Character GetLoadedCharacter() {  return loadedCharacter; }
 
         public void ReadCombos() { readCombos = true; }
 
@@ -607,30 +741,65 @@ namespace EntitySystem
         public void Run()
         {
             PlayAnimation("Run");
-            currentState = CurrentState.running;
+            SetCurrentState(CurrentState.running);
+            ResetComboSystem();
+        }
+
+        public void WaveDash()
+        {
+            SetCurrentState(CurrentState.waveDash);
+            halfWaveDashMovement = false;
             ResetComboSystem();
         }
 
         public void DashForward()
         {
-            currentState = CurrentState.dashForward;
+            SetCurrentState(CurrentState.dashForward);
+            ResetComboSystem();
         }
 
         public void DashBackward()
         {
-            currentState = CurrentState.dashBackward;
+            SetCurrentState(CurrentState.dashBackward);
+            ResetComboSystem();
         }
 
         public void DashLeft()
         {
             PlayAnimation("DashLeft");
-            currentState = CurrentState.dashLeft;
+            SetCurrentState(CurrentState.dashLeft);
+            ResetComboSystem();
         }
 
         public void DashRight()
         {
             PlayAnimation("DashRight");
-            currentState = CurrentState.dashRight;
+            SetCurrentState(CurrentState.dashRight);
+            ResetComboSystem();
+        }
+
+        public void CastBomb()
+        {
+            if(photonView.IsMine)
+            {
+                // Make sure to drop any existing bomb the player may already be holding.
+                if (weldBomb != null) DropBomb();
+
+                // Cast new bomb.
+                GameObject projectile = PhotonNetwork.Instantiate("Projectiles/Bomb", Pos(), Quaternion.identity);
+                weldBomb = projectile.GetComponent<Bomb>();
+                weldBomb.EffectedByGravity = false;
+            }
+        }
+
+        public void DropBomb()
+        {
+            if (photonView.IsMine && weldBomb != null)
+            {
+                weldBomb.EffectedByGravity = true;
+                weldBomb.PauseFuseTime = false;
+                weldBomb = null;
+            }
         }
         #endregion
     }

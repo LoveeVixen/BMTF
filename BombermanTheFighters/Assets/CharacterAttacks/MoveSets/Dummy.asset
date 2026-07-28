@@ -37,3 +37,5 @@ MonoBehaviour:
     followUpCombos: []
   - attack: {fileID: 11400000, guid: b91ad9997a2be6a488c4d5ddae7ee00e, type: 2}
     followUpCombos: []
+  - attack: {fileID: 11400000, guid: b4a5b420f36d4844f8c65c9f5cc05d08, type: 2}
+    followUpCombos: []

@@ -14,10 +14,16 @@ namespace InputSystem
         public bool avoidPlayerStateUpdate = false;
         public bool avoidApplyingAttackCooldown = false;
 
+        // Play attack sound.
+        public enum PlaySoundOnExecute { none, playCharacterAttack, playOverrideSound };
+        public PlaySoundOnExecute playSoundOnExecute = PlaySoundOnExecute.playCharacterAttack;
+        public string playOverrideSound;
+
         [Header("Attack stroll (Player movement while attacking)")]
         public bool enableAttackStroll = true;
 
         [Header("Opponent hit effect")]
+        public float damage = 10f;
         public float stumbleSpeed = 1f;
         public float yVelocityLaunch = 0f;
         public float stumbleTime = 0.3f;

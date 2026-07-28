@@ -22,6 +22,12 @@ public class Character
     public static string characterPrefabsPath = "Characters";
     public static float timeBetweenIconAnimationFrames = 0.5f;
 
+    [Header("Sounds")]
+    public string announceNameSound = "Character Name";
+    public string attackSound = "Attack";
+    public string hitSound = "Hit";
+    public string knockoutSound = "KO";
+
     public string GetCharacterPath() { return characterPrefabsPath + "/" + outfits[0].characterPrefab; }
     public string GetCharacterPath(int outfitIndex) { return characterPrefabsPath + "/" + outfits[outfitIndex].characterPrefab; }
 }
