@@ -77,6 +77,8 @@ namespace EntitySystem
                 PhotonNetwork.Destroy(gameObject);
         }
 
+        public void Defuse() { defused = true; }
+
         public bool PauseFuseTime {  get { return pauseFuseTime; } set { pauseFuseTime = value; } }
         public bool ExplodeOnCollision {  get { return explodeOnCollision; } set { explodeOnCollision = value; } }
     }

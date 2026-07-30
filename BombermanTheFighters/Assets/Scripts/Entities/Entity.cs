@@ -150,6 +150,21 @@ namespace EntitySystem
             photonView.RPC("RPC_RegisterHit", RpcTarget.All, hitboxID, damage, stumbleSpeed, yVel, stumbleTime, type, stumbleX, stumbleY, stumbleZ);
         }
 
+        public void RegisterHit(HitData attack, Vector3 stumbleDirection)
+        {
+            string hitboxID = attack.hitboxID;
+            float damage = attack.damage;
+            float stumbleSpeed = attack.stumbleSpeed;
+            float yVel = attack.yVelocityLaunch;
+            float stumbleTime = attack.stumbleTime;
+            int type = (int)attack.attackType;
+            float stumbleX = stumbleDirection.x;
+            float stumbleY = stumbleDirection.y;
+            float stumbleZ = stumbleDirection.z;
+
+            photonView.RPC("RPC_RegisterHit", RpcTarget.All, hitboxID, damage, stumbleSpeed, yVel, stumbleTime, type, stumbleX, stumbleY, stumbleZ);
+        }
+
         [PunRPC]
         public void RPC_RegisterHit(string hitboxID, float damage, float stumbleSpeed, float yVel, float stumbleTime, int type, float stumbleX, float stumbleY, float stumbleZ)
         {

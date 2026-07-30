@@ -358,7 +358,10 @@ public class SessionManager : MonoBehaviour
         // Clear up remaining projectiles.
         Bomb[] bombs = FindObjectsByType<Bomb>(FindObjectsSortMode.None);
         foreach (Bomb bomb in bombs)
+        {
+            bomb.Defuse();
             bomb.Destroy();
+        }
 
         // Begin next round.
         BeginRound();
