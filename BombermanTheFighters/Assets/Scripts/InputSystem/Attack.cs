@@ -11,16 +11,19 @@ namespace InputSystem
     {
         public string playAnimation = "";
         public ComboInputData[] requiredInputs = new ComboInputData[1];
+        public enum RequiredState { none, idle, dashForward, dashBackward, dashLeft, dashRight, waveDash, weldBomb, notWeldBomb };
+        public RequiredState requiredState;
         public bool avoidPlayerStateUpdate = false;
         public bool avoidApplyingAttackCooldown = false;
 
         // Play attack sound.
-        public enum PlaySoundOnExecute { none, playCharacterAttack, playOverrideSound };
+        public enum PlaySoundOnExecute { none, playCharacterAttack, playCharacterSpecial, playOverrideSound };
         public PlaySoundOnExecute playSoundOnExecute = PlaySoundOnExecute.playCharacterAttack;
         public string playOverrideSound;
 
         [Header("Attack stroll (Player movement while attacking)")]
         public bool enableAttackStroll = true;
+        public float attackStrollSpeed = 1f;
 
         [Header("Opponent hit effect")]
         public float damage = 10f;
@@ -28,6 +31,7 @@ namespace InputSystem
         public float yVelocityLaunch = 0f;
         public float stumbleTime = 0.3f;
         public AttackType attackType;
+
 
         [Header("While facing left")]
         public string playLeftFacingAnimation = "";

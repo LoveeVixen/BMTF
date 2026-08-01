@@ -15,15 +15,17 @@ MonoBehaviour:
   playAnimation: CastBomb
   requiredInputs:
   - inputDirection: 5
-    pressing0: 1
-    pressing1: 1
-    pressing2: 0
-    pressing3: 0
+    pressing0: 0
+    pressing1: 0
+    pressing2: 1
+    pressing3: 1
+  requiredState: 8
   avoidPlayerStateUpdate: 0
   avoidApplyingAttackCooldown: 0
   playSoundOnExecute: 1
   playOverrideSound: 
-  enableAttackStroll: 1
+  enableAttackStroll: 0
+  attackStrollSpeed: 3
   damage: 10
   stumbleSpeed: 1
   yVelocityLaunch: 0

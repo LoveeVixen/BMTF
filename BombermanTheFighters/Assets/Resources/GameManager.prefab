@@ -55,6 +55,7 @@ MonoBehaviour:
     showCharacterInMenu: 0
     announceNameSound: Character Name
     attackSound: Attack
+    specialSound: Special
     hitSound: Hit
     knockoutSound: KO
   - name: Shirobon
@@ -67,6 +68,7 @@ MonoBehaviour:
     showCharacterInMenu: 1
     announceNameSound: Announcer_Shirobon
     attackSound: Bomberman_Attack
+    specialSound: Shirobon_Special
     hitSound: Shirobon_Hit
     knockoutSound: Shirobon_KO
   - name: Kurobon
@@ -79,5 +81,6 @@ MonoBehaviour:
     showCharacterInMenu: 1
     announceNameSound: Announcer_Kurobon
     attackSound: Bomberman_Attack
+    specialSound: Kurobon_Special
     hitSound: Kurobon_Hit
     knockoutSound: Kurobon_KO

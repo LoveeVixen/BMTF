@@ -96,7 +96,14 @@ namespace EntitySystem
 
         public void MoveTo(Vector3 setPosition)
         {
-            transform.position = setPosition;
+            if (photonView.IsMine)
+                transform.position = setPosition;
+        }
+
+        public void MoveDirection(Vector3 direction)
+        {
+            if (photonView.IsMine)
+                transform.position += (direction * Time.deltaTime);
         }
 
         // Round entity's position to be by 1 decimal place.

@@ -19,9 +19,13 @@ MonoBehaviour:
     pressing1: 0
     pressing2: 0
     pressing3: 0
+  requiredState: 0
   avoidPlayerStateUpdate: 0
   avoidApplyingAttackCooldown: 0
+  playSoundOnExecute: 1
+  playOverrideSound: 
   enableAttackStroll: 1
+  attackStrollSpeed: 3
   damage: 20
   stumbleSpeed: 35
   yVelocityLaunch: 30

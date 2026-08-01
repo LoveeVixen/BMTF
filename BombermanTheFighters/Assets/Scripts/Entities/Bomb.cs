@@ -12,6 +12,9 @@ namespace EntitySystem
         private bool exploded = false;
         private bool explodeOnCollision = false;
         private bool defused = false;
+        private bool enableDirectionalMovement = false;
+        private float moveSpeed = 5f;
+        private Vector3 moveDirection = Vector3.zero;
         private Animator anim;
 
         public override void OnAwake()
@@ -25,6 +28,9 @@ namespace EntitySystem
             base.OnTick();
             if(photonView.IsMine)
             {
+                if (enableDirectionalMovement)
+                    MoveDirection(moveDirection * moveSpeed);
+
                 if(fuseTime > 0f && !pauseFuseTime)
                 {
                     fuseTime -= Time.deltaTime;
@@ -44,6 +50,10 @@ namespace EntitySystem
                 Explosion explosion = other.gameObject.GetComponentInParent<Explosion>();
                 if (explosion != null && !exploded)
                     Explode();
+
+                EntityHitbox otherHitbox = other.gameObject.GetComponent<EntityHitbox>();
+                if (otherHitbox != null && explodeOnCollision)
+                    InstantExplode();
             }
         }
 
@@ -65,6 +75,15 @@ namespace EntitySystem
             }
         }
 
+        public void InstantExplode()
+        {
+            if (photonView.IsMine && !exploded)
+            {
+                exploded = true;
+                Destroy();
+            }
+        }
+
         [PunRPC]
         void RPC_Explode()
         {
@@ -78,6 +97,9 @@ namespace EntitySystem
         }
 
         public void Defuse() { defused = true; }
+        public void SetEnableDirectionalMovement(bool enable) { enableDirectionalMovement  = enable; }
+        public void SetMoveDirection(Vector3 setMoveDir) {  moveDirection = setMoveDir; }
+        public void SetMoveSpeed(float setMoveSpeed) { moveSpeed = setMoveSpeed; }
 
         public bool PauseFuseTime {  get { return pauseFuseTime; } set { pauseFuseTime = value; } }
         public bool ExplodeOnCollision {  get { return explodeOnCollision; } set { explodeOnCollision = value; } }

@@ -25,6 +25,7 @@ public class Character
     [Header("Sounds")]
     public string announceNameSound = "Character Name";
     public string attackSound = "Attack";
+    public string specialSound = "Special";
     public string hitSound = "Hit";
     public string knockoutSound = "KO";
 

@@ -121,17 +121,25 @@ namespace EntitySystem
             {
                 if (IsFacingRight())
                 {
-                    if (inputData.holdingLeft)
-                        RollBackward();
-                    else if (inputData.holdingRight)
-                        RollForward();
+                    // Prevent player from getting back up if they're knocked out.
+                    if (!GetHealth().IsKnockedOut())
+                    {
+                        if (inputData.holdingLeft)
+                            RollBackward();
+                        else if (inputData.holdingRight)
+                            RollForward();
+                    }
                 }
                 else
                 {
-                    if (inputData.holdingLeft)
-                        RollForward();
-                    else if (inputData.holdingRight)
-                        RollBackward();
+                    // Prevent player from getting back up if they're knocked out.
+                    if (!GetHealth().IsKnockedOut())
+                    {
+                        if (inputData.holdingLeft)
+                            RollForward();
+                        else if (inputData.holdingRight)
+                            RollBackward();
+                    }
                 }
             }
 
@@ -187,7 +195,7 @@ namespace EntitySystem
                 {
                     foreach (ComboGraph.Branch branch in comboGraph.branches)
                     {
-                        if (branch.attack.MatchesRequiredInputs(comboReader.inputs))
+                        if (branch.attack.MatchesRequiredInputs(comboReader.inputs) && MatchesRequiredStateForAttack(branch.attack))
                             ExecuteAttack(branch);
                     }
                 }
@@ -199,7 +207,7 @@ namespace EntitySystem
                     {
                         foreach (ComboGraph.Branch branch in performedCombos[playerPerformedCombosCount - 1].followUpCombos)
                         {
-                            if (branch.attack.MatchesRequiredInputs(comboReader.inputs))
+                            if (branch.attack.MatchesRequiredInputs(comboReader.inputs) && MatchesRequiredStateForAttack(branch.attack))
                                 ExecuteAttack(branch);
                         }
                     }
@@ -390,12 +398,6 @@ namespace EntitySystem
                 Collapse();
         }
 
-        void MoveDirection(Vector3 direction)
-        {
-            if(photonView.IsMine)
-                transform.position += (direction * Time.deltaTime);
-        }
-
         // Entity sound methods.
         #region
 
@@ -458,10 +460,13 @@ namespace EntitySystem
 
                 // Make player move while attacking.
                 attackStroll = branch.attack.enableAttackStroll;
+                attackStrollSpeed = branch.attack.attackStrollSpeed;
 
                 // Play attack sound.
                 if(branch.attack.playSoundOnExecute == Attack.PlaySoundOnExecute.playCharacterAttack)
                     PlayVoice(loadedCharacter.attackSound);
+                else if (branch.attack.playSoundOnExecute == Attack.PlaySoundOnExecute.playCharacterSpecial)
+                    PlayVoice(loadedCharacter.specialSound);
                 else if(branch.attack.playSoundOnExecute == Attack.PlaySoundOnExecute.playOverrideSound)
                     PlayVoice(branch.attack.playOverrideSound);
 
@@ -715,6 +720,33 @@ namespace EntitySystem
             currentState = (CurrentState)setCurrentState;
         }
 
+        bool MatchesRequiredStateForAttack(Attack attack)
+        {
+            if (attack.requiredState == Attack.RequiredState.none)
+                return true;
+            else
+            {
+                if (currentState == CurrentState.idle && attack.requiredState == Attack.RequiredState.idle)
+                    return true;
+                else if (currentState == CurrentState.dashForward && attack.requiredState == Attack.RequiredState.dashForward)
+                    return true;
+                else if (currentState == CurrentState.dashBackward && attack.requiredState == Attack.RequiredState.dashBackward)
+                    return true;
+                else if (currentState == CurrentState.dashLeft && attack.requiredState == Attack.RequiredState.dashLeft)
+                    return true;
+                else if (currentState == CurrentState.dashRight && attack.requiredState == Attack.RequiredState.dashRight)
+                    return true;
+                else if (currentState == CurrentState.waveDash && attack.requiredState == Attack.RequiredState.waveDash)
+                    return true;
+                else if (weldBomb != null && attack.requiredState == Attack.RequiredState.weldBomb)
+                    return true;
+                else if (weldBomb == null && attack.requiredState == Attack.RequiredState.notWeldBomb)
+                    return true;
+            }
+
+            return false;
+        }
+
         public CurrentState GetCurrentState() { return currentState; }
         public string GetCurrentAnimationName() { return currentAnimationName; }
 
@@ -798,6 +830,19 @@ namespace EntitySystem
             {
                 weldBomb.EffectedByGravity = true;
                 weldBomb.PauseFuseTime = false;
+                weldBomb = null;
+            }
+        }
+
+        public void ThrowBomb()
+        {
+            if (photonView.IsMine && weldBomb != null)
+            {
+                weldBomb.ExplodeOnCollision = true;
+                weldBomb.PauseFuseTime = false;
+                weldBomb.SetEnableDirectionalMovement(true);
+                weldBomb.SetMoveDirection(transform.forward);
+                weldBomb.SetMoveSpeed(40f);
                 weldBomb = null;
             }
         }

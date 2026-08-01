@@ -104,7 +104,7 @@
             {
                 movesetList.innerHTML += characterData.combos[i].s_name + "</br>";
                 if(characterData.combos[i].s_tip != null)
-                    movesetList.innerHTML += characterData.combos[i].s_tip + "</br>"
+                    movesetList.innerHTML += "(" + characterData.combos[i].s_tip + ")" + "</br>"
 
                 for(let e = 0; e < characterData.combos[i].inputs.length; e++)
                 {
@@ -122,11 +122,15 @@
         var shirobon = new Character("Shirobon");
         shirobon.combos.push(new Combo("Two-jab to roundhouse", ["2", "3", "1"]));
         shirobon.combos.push(new Combo("Dragon initiate", ["f", "n", "d", "fd"]));
-        shirobon.combos.push(new Combo("Cast bomb", ["d", "01"]));
+        shirobon.combos.push(new Combo("Cast bomb", ["d", "23"]));
+        shirobon.combos.push(new Combo("Drop bomb", ["d", "3"], "After Cast Bomb"));
+        shirobon.combos.push(new Combo("Throw bomb", ["b", "03"], "After Cast Bomb"));
 
         var kurobon = new Character("Kurobon");
         kurobon.combos.push(new Combo("Two-jab to roundhouse", ["2", "3", "1"]));
         kurobon.combos.push(new Combo("Dragon initiate", "f", ["n", "d", "fd"]));
-        kurobon.combos.push(new Combo("Cast bomb", ["d", "01"]));
+        kurobon.combos.push(new Combo("Cast bomb", ["d", "23"]));
+        kurobon.combos.push(new Combo("Drop bomb", ["d", "3"], "After Cast Bomb"));
+        kurobon.combos.push(new Combo("Throw bomb", ["b", "03"], "After Cast Bomb"));
     </script>
 </html>

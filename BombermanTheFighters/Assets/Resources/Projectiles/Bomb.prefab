@@ -5214,7 +5214,7 @@ MonoBehaviour:
   hitboxDisplayPrefab: {fileID: 3821916839828149375, guid: d32a99acbc66a214788bdc37f267db9e, type: 3}
   normalMaterial: {fileID: 2100000, guid: a1b4b02c04bde4f4f8d85eb612e6e0b4, type: 2}
   attackMaterial: {fileID: 2100000, guid: 1e77e1dfd95ba8e4f8bdadd797e6faa4, type: 2}
-  effectedByGravity: 1
+  effectedByGravity: 0
   fuseTime: 3
   explosionSize: 14
 --- !u!114 &2519245526650742687
