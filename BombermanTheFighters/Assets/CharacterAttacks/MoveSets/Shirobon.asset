@@ -21,6 +21,10 @@ MonoBehaviour:
     followUpCombos: []
   - attack: {fileID: 11400000, guid: 3d55477d475eae94cae03a15b9467f24, type: 2}
     followUpCombos: []
+  - attack: {fileID: 11400000, guid: 3a16695f8b5aae7449ab6571ed497323, type: 2}
+    followUpCombos: []
+  - attack: {fileID: 11400000, guid: f58a1c63940f980419ba16301d005a41, type: 2}
+    followUpCombos: []
   - attack: {fileID: 11400000, guid: f7441b9d2cc4d844a843622033087d66, type: 2}
     followUpCombos: []
   - attack: {fileID: 11400000, guid: 27bab1be8a319604ea178e4168c586c4, type: 2}

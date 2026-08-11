@@ -63,6 +63,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abade9eed6b9c5545b2c24bdab9f3c8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guardParticlesPrefab: {fileID: 3116498592383813819, guid: afbdf3e303ce12740b811bf654b8835f, type: 3}
+  appliedEffects: []
+  applyEffectsTime: 0.2
   hitboxDisplayPrefab: {fileID: 3821916839828149375, guid: d32a99acbc66a214788bdc37f267db9e, type: 3}
   normalMaterial: {fileID: 2100000, guid: a1b4b02c04bde4f4f8d85eb612e6e0b4, type: 2}
   attackMaterial: {fileID: 2100000, guid: 1e77e1dfd95ba8e4f8bdadd797e6faa4, type: 2}
@@ -72,6 +75,7 @@ MonoBehaviour:
   dashSpeed: 35
   attackStrollSpeed: 3
   rollSpeed: 45
+  guardAngleRange: 5
   comboReader:
     inputs: []
   comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}

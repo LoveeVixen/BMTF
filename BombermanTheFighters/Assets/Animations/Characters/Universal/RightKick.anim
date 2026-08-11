@@ -2595,7 +2595,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.2
     functionName: AttackWithHitbox
-    data: RightHand
+    data: RightFoot
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

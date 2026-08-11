@@ -148,6 +148,9 @@ MonoBehaviour:
   - name: Critical_Hit
     clips:
     - {fileID: 8300000, guid: 114fd9c905df21d44bb1976600b5f947, type: 3}
+  - name: Guard
+    clips:
+    - {fileID: 8300000, guid: 2d4f3c5410777d747a257c713fee08a7, type: 3}
   - name: Explosion
     clips:
     - {fileID: 8300000, guid: 8ce938620af88a743a9853ecd11031ff, type: 3}
@@ -178,10 +181,28 @@ MonoBehaviour:
   - name: Kurobon_KO
     clips:
     - {fileID: 8300000, guid: 11b312b6bb35c3e44a5fe8a212bfa2c2, type: 3}
+  - name: Menu_Highlight
+    clips:
+    - {fileID: 8300000, guid: 6466bd2a1df7af7479f30133a247a614, type: 3}
+  - name: Menu_Select
+    clips:
+    - {fileID: 8300000, guid: 4e8fb771ef19bd84bb9af84dff5600b1, type: 3}
+  - name: Menu_Error
+    clips:
+    - {fileID: 8300000, guid: 19fb2ecef145b314d88fb1b8fe9d90e7, type: 3}
+  - name: Challenger
+    clips:
+    - {fileID: 8300000, guid: 761d71ecc085ac14b99c53f35de0d50f, type: 3}
   music:
   - name: Debug
     intro: {fileID: 8300000, guid: 407aab004d5ae8d4c9aeb94b292d2634, type: 3}
     loop: {fileID: 8300000, guid: 92d9b6521aab6d44487c73458c5c853e, type: 3}
+  - name: Beat Beat Stars
+    intro: {fileID: 8300000, guid: c4974fe183927c04d94ad859292355c1, type: 3}
+    loop: {fileID: 8300000, guid: 4ca47920c29ed56489b1a7d9516640c1, type: 3}
+  - name: Top Top Bombers
+    intro: {fileID: 0}
+    loop: {fileID: 8300000, guid: 67c87c8199bae9a45ab72882f5c5b59f, type: 3}
   - name: Cold Cold Heart
     intro: {fileID: 8300000, guid: 28c2dafd4a625db4d8bd1214dc4426ee, type: 3}
     loop: {fileID: 8300000, guid: 7100ac84182b70844be04b3af259a32f, type: 3}

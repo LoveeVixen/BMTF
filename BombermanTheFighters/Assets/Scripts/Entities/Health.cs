@@ -71,10 +71,6 @@ namespace EntitySystem
                     else
                     {
                         // Entity is not yet knocked out.
-
-                        // Play hit sound.
-                        if (player != null)
-                            player.PlayVoice(player.GetLoadedCharacter().hitSound);
                     }
                 }
             }

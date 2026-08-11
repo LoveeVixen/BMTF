@@ -42,6 +42,7 @@ public class SessionManager : MonoBehaviour
     private bool roundEnding = false;
     private bool roundEnded = false;
     private bool endSession = false;
+    private bool challengerEntering;
     public enum DoAfterMatch { index, onlineLobby, gameOverMenu };
     private DoAfterMatch doAfterMatch = DoAfterMatch.index;
 
@@ -140,6 +141,23 @@ public class SessionManager : MonoBehaviour
 
     void Update()
     {
+        if(roundBegun && !roundEnded && !challengerEntering)
+        {
+            PlayerInputData[] inputs = InputReader.AllPlayersInputData();
+            for(int i = 0; i < inputs.Length; i++)
+            {
+                // Input for toggle pause.
+                if (inputs[i].pressingStart && GameManager.instance.IsPlaying()[i])
+                {
+                    AudioManager.instance.PlayNonDiegeticSound("Menu_Select");
+                    if (!GameManager.instance.IsPaused())
+                        GameManager.instance.Pause();
+                    else
+                        GameManager.instance.Unpause();
+                }
+            }
+        }
+
         // Record tick for replay data.
         RecordFrame();
     }
@@ -166,8 +184,12 @@ public class SessionManager : MonoBehaviour
                 // Setup local player numbers for each local player to control their own character.
                 PlayerController player1Ctrl = player1Obj.GetComponent<PlayerController>();
                 PlayerController player2Ctrl = player2Obj.GetComponent<PlayerController>();
-                player1Ctrl.ReadFromInputData(InputReader.Player1());
-                player2Ctrl.ReadFromInputData(InputReader.Player2());
+
+                if (GameManager.instance.IsPlaying()[0])
+                    player1Ctrl.ReadFromInputData(InputReader.Player1());
+
+                if (GameManager.instance.IsPlaying()[1])
+                    player2Ctrl.ReadFromInputData(InputReader.Player2());
             }
             else
             {
@@ -208,10 +230,7 @@ public class SessionManager : MonoBehaviour
                 if (players[i] == null)
                 {
                     players[i] = new Participate(player);
-                    if(i == 0)
-                        player.LoadCharacter("Shirobon");
-                    else if(i == 1)
-                        player.LoadCharacter("Kurobon");
+                    player.LoadCharacter(Character.selectedCharacter[i], Character.selectedOutfitIndex[i]);
 
                     break;
                 }
@@ -220,15 +239,11 @@ public class SessionManager : MonoBehaviour
         else
         {
             if (player.photonView.Owner.IsMasterClient)
-            {
                 players[0] = new Participate(player);
-                player.LoadCharacter("Shirobon");
-            }
             else
-            {
                 players[1] = new Participate(player);
-                player.LoadCharacter("Kurobon");
-            }
+
+            player.LoadCharacter(Character.selectedCharacter[0], Character.selectedOutfitIndex[0]);
         }
 
         // Check that all players have been loaded in.
@@ -355,12 +370,20 @@ public class SessionManager : MonoBehaviour
             }
         }
 
-        // Clear up remaining projectiles.
-        Bomb[] bombs = FindObjectsByType<Bomb>(FindObjectsSortMode.None);
-        foreach (Bomb bomb in bombs)
+        Entity[] entities = FindObjectsByType<Entity>(FindObjectsSortMode.None);
+        foreach(Entity ent in entities)
         {
-            bomb.Defuse();
-            bomb.Destroy();
+            // Remove applied effect statuses.
+            for (int i = 0; i < ent.GetAppliedEffects().Count; i++)
+                ent.RemoveEffectStatus(i);
+
+            // Clear up remaining projectile entities.
+            Bomb bomb = ent as Bomb;
+            if(bomb != null)
+            {
+                bomb.Defuse();
+                bomb.Destroy();
+            }
         }
 
         // Begin next round.
@@ -377,6 +400,12 @@ public class SessionManager : MonoBehaviour
     public IEnumerator IContinue_RPC_ConcludeWinner(int playerIndex)
     {
         EndSession();
+        for (int i = 0; i < GameManager.instance.IsPlaying().Length; i++)
+        {
+            if (i != playerIndex)
+                GameManager.instance.IsPlaying()[i] = false;
+        }
+
         yield return new WaitForSeconds(1f);
 
         if (playerIndex != -1)
@@ -565,12 +594,32 @@ public class SessionManager : MonoBehaviour
     public void EndSession()
     {
         endSession = true;
+        Character.UndoConfirmedSelectedCharacters();
     }
 
     public void ExitGameScene()
     {
         NetworkClient networkClient = FindFirstObjectByType<NetworkClient>();
         networkClient.photonView.RPC("RPC_ExitGameScene", RpcTarget.All);
+    }
+
+    public void EnterChallenger()
+    {
+        StartCoroutine(IEnterChallenger());
+    }
+
+    IEnumerator IEnterChallenger()
+    {
+        challengerEntering = true;
+        sessionUI.DisplayAnnouncement("A NEW CHALLENGER ENTERS!!");
+        AudioManager.instance.StopMusic();
+        AudioManager.instance.PlayNonDiegeticSound("Challenger");
+        GameManager.instance.Pause();
+
+        yield return new WaitForSecondsRealtime(3f);
+
+        GameManager.instance.Unpause();
+        PhotonNetwork.LoadLevel("CharacterSelect");
     }
     #endregion
 
@@ -580,32 +629,69 @@ public class SessionManager : MonoBehaviour
         foreach (RegisteredHit registeredHit in registeredHits)
         {
             Entity hitEntity = registeredHit.GetTarget().GetEntity();
+            EntityHitbox hitbox = registeredHit.GetTarget();
+            Player player = hitEntity as Player;
+            bool blockedAttack = registeredHit.GetHitData().canGuard && player.CanGuard();
+
             if (hitEntity.photonView.IsMine)
             {
-                EntityHitbox hitbox = registeredHit.GetTarget();
-
                 // Check that hit target is a player.
-                Player player = hitEntity as Player;
                 if (player != null)
                 {
-                    player.GetHealth().RemoveHealth(registeredHit.GetHitData().damage);
+                    float calcDamage = registeredHit.GetHitData().damage;
+                    float calcStumbleSpeed = registeredHit.GetHitData().stumbleSpeed;
                     player.SetStumbleTimer(registeredHit.GetHitData().stumbleTime);
                     player.SetStumbleDirection(registeredHit.GetHitData().stumbleDirection);
-                    player.SetStumbleSpeed(registeredHit.GetHitData().stumbleSpeed);
-                    player.SetYVelocity(registeredHit.GetHitData().yVelocityLaunch);
 
-                    if (registeredHit.GetHitData().attackType == (int)AttackType.stumble)
-                        player.HighHit();
-                    else if (registeredHit.GetHitData().attackType == (int)AttackType.launch)
-                        player.LaunchHit();
+                    if (!blockedAttack)
+                    {
+                        player.SetYVelocity(registeredHit.GetHitData().yVelocityLaunch);
+
+                        if (registeredHit.GetHitData().attackType == (int)AttackType.stumble)
+                            player.HighHit();
+                        else if (registeredHit.GetHitData().attackType == (int)AttackType.launch)
+                            player.LaunchHit();
+
+                        // Player play hit sound.
+                        player.PlayVoice(player.GetLoadedCharacter().hitSound);
+
+                        // Play damage sound.
+                        if (registeredHit.GetHitData().damage <= 10f && !hitEntity.GetHealth().IsKnockedOut())
+                            AudioManager.instance.PlaySound("Hit", hitEntity.Pos());
+                        else
+                            AudioManager.instance.PlaySound("Critical_Hit", hitEntity.Pos());
+                    }
+                    else
+                    {
+                        player.Stun();
+
+                        // Cap stumble speed if attack was blocked.
+                        if (calcStumbleSpeed > 10f)
+                            calcStumbleSpeed = 10f;
+
+                        // Remove/cap damage.
+                        float guardDamageCap = 5f;
+                        if (!Gamerules.usingGamerules.guardDamage)
+                            calcDamage = 0f;
+                        else if (calcDamage > guardDamageCap)
+                            calcDamage = guardDamageCap;
+                    }
+
+                    player.GetHealth().RemoveHealth(calcDamage);
+                    player.SetStumbleSpeed(calcStumbleSpeed);
                 }
             }
 
-            // Play hit sound.
-            if(registeredHit.GetHitData().damage <= 10f && !hitEntity.GetHealth().IsKnockedOut())
-                AudioManager.instance.PlaySound("Hit", hitEntity.Pos());
-            else
-                AudioManager.instance.PlaySound("Critical_Hit", hitEntity.Pos());
+            // Apply effect status if attack has one.
+            if (registeredHit.GetHitData().applyEffectStatus != -1)
+                hitEntity.AddEffectStatus(registeredHit.GetHitData().applyEffectStatus, registeredHit.GetHitData().effectStatusMultiply, registeredHit.GetHitData().effectStatusLastTime);
+
+            // Guard visuals and and sound.
+            if (blockedAttack)
+            {
+                AudioManager.instance.PlaySound("Guard", hitEntity.Pos());
+                Instantiate(player.GetGuardParticlesPrefab(), registeredHit.GetTarget().transform.position + (Vector3.up * 1.25f), Quaternion.identity);
+            }
         }
 
         registeredHits.RemoveRange(0, registeredHits.Count);

@@ -11,7 +11,7 @@ namespace InputSystem
     {
         public string playAnimation = "";
         public ComboInputData[] requiredInputs = new ComboInputData[1];
-        public enum RequiredState { none, idle, dashForward, dashBackward, dashLeft, dashRight, waveDash, weldBomb, notWeldBomb };
+        public enum RequiredState { none, idle, dashForward, dashBackward, dashLeft, dashRight, waveDash, weldBomb, notWeldBomb, lay, rollForward };
         public RequiredState requiredState;
         public bool avoidPlayerStateUpdate = false;
         public bool avoidApplyingAttackCooldown = false;
@@ -31,7 +31,12 @@ namespace InputSystem
         public float yVelocityLaunch = 0f;
         public float stumbleTime = 0.3f;
         public AttackType attackType;
+        public bool canGuard = true;
 
+        [Header("Apply effect status on hit")]
+        public int applyEffectStatus = -1;
+        public int effectStatusMultiply = 1;
+        public float effectStatusLastTime = 1f;
 
         [Header("While facing left")]
         public string playLeftFacingAnimation = "";

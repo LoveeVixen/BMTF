@@ -2,11 +2,17 @@
 using InputSystem;
 using UnityEngine;
 using System.Collections.Generic;
+using UI;
+using Audio;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     [SerializeField] List<Character> characters = new List<Character>();
+    [SerializeField] List<EffectStatus> effectStatuses = new List<EffectStatus>();
+    [SerializeField] bool[] isPlaying = new bool[4];
+    private bool localPlayersCanJoin = true;
+    private bool isPaused = false;
 
     private void Awake()
     {
@@ -25,6 +31,13 @@ public class GameManager : MonoBehaviour
     {
         //Application.targetFrameRate = targetFramerate;
         Stage.LoadStagesFromResources();
+
+        // Setup list of characters that are locked by default.
+        foreach(Character character in characters)
+        {
+            if (!character.unlockedByDefault)
+                Character.isLocked.Add(character.name);
+        }    
     }
 
     // Update is called once per frame
@@ -333,6 +346,63 @@ public class GameManager : MonoBehaviour
         InputReader.Player2().pressing3 = Input.GetButtonDown("ThreeP2") || Input.GetKeyDown(InputReader.threeP2);
         InputReader.Player2().pressingStart = Input.GetButtonDown("StartP2") || Input.GetKeyDown(InputReader.startP2);
         InputReader.Player2().pressingSelect = Input.GetButtonDown("SelectP2") || Input.GetKeyDown(InputReader.selectP2);
+
+        // Allow local players to join.
+        if(localPlayersCanJoin)
+        {
+            PlayerInputData[] input = InputReader.AllPlayersInputData();
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (input[i].pressingStart && !isPlaying[i])
+                {
+                    isPlaying[i] = true;
+
+                    // If in character select, show the highlighted character for the newly joined local player.
+                    CharacterSelectUI characterSelectUI = FindFirstObjectByType<CharacterSelectUI>();
+                    if (characterSelectUI != null)
+                    {
+                        characterSelectUI.ShowHighlightedCharacters();
+                        if(characterSelectUI.ShowCharacterDisplay())
+                            characterSelectUI.GetCharacterDisplays()[i].DisplayCharacter(characterSelectUI.GetHighlightedCharacters()[i].GetCharacter().name, 0);
+
+                        AudioManager.instance.PlayNonDiegeticSound("Challenger");
+                    }
+
+                    // Stop current running session to let player know a challenger has joined.
+                    if(SessionManager.instance != null)
+                        SessionManager.instance.EnterChallenger();
+                }
+            }
+        }
+    }
+
+    public void Pause()
+    {
+        isPaused = true;
+        Time.timeScale = 0f;
+    }
+
+    public void Unpause()
+    {
+        isPaused = false;
+        Time.timeScale = 1f;
+    }
+
+    public void SetLocalPlayersCanJoin(bool set)
+    {
+        localPlayersCanJoin = set;
+    }
+
+    // Disable other local players asides player one.
+    public void SinglePlayer()
+    {
+        for (int i = 1; i < isPlaying.Length; i++)
+        {
+            if (i == 0)
+                isPlaying[i] = true;
+            else
+                isPlaying[i] = false;
+        }
     }
 
     // Return a character by it's name.
@@ -347,4 +417,20 @@ public class GameManager : MonoBehaviour
         Debug.Log("Unable to find character with name: " + characterName);
         return null;
     }
+
+
+    public List<Character> GetCharactersList() { return characters; }
+    public List<EffectStatus> GetEffectStatuses() { return effectStatuses; }
+    public bool[] IsPlaying() { return isPlaying; }
+
+    public int PlayersPlaying()
+    {
+        int amount = 0;
+        for(int i = 0; i < isPlaying.Length; i++)
+            if (isPlaying[i]) amount++;
+
+        return amount;
+    }
+
+    public bool IsPaused() { return isPaused; }
 }

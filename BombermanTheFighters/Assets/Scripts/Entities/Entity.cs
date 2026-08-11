@@ -16,12 +16,20 @@ namespace EntitySystem
         public float yVelocityLaunch;
         public float stumbleTime;
         public int attackType; // Look for struct 'AttackType' in the Attack script file.
+        public bool canGuard;
+        public int applyEffectStatus;
+        public int effectStatusMultiply;
+        public float effectStatusLastTime;
         public Vector3 stumbleDirection;
     }
 
     public class Entity : MonoBehaviourPunCallbacks, IPunObservable
     {
         private Health health;
+        [SerializeField] GameObject guardParticlesPrefab;
+        [SerializeField] List<AppliedEffectStatus> appliedEffects = new List<AppliedEffectStatus>();
+        [SerializeField] float applyEffectsTime = 0.02f;
+        private float applyEffectsTimer;
 
         [Header("Entity Hitbox")]
         [SerializeField] GameObject hitboxDisplayPrefab;
@@ -39,6 +47,7 @@ namespace EntitySystem
         {
             health = GetComponent<Health>();
             SetupCharacterHitbox();
+            applyEffectsTimer = applyEffectsTime;
             OnAwake();
         }
 
@@ -67,9 +76,39 @@ namespace EntitySystem
             if(transform.position.y > 0f)
                 airborne = true;
 
-            // Apply movement on Y axis.
-            if(photonView.IsMine)
+            if (photonView.IsMine)
+            {
+                // Apply movement on Y axis.
                 transform.position += (transform.up * yVel) * Time.deltaTime;
+
+                // Tick down apply effect timer.
+                if (applyEffectsTimer > 0f)
+                {
+                    applyEffectsTimer -= Time.deltaTime;
+                    if(applyEffectsTimer < 0f)
+                        applyEffectsTimer = 0f;
+                }
+            }
+
+            // Apply effect statuses.
+            for (int i = 0; i < appliedEffects.Count; i++)
+            {
+                if (photonView.IsMine && applyEffectsTimer == 0f)
+                {
+                    applyEffectsTimer = applyEffectsTime;
+
+                    // Apply effect status to entity.
+
+                    // Burn
+                    if (appliedEffects[i].effectIndex == 0)
+                        health.RemoveHealth(1f * appliedEffects[i].multiply);
+                }
+
+                // Tick down effect status last time. Remove it once time is up.
+                appliedEffects[i].lastTime -= Time.deltaTime;
+                if (appliedEffects[i].lastTime <= 0f)
+                    RemoveEffectStatus(i);
+            }
 
             if (airborne)
             {
@@ -123,6 +162,54 @@ namespace EntitySystem
                 hitboxes.Add(hitbox);
         }
 
+        public void AddEffectStatus(int effectIndex, int multiply, float lastTime)
+        {
+            // Check that entity already has requested effect.
+            int foundIndex = -1;
+            for(int i = 0; i < appliedEffects.Count; i++)
+            {
+                if (appliedEffects[i].effectIndex == effectIndex)
+                {
+                    foundIndex = i;
+                    break;
+                }
+            }
+
+            if (foundIndex != -1)
+            {
+                // Add to last time of existing applied effect.
+                if (appliedEffects[foundIndex].lastTime < lastTime)
+                    appliedEffects[foundIndex].lastTime = lastTime;
+
+                // Add to effect multiplier.
+                if (appliedEffects[foundIndex].multiply < multiply)
+                    appliedEffects[foundIndex].multiply = multiply;
+            }
+            else
+            {
+                // Add new status effect.
+                AppliedEffectStatus newEffect = new AppliedEffectStatus(effectIndex, multiply, lastTime);
+                appliedEffects.Add(newEffect);
+
+                foreach (EntityHitbox hb in hitboxes)
+                {
+                    ParticleSystem particles = Instantiate(GameManager.instance.GetEffectStatuses()[effectIndex].particlesPrefab, hb.transform.position, Quaternion.identity);
+                    EntityEffectParticles entityEffectParticles = particles.gameObject.GetComponent<EntityEffectParticles>();
+                    entityEffectParticles.SetFollowTarget(hb.transform);
+                    newEffect.effectParticles.Add(particles);
+                }
+            }
+        }
+
+        public void RemoveEffectStatus(int index)
+        {
+            // Destroy effect particles.
+            foreach (ParticleSystem ps in appliedEffects[index].effectParticles)
+                Destroy(ps.gameObject);
+
+            appliedEffects.RemoveAt(index);
+        }
+
         public Vector3 Pos()
         {
             return transform.position;
@@ -150,11 +237,15 @@ namespace EntitySystem
             float yVel = attack.yVelocityLaunch;
             float stumbleTime = attack.stumbleTime;
             int type = (int)attack.attackType;
+            bool canGuard = attack.canGuard;
+            int effectIndex = attack.applyEffectStatus;
+            int effectMultiply = attack.effectStatusMultiply;
+            float effectLastTime = attack.effectStatusLastTime;
             float stumbleX = stumbleDirection.x;
             float stumbleY = stumbleDirection.y;
             float stumbleZ = stumbleDirection.z;
 
-            photonView.RPC("RPC_RegisterHit", RpcTarget.All, hitboxID, damage, stumbleSpeed, yVel, stumbleTime, type, stumbleX, stumbleY, stumbleZ);
+            photonView.RPC("RPC_RegisterHit", RpcTarget.All, hitboxID, damage, stumbleSpeed, yVel, stumbleTime, type, canGuard, effectIndex, effectMultiply, effectLastTime, stumbleX, stumbleY, stumbleZ);
         }
 
         public void RegisterHit(HitData attack, Vector3 stumbleDirection)
@@ -165,15 +256,19 @@ namespace EntitySystem
             float yVel = attack.yVelocityLaunch;
             float stumbleTime = attack.stumbleTime;
             int type = (int)attack.attackType;
+            bool canGuard = attack.canGuard;
+            int effectIndex = attack.applyEffectStatus;
+            int effectMultiply = attack.effectStatusMultiply;
+            float effectLastTime = attack.effectStatusLastTime;
             float stumbleX = stumbleDirection.x;
             float stumbleY = stumbleDirection.y;
             float stumbleZ = stumbleDirection.z;
 
-            photonView.RPC("RPC_RegisterHit", RpcTarget.All, hitboxID, damage, stumbleSpeed, yVel, stumbleTime, type, stumbleX, stumbleY, stumbleZ);
+            photonView.RPC("RPC_RegisterHit", RpcTarget.All, hitboxID, damage, stumbleSpeed, yVel, stumbleTime, type, canGuard, effectIndex, effectMultiply, effectLastTime, stumbleX, stumbleY, stumbleZ);
         }
 
         [PunRPC]
-        public void RPC_RegisterHit(string hitboxID, float damage, float stumbleSpeed, float yVel, float stumbleTime, int type, float stumbleX, float stumbleY, float stumbleZ)
+        public void RPC_RegisterHit(string hitboxID, float damage, float stumbleSpeed, float yVel, float stumbleTime, int type, bool canGuard, int effectIndex, int effectMultiply, float effectTime, float stumbleX, float stumbleY, float stumbleZ)
         {
             HitData hitData = new HitData
             {
@@ -183,12 +278,17 @@ namespace EntitySystem
                 yVelocityLaunch = yVel,
                 stumbleTime = stumbleTime,
                 attackType = type,
+                canGuard = canGuard,
+                applyEffectStatus = effectIndex,
+                effectStatusMultiply = effectMultiply,
+                effectStatusLastTime = effectTime,
                 stumbleDirection = new Vector3(stumbleX, stumbleY, stumbleZ)
             };
 
             SessionManager.instance.AddRegisteredHit(hitData);
         }
 
+        public GameObject GetGuardParticlesPrefab() { return guardParticlesPrefab; }
         public Health GetHealth() { return health; }
         public GameObject GetHitboxDisplayPrefab() { return hitboxDisplayPrefab; }
         public List<EntityHitbox> GetHitboxesList() {  return hitboxes; }
@@ -198,5 +298,6 @@ namespace EntitySystem
         public float GetGravity() {  return gravity; }
         public bool IsAirborne() { return airborne; }
         public bool EffectedByGravity { get { return effectedByGravity; } set { effectedByGravity = value; } }
+        public List <AppliedEffectStatus> GetAppliedEffects() { return appliedEffects; }
     }
 }

@@ -50,9 +50,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         RoomOptions roomOptions = new RoomOptions();
         roomOptions.MaxPlayers = 2;
 
+        // Reset confirmed selected characters before going into character select.
+        for (int i = 0; i < Character.confirmedSelect.Length; i++)
+            Character.confirmedSelect[i] = false;
+
         yield return new WaitForSeconds(0.01f);
         PhotonNetwork.CreateRoom(Application.productName, roomOptions);
-        PhotonNetwork.LoadLevel("Game");
+        PhotonNetwork.LoadLevel("CharacterSelect");
     }
 
     public void HostSession()

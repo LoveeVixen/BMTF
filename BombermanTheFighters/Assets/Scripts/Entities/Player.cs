@@ -15,6 +15,7 @@ namespace EntitySystem
         [SerializeField] float dashSpeed = 0.5f;
         [SerializeField] float attackStrollSpeed = 1f;
         [SerializeField] float rollSpeed = 0.8f;
+        [SerializeField] float guardAngleRange = 5f;
         private bool rollMovement = false;
         private bool halfWaveDashMovement = false;
 
@@ -28,7 +29,7 @@ namespace EntitySystem
         private Character loadedCharacter;
 
         // Player state
-        public enum CurrentState { idle, running, dashForward, dashBackward, dashLeft, dashRight, waveDash, attacking, hit, lay, rollForward, rollBackward, rollLeft, rollRight };
+        public enum CurrentState { idle, running, dashForward, dashBackward, dashLeft, dashRight, waveDash, attacking, hit, lay, rollForward, rollBackward, rollLeft, rollRight, stun };
         private CurrentState currentState;
 
         [Header("Attack/Combo system")]
@@ -61,7 +62,7 @@ namespace EntitySystem
         private bool combine1 = false;
         private bool combine2 = false;
         private bool combine3 = false;
-        private float combineInputTime = 0.02f;
+        private float combineInputTime = 0.04f;
         private float combineInputTimer = 0f;
 
         public override void OnAwake()
@@ -116,33 +117,6 @@ namespace EntitySystem
                 }
             }
 
-            // Movement input while laying.
-            if (currentState == CurrentState.lay)
-            {
-                if (IsFacingRight())
-                {
-                    // Prevent player from getting back up if they're knocked out.
-                    if (!GetHealth().IsKnockedOut())
-                    {
-                        if (inputData.holdingLeft)
-                            RollBackward();
-                        else if (inputData.holdingRight)
-                            RollForward();
-                    }
-                }
-                else
-                {
-                    // Prevent player from getting back up if they're knocked out.
-                    if (!GetHealth().IsKnockedOut())
-                    {
-                        if (inputData.holdingLeft)
-                            RollForward();
-                        else if (inputData.holdingRight)
-                            RollBackward();
-                    }
-                }
-            }
-
             // Record player inputs on combo reader to later see if player has successfully done any combos.
             if (inputData.PressingInputCount() > 0 && !inputData.pressingStart && !inputData.pressingSelect)
             {
@@ -185,6 +159,8 @@ namespace EntitySystem
                 case CurrentState.dashBackward: readyToAttack = true; break;
                 case CurrentState.dashLeft: readyToAttack = true; break;
                 case CurrentState.dashRight: readyToAttack = true; break;
+                case CurrentState.lay: readyToAttack = true; break;
+                case CurrentState.rollForward: readyToAttack = true; break;
             }
 
             // Execute combo moves if combo is successful.
@@ -220,6 +196,33 @@ namespace EntitySystem
             {
                 case CurrentState.idle: faceOpponent = true; break;
                 case CurrentState.running: faceOpponent = true; break;
+            }
+
+            // Movement input while laying.
+            if (currentState == CurrentState.lay && combineInputTimer == 0f)
+            {
+                if (IsFacingRight())
+                {
+                    // Prevent player from getting back up if they're knocked out.
+                    if (!GetHealth().IsKnockedOut())
+                    {
+                        if (inputData.holdingLeft)
+                            RollBackward();
+                        else if (inputData.holdingRight)
+                            RollForward();
+                    }
+                }
+                else
+                {
+                    // Prevent player from getting back up if they're knocked out.
+                    if (!GetHealth().IsKnockedOut())
+                    {
+                        if (inputData.holdingLeft)
+                            RollForward();
+                        else if (inputData.holdingRight)
+                            RollBackward();
+                    }
+                }
             }
 
             if (faceOpponent)
@@ -285,6 +288,9 @@ namespace EntitySystem
                     MoveDirection(stumbleDirection * stumbleSpeed);
                 }
 
+                if(currentState == CurrentState.stun)
+                    MoveDirection(stumbleDirection * stumbleSpeed);
+
                 if (currentState == CurrentState.rollForward)
                 {
                     if (SessionManager.instance.PlayerDistance() > SessionManager.instance.GetMinPlayerDistance() && rollMovement)
@@ -316,7 +322,7 @@ namespace EntitySystem
                             combineInputTimer = 0f;
                     }
 
-                    if (combineInputTimer == 0f)
+                    if (combineInputTimer == 0f && lastInputData != null)
                     {
                         PlayerInputData combinedInputData = PlayerInputData.CloneData(lastInputData);
                         combinedInputData.pressingUp = combineDirection == CombineDirection.up;
@@ -521,6 +527,15 @@ namespace EntitySystem
             PlayAnimation("DizzyFall");
         }
 
+        public void Stun()
+        {
+            SetCurrentState(CurrentState.stun);
+            if (currentAnimationName == "Guard1")
+                PlayAnimation("Guard2");
+            else
+                PlayAnimation("Guard1");
+        }
+
         public void SetStumbleDirection(Vector3 setStumbleDirection) { stumbleDirection = setStumbleDirection; }
         public void SetStumbleSpeed(float setStumbleSpeed) {  stumbleSpeed = setStumbleSpeed; }
 
@@ -543,6 +558,11 @@ namespace EntitySystem
         {
             foreach (EntityHitbox hitbox in GetHitboxesList())
                 hitbox.AttackOnCollision(false);
+        }
+
+        public void StartAttackStroll()
+        {
+            attackStroll = true;
         }
 
         public void StopAttackStroll()
@@ -669,14 +689,14 @@ namespace EntitySystem
         }
 
         // Load a character prefab into this player gameobject.
-        public void LoadCharacter(string characterName)
+        public void LoadCharacter(string characterName, int outfitIndex)
         {
             if (photonView.IsMine)
-                photonView.RPC("RPC_LoadCharacter", RpcTarget.All, characterName);
+                photonView.RPC("RPC_LoadCharacter", RpcTarget.All, characterName, outfitIndex);
         }
 
         [PunRPC]
-        void RPC_LoadCharacter(string characterName)
+        void RPC_LoadCharacter(string characterName, int outfitIndex)
         {
             Character characterData = GameManager.instance.FindCharacter(characterName);
 
@@ -685,7 +705,7 @@ namespace EntitySystem
                 Destroy(loadedCharacterPrefab);
 
             // Instantiate new character prefab into player.
-            GameObject characterObj = (GameObject)Instantiate(Resources.Load(characterData.GetCharacterPath(0)), transform.position, Quaternion.identity, transform);
+            GameObject characterObj = (GameObject)Instantiate(Resources.Load(characterData.GetCharacterPath(outfitIndex)), transform.position, Quaternion.identity, transform);
             characterObj.transform.Rotate(transform.rotation.eulerAngles);
             characterObj.name = "Character";
             loadedCharacterPrefab = characterObj;
@@ -722,7 +742,7 @@ namespace EntitySystem
 
         bool MatchesRequiredStateForAttack(Attack attack)
         {
-            if (attack.requiredState == Attack.RequiredState.none)
+            if (attack.requiredState == Attack.RequiredState.none && currentState != CurrentState.lay && currentState != CurrentState.rollForward)
                 return true;
             else
             {
@@ -742,9 +762,28 @@ namespace EntitySystem
                     return true;
                 else if (weldBomb == null && attack.requiredState == Attack.RequiredState.notWeldBomb)
                     return true;
+                else if (currentState == CurrentState.lay && attack.requiredState == Attack.RequiredState.lay)
+                    return true;
+                else if (currentState == CurrentState.rollForward && attack.requiredState == Attack.RequiredState.rollForward)
+                    return true;
             }
 
             return false;
+        }
+
+        // Check that the player's facing angle from it's opponent is small enough to guard blockable attacks.
+        public bool CanGuard()
+        {
+            if(Mathf.Abs(OpponentAngleDifference()) < guardAngleRange)
+                return false;
+
+            if (currentState != CurrentState.idle && currentState != CurrentState.stun)
+                return false;
+
+            if (walkDirection != WalkDirection.idle && walkDirection != WalkDirection.backward)
+                return false;
+
+            return true;
         }
 
         public CurrentState GetCurrentState() { return currentState; }
@@ -756,6 +795,7 @@ namespace EntitySystem
         public Character GetLoadedCharacter() {  return loadedCharacter; }
 
         public void ReadCombos() { readCombos = true; }
+        public void StopReadCombos() { readCombos = false; }
 
         public bool IsReadingCombos() { return readCombos; }
 
@@ -767,6 +807,7 @@ namespace EntitySystem
 
         public ComboGraph.Branch LastPerformedCombo() { return performedCombos[performedCombos.Count - 1]; }
         public void SetStumbleTimer(float setStumbleTimer) { stumbleTimer = setStumbleTimer; }
+        public float OpponentAngleDifference() { return Vector3.SignedAngle(transform.forward, opponent.transform.forward, Vector3.up); }
 
         // Universal character attacks/abilities
         #region

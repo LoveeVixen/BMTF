@@ -29,7 +29,7 @@ namespace InputSystem
             {
                 PlayerInputData outputInputData = new PlayerInputData();
 
-                if (FeedInput())
+                if (FeedInput() && readInput != null)
                     outputInputData = PlayerInputData.CloneData(readInput);
                 
                 player.OutputInputData(outputInputData);

@@ -93,6 +93,16 @@ namespace UI
             Application.Quit();
         }
 
+        public void SinglePlayer()
+        {
+            GameManager.instance.SinglePlayer();
+        }
+
+        public void ToggleLocalPlayerJoin(bool canJoin)
+        {
+            GameManager.instance.SetLocalPlayersCanJoin(canJoin);
+        }
+
         public bool IsOpen() { return isOpen; }
         public Button GetSelectButtonOnOpen() {  return selectButtonOnOpen; }
 

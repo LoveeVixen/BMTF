@@ -23,20 +23,27 @@ namespace EntitySystem
 
         private void Awake()
         {
-            col = GetComponent<BoxCollider>();
-            entity = GetComponentInParent<Entity>();
-            hitboxID = "HITBOX_" + entity.photonView.ViewID.ToString();
+            // If this is for a character display, don't setup this hitbox.
+            CharacterDisplay charDisplay = GetComponentInParent<CharacterDisplay>();
+            if (charDisplay != null)
+                this.enabled = false;
+            else
+            {
+                col = GetComponent<BoxCollider>();
+                entity = GetComponentInParent<Entity>();
+                hitboxID = "HITBOX_" + entity.photonView.ViewID.ToString();
 
-            // Setup debug display.
-            display = Instantiate(entity.GetHitboxDisplayPrefab(), transform);
-            displayRender = display.GetComponent<MeshRenderer>();
-            displayRender.material = entity.GetNormalMaterial();
-            display.transform.localPosition = col.center;
-            display.transform.localScale = col.size;
-            ShowHitboxDisplay(false);
+                // Setup debug display.
+                display = Instantiate(entity.GetHitboxDisplayPrefab(), transform);
+                displayRender = display.GetComponent<MeshRenderer>();
+                displayRender.material = entity.GetNormalMaterial();
+                display.transform.localPosition = col.center;
+                display.transform.localScale = col.size;
+                ShowHitboxDisplay(false);
 
-            // Add hitbox to list of all existing hitboxes.
-            allHitboxes.Add(this);
+                // Add hitbox to list of all existing hitboxes.
+                allHitboxes.Add(this);
+            }
         }
 
         private void OnTriggerEnter(Collider other)

@@ -1,4 +1,5 @@
 // LOVEEVIXEN
+using Audio;
 using InputSystem;
 using UnityEngine;
 
@@ -9,10 +10,17 @@ namespace UI
         private bool isOpen = true;
         private GameObject container;
         [SerializeField] Menu openMenuOnStart;
+        [SerializeField] string playMusic;
 
         private void Awake()
         {
             container = transform.GetChild(0).gameObject;
+        }
+
+        private void Start()
+        {
+            GameManager.instance.SetLocalPlayersCanJoin(true);
+            AudioManager.instance.PlayMusic(playMusic);
         }
 
         // Update is called once per frame
@@ -21,18 +29,14 @@ namespace UI
             // Check that game has yet to be initiated.
             if (isOpen)
             {
-                // Player 1 initiates game.
-                if (InputReader.Player1().pressingStart)
+                // Close start prompt once someone is playing.
+                for(int i = 0; i < InputReader.AllPlayersInputData().Length; i++)
                 {
-                    Close();
-                    openMenuOnStart.Open();
-                }
-
-                // Player 2 initiates game.
-                if (InputReader.Player2().pressingStart)
-                {
-                    Close();
-                    openMenuOnStart.Open();
+                    if (GameManager.instance.IsPlaying()[i])
+                    {
+                        Close();
+                        openMenuOnStart.Open();
+                    }
                 }
             }
         }

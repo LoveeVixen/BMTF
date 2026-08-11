@@ -31,4 +31,8 @@ MonoBehaviour:
   yVelocityLaunch: 0
   stumbleTime: 0.3
   attackType: 0
+  canGuard: 1
+  applyEffectStatus: -1
+  effectStatusMultiply: 1
+  effectStatusLastTime: 1
   playLeftFacingAnimation: 

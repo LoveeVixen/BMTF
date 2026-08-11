@@ -83,7 +83,8 @@ namespace Audio
         {
             AudioObject audioObj = Instantiate(audioObjectPrefab, pos, Quaternion.identity);
             AudioSource source = audioObj.GetSource();
-            source.clip = GetSound(soundName).GetRandomClip();
+            Sound sound = GetSound(soundName);
+            if(sound != null) source.clip = sound.GetRandomClip();
 
             // Play sound.
             source.Play();
@@ -94,7 +95,8 @@ namespace Audio
         {
             AudioObject audioObj = Instantiate(audioObjectPrefab, pos, Quaternion.identity);
             AudioSource source = audioObj.GetSource();
-            source.clip = GetSound(soundName).GetRandomClip();
+            Sound sound = GetSound(soundName);
+            if(sound != null) source.clip = sound.GetRandomClip();
 
             // Apply sound properties.
             ApplySoundPropertiesToAudioObject(audioObj, properties);
@@ -133,7 +135,8 @@ namespace Audio
         {
             AudioObject audioObj = Instantiate(audioObjectPrefab);
             AudioSource source = audioObj.GetSource();
-            source.clip = GetSound(soundName).GetRandomClip();
+            Sound sound = GetSound(soundName);
+            if (sound != null) source.clip = sound.GetRandomClip();
             source.spatialBlend = 0f;
 
             // Play sound.
@@ -157,7 +160,8 @@ namespace Audio
         {
             AudioObject audioObj = Instantiate(audioObjectPrefab);
             AudioSource source = audioObj.GetSource();
-            source.clip = GetSound(soundName).GetRandomClip();
+            Sound sound = GetSound(soundName);
+            if (sound != null) source.clip = sound.GetRandomClip();
             source.spatialBlend = 0f;
 
             // Apply sound properties.

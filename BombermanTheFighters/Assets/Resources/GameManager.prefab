@@ -48,10 +48,13 @@ MonoBehaviour:
   - name: Dummy
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
+    unlockedByDefault: 1
     outfits:
     - characterPrefab: Dummy/Outfit1
       uiColor: {r: 1, g: 1, b: 1, a: 1}
-    uiIcon: []
+    uiIcon:
+    - {fileID: 21300000, guid: f9ca55de08824bb4bb66a10d217e1246, type: 3}
+    - {fileID: 21300000, guid: f9ca55de08824bb4bb66a10d217e1246, type: 3}
     showCharacterInMenu: 0
     announceNameSound: Character Name
     attackSound: Attack
@@ -61,10 +64,15 @@ MonoBehaviour:
   - name: Shirobon
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
+    unlockedByDefault: 1
     outfits:
     - characterPrefab: Shirobon/Outfit1
       uiColor: {r: 1, g: 1, b: 1, a: 1}
-    uiIcon: []
+    - characterPrefab: Shirobon/Outfit2
+      uiColor: {r: 1, g: 1, b: 1, a: 1}
+    uiIcon:
+    - {fileID: 21300000, guid: bb527d7bb86fc14489ce72ba4516b186, type: 3}
+    - {fileID: 21300000, guid: 1a5fc5f8b1ad40a45b65c8d2c56fa619, type: 3}
     showCharacterInMenu: 1
     announceNameSound: Announcer_Shirobon
     attackSound: Bomberman_Attack
@@ -74,13 +82,23 @@ MonoBehaviour:
   - name: Kurobon
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
+    unlockedByDefault: 1
     outfits:
     - characterPrefab: Kurobon/Outfit1
       uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
-    uiIcon: []
+    - characterPrefab: Kurobon/Outfit2
+      uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
+    uiIcon:
+    - {fileID: 21300000, guid: f9ca55de08824bb4bb66a10d217e1246, type: 3}
+    - {fileID: 21300000, guid: f9ca55de08824bb4bb66a10d217e1246, type: 3}
     showCharacterInMenu: 1
     announceNameSound: Announcer_Kurobon
     attackSound: Bomberman_Attack
     specialSound: Kurobon_Special
     hitSound: Kurobon_Hit
     knockoutSound: Kurobon_KO
+  effectStatuses:
+  - name: Burn
+    reverseName: 
+    particlesPrefab: {fileID: 1505123056252088956, guid: d2b0d224fdec9fd42ace44487389ed32, type: 3}
+  isPlaying: 00000000
