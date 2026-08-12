@@ -1,4 +1,5 @@
 // LOVEEVIXEN
+using EntitySystem;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +16,8 @@ namespace InputSystem
         public RequiredState requiredState;
         public bool avoidPlayerStateUpdate = false;
         public bool avoidApplyingAttackCooldown = false;
+        public bool changeFacialExpression = true;
+        public FacialExpression facialExpression = FacialExpression.angry;
 
         // Play attack sound.
         public enum PlaySoundOnExecute { none, playCharacterAttack, playCharacterSpecial, playOverrideSound };

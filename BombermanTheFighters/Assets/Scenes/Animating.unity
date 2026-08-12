@@ -360,14 +360,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abade9eed6b9c5545b2c24bdab9f3c8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guardParticlesPrefab: {fileID: 0}
+  appliedEffects: []
+  applyEffectsTime: 0.02
   hitboxDisplayPrefab: {fileID: 0}
   normalMaterial: {fileID: 0}
   attackMaterial: {fileID: 0}
+  effectedByGravity: 1
   moveSpeed: 0.15
   runSpeed: 0.7
   dashSpeed: 0.5
   attackStrollSpeed: 1
   rollSpeed: 0.8
+  guardAngleRange: 5
   comboReader:
     inputs: []
   comboGraph: {fileID: 0}

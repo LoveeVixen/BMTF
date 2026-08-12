@@ -1734,6 +1734,7 @@ GameObject:
   - component: {fileID: 2387652022254603038}
   - component: {fileID: 6673283675618829951}
   - component: {fileID: 5664439521379594509}
+  - component: {fileID: 8437972707846281560}
   m_Layer: 0
   m_Name: Head
   m_TagString: Untagged
@@ -1788,6 +1789,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
+  - {fileID: 2100000, guid: cf3c8bff2369b134fb5ce7d4df300df0, type: 2}
   - {fileID: 2100000, guid: 0688e9ff6c4cf0c4ea1e90af1ee28e1e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -1845,6 +1847,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hitboxName: Head
   hitboxType: 0
+--- !u!114 &8437972707846281560
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7482223504979969799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 188f78ff8067d15438f57f29a22ad46e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7652645953885323466
 GameObject:
   m_ObjectHideFlags: 0

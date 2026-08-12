@@ -27,6 +27,8 @@ MonoBehaviour:
   requiredState: 0
   avoidPlayerStateUpdate: 1
   avoidApplyingAttackCooldown: 1
+  changeFacialExpression: 0
+  facialExpression: 2
   playSoundOnExecute: 0
   playOverrideSound: 
   enableAttackStroll: 1
@@ -36,4 +38,8 @@ MonoBehaviour:
   yVelocityLaunch: 0
   stumbleTime: 0.3
   attackType: 0
+  canGuard: 1
+  applyEffectStatus: -1
+  effectStatusMultiply: 1
+  effectStatusLastTime: 1
   playLeftFacingAnimation: 

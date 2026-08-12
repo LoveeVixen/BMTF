@@ -38,6 +38,13 @@ public class Character
     public static string characterPrefabsPath = "Characters";
     public static float timeBetweenIconAnimationFrames = 0.5f;
 
+    [Header("Faces")]
+    public Material normalFace;
+    public Material happyFace;
+    public Material angryFace;
+    public Material hurtFace;
+    public Material dizzyFace;
+
     [Header("Sounds")]
     public string announceNameSound = "Character Name";
     public string attackSound = "Attack";

@@ -118,7 +118,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 100}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 1
-  controlID: 205
+  controlID: 11957
   draggingID: 0
 --- !u!114 &6
 MonoBehaviour:
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 100}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 206
+  controlID: 11958
   draggingID: 0
 --- !u!114 &7
 MonoBehaviour:
@@ -170,7 +170,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 100}
   m_MaxSize: {x: 16192, y: 16192}
   vertical: 1
-  controlID: 207
+  controlID: 11959
   draggingID: 0
 --- !u!114 &8
 MonoBehaviour:
@@ -196,7 +196,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 50}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 208
+  controlID: 11960
   draggingID: 0
 --- !u!114 &9
 MonoBehaviour:
@@ -234,7 +234,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 1
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: SceneView
+  m_Name: GameView
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
@@ -245,14 +245,14 @@ MonoBehaviour:
     height: 969
   m_MinSize: {x: 202, y: 226}
   m_MaxSize: {x: 4002, y: 4026}
-  m_ActualView: {fileID: 15}
+  m_ActualView: {fileID: 13}
   m_Panes:
   - {fileID: 15}
   - {fileID: 13}
   - {fileID: 16}
   - {fileID: 17}
-  m_Selected: 0
-  m_LastSelected: 1
+  m_Selected: 1
+  m_LastSelected: 0
 --- !u!114 &11
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -355,7 +355,7 @@ MonoBehaviour:
   m_TextureFilterMode: 0
   m_TextureHideFlags: 61
   m_RenderIMGUI: 1
-  m_EnterPlayModeBehavior: 0
+  m_EnterPlayModeBehavior: 1
   m_UseMipMap: 0
   m_VSyncEnabled: 0
   m_Gizmos: 0
@@ -378,7 +378,7 @@ MonoBehaviour:
     m_HSlider: 0
     m_VSlider: 0
     m_IgnoreScrollWheelUntilClicked: 0
-    m_EnableMouseInput: 0
+    m_EnableMouseInput: 1
     m_EnableSliderZoomHorizontal: 0
     m_EnableSliderZoomVertical: 0
     m_UniformScale: 1
@@ -451,7 +451,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: a210fcffcc4bfcffe44bfcffe84ffcff2a50fcff8650fcffba50fcff18b6fcffdc94fdffe2c4fdffb0ddfdffe034feff0e96ffffba97ffffc0a4ffff0ad2ffffa6f1ffffbef1ffffc0f5ffff02f6ffff5ef6ffff92f6ffff16fbffff82e0000094040100b6040100e6040100
+      m_ExpandedIDs: 366bfeff4e6bfeff546ffeff966ffefff26ffeff2670feffead3fefff6d3fefffad3feffb4d5feffc4d7feff260fffff320fffff360fffffa60fffffa211ffff5a3cffff663cffff6a3cffffda3cffffd63effff6c54ffff7854ffff7c54ffffec54ffffe856ffffba72ffffc672ffffd272ffffde72ffffe272ffff5273ffff4e75ffff1a8affff04b8fffffcfaffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1125,9 +1125,9 @@ MonoBehaviour:
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: 2.1706684, y: -4.2296143, z: 31.148758}
+    m_Target: {x: -10.997618, y: -0.742815, z: 2.7389174}
     speed: 2
-    m_Value: {x: 2.1706684, y: -4.2296143, z: 31.148758}
+    m_Value: {x: -10.997618, y: -0.742815, z: 2.7389174}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -1173,13 +1173,13 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: 0.08119111, y: 0.028700082, z: -0.0023969114, w: 0.9963355}
+    m_Target: {x: 0.12123661, y: -0.6373946, z: 0.102328345, w: 0.7541116}
     speed: 2
-    m_Value: {x: 0.08118681, y: 0.028698564, z: -0.0023967845, w: 0.99628276}
+    m_Value: {x: -0.12123661, y: 0.6373946, z: -0.10232835, w: -0.7541116}
   m_Size:
-    m_Target: 22.104004
+    m_Target: 10.379518
     speed: 2
-    m_Value: 22.104004
+    m_Value: 10.379518
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -1447,7 +1447,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Audio/Voices/Lilith
+    - Assets/Scenes
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -1457,17 +1457,17 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Audio/Voices/Lilith
+  - Assets/Scenes
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\Semfh\Documents\Github Repos\BMTF\BombermanTheFighters
   m_LockTracker:
     m_IsLocked: 0
   m_LastLocalAssetsSearchArea: 1
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 42}
-    m_SelectedIDs: 7a7b0100
-    m_LastClickedID: 97146
-    m_ExpandedIDs: 0000000036b3000038b300003ab300003cb300003eb3000040b3000042b3000044b3000046b3000048b300004ab300004cb300004eb3000050b300009cb50000bcb5000000ca9a3b
+    scrollPos: {x: 0, y: 0}
+    m_SelectedIDs: aab50000
+    m_LastClickedID: 46506
+    m_ExpandedIDs: 0000000058b300009eb5000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1496,7 +1496,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 0000000036b3000038b300003ab300003cb300003eb3000040b3000042b3000044b3000046b3000048b300004ab300004cb300004eb3000050b3000000ca9a3b
+    m_ExpandedIDs: 0000000058b3000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1628,7 +1628,7 @@ MonoBehaviour:
     m_OverlaysVisible: 1
   m_LockTracker:
     m_IsLocked: 0
-  m_LastSelectedObjectID: 66860
+  m_LastSelectedObjectID: 46948
 --- !u!114 &21
 MonoBehaviour:
   m_ObjectHideFlags: 52

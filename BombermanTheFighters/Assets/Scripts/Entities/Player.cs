@@ -27,6 +27,7 @@ namespace EntitySystem
         private string currentAnimationName = "Idle";
         private GameObject loadedCharacterPrefab;
         private Character loadedCharacter;
+        private Face face;
 
         // Player state
         public enum CurrentState { idle, running, dashForward, dashBackward, dashLeft, dashRight, waveDash, attacking, hit, lay, rollForward, rollBackward, rollLeft, rollRight, stun };
@@ -42,6 +43,7 @@ namespace EntitySystem
         [SerializeField] List<ComboGraph.Branch> performedCombos = new List<ComboGraph.Branch>();
         private bool readCombos = true;
         private int inputtedCombosCount = 0;
+        private Renderer headMeshRender;
         private Transform weldingLimb;
         private Bomb weldBomb;
 
@@ -428,6 +430,7 @@ namespace EntitySystem
             ResetComboSystem();
             PlayAnimation("Idle");
             attackStroll = false;
+            SetFacialExpression(FacialExpression.normal);
             SetCurrentState(CurrentState.idle);
             DisableAttackForAllHitboxes();
         }
@@ -476,6 +479,10 @@ namespace EntitySystem
                 else if(branch.attack.playSoundOnExecute == Attack.PlaySoundOnExecute.playOverrideSound)
                     PlayVoice(branch.attack.playOverrideSound);
 
+                // Change facial expression.
+                if (branch.attack.changeFacialExpression)
+                    SetFacialExpression(branch.attack.facialExpression);
+
                 if (!branch.attack.avoidPlayerStateUpdate)
                     SetCurrentState(CurrentState.attacking);
 
@@ -496,8 +503,9 @@ namespace EntitySystem
             {
                 SetCurrentState(CurrentState.hit);
                 ApplyImmunity();
+                SetFacialExpression(FacialExpression.hurt);
 
-                if(currentAnimationName == "HighHit1")
+                if (currentAnimationName == "HighHit1")
                     PlayAnimation("HighHit2");
                 else
                     PlayAnimation("HighHit1");
@@ -510,6 +518,7 @@ namespace EntitySystem
             {
                 SetCurrentState(CurrentState.hit);
                 ApplyImmunity();
+                SetFacialExpression(FacialExpression.hurt);
 
                 PlayAnimation("LaunchHit");
             }
@@ -524,6 +533,7 @@ namespace EntitySystem
         public void DizzyFall()
         {
             SetCurrentState(CurrentState.hit);
+            SetFacialExpression(FacialExpression.dizzy);
             PlayAnimation("DizzyFall");
         }
 
@@ -663,6 +673,18 @@ namespace EntitySystem
             currentAnimationName = animName;
         }
 
+        public void SetFacialExpression(FacialExpression set)
+        {
+            photonView.RPC("RPC_SetFacialExpression", RpcTarget.All, (int)set);
+        }
+
+        [PunRPC]
+        void RPC_SetFacialExpression(int set)
+        {
+            if (face != null)
+                face.SetExpression((FacialExpression)set);
+        }
+
         public bool IsFacingRight()
         {
             bool facingRight = false;
@@ -709,6 +731,8 @@ namespace EntitySystem
             characterObj.transform.Rotate(transform.rotation.eulerAngles);
             characterObj.name = "Character";
             loadedCharacterPrefab = characterObj;
+            face = characterObj.GetComponentInChildren<Face>();
+            face.SetCharacter(characterData);
             loadedCharacter = characterData;
             gameObject.name = characterName;
 

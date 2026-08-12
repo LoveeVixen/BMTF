@@ -54,6 +54,9 @@ MonoBehaviour:
   - RPC_Sound
   - RPC_PlaySound
   - RPC_Explode
+  - RPC_SetFace
+  - RPC_SetExpression
+  - RPC_SetFacialExpression
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

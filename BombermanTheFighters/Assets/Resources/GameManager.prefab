@@ -56,6 +56,11 @@ MonoBehaviour:
     - {fileID: 21300000, guid: f9ca55de08824bb4bb66a10d217e1246, type: 3}
     - {fileID: 21300000, guid: f9ca55de08824bb4bb66a10d217e1246, type: 3}
     showCharacterInMenu: 0
+    normalFace: {fileID: 0}
+    happyFace: {fileID: 0}
+    angryFace: {fileID: 0}
+    hurtFace: {fileID: 0}
+    dizzyFace: {fileID: 0}
     announceNameSound: Character Name
     attackSound: Attack
     specialSound: Special
@@ -74,6 +79,11 @@ MonoBehaviour:
     - {fileID: 21300000, guid: bb527d7bb86fc14489ce72ba4516b186, type: 3}
     - {fileID: 21300000, guid: 1a5fc5f8b1ad40a45b65c8d2c56fa619, type: 3}
     showCharacterInMenu: 1
+    normalFace: {fileID: 2100000, guid: cf3c8bff2369b134fb5ce7d4df300df0, type: 2}
+    happyFace: {fileID: 0}
+    angryFace: {fileID: 2100000, guid: bab17ad2ae8a25749aea3160007e283f, type: 2}
+    hurtFace: {fileID: 2100000, guid: a9a04d5772c7276468ba149054409296, type: 2}
+    dizzyFace: {fileID: 0}
     announceNameSound: Announcer_Shirobon
     attackSound: Bomberman_Attack
     specialSound: Shirobon_Special
@@ -92,6 +102,11 @@ MonoBehaviour:
     - {fileID: 21300000, guid: f9ca55de08824bb4bb66a10d217e1246, type: 3}
     - {fileID: 21300000, guid: f9ca55de08824bb4bb66a10d217e1246, type: 3}
     showCharacterInMenu: 1
+    normalFace: {fileID: 2100000, guid: cf3c8bff2369b134fb5ce7d4df300df0, type: 2}
+    happyFace: {fileID: 0}
+    angryFace: {fileID: 2100000, guid: bab17ad2ae8a25749aea3160007e283f, type: 2}
+    hurtFace: {fileID: 2100000, guid: a9a04d5772c7276468ba149054409296, type: 2}
+    dizzyFace: {fileID: 0}
     announceNameSound: Announcer_Kurobon
     attackSound: Bomberman_Attack
     specialSound: Kurobon_Special
