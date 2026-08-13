@@ -24,6 +24,7 @@ namespace Audio
         public class Music
         {
             [SerializeField] string name = "Music Name";
+            [SerializeField] string composer = "Composer name";
             [SerializeField] AudioClip intro;
             [SerializeField] AudioClip loop;
 

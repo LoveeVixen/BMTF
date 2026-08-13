@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 2560
     height: 1349
   m_ShowMode: 4
-  m_Title: Scene
+  m_Title: Hierarchy
   m_RootView: {fileID: 2}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -217,8 +217,8 @@ MonoBehaviour:
     y: 0
     width: 328
     height: 969
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 201, y: 226}
+  m_MaxSize: {x: 4001, y: 4026}
   m_ActualView: {fileID: 14}
   m_Panes:
   - {fileID: 14}
@@ -451,7 +451,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: e431ffff5e75ffff7675ffff7c79ffffbe79ffff1a7affff4e7affff887bffff507dffff767effffe68bfffffe8bffff0490ffff4690ffffa290ffffd690ffff2e96ffff8ca7ffffa4a7ffffaaabffffecabffff48acffff7cacffff0afbffff82df000048e7000040e800001cf9000016050100
+      m_ExpandedIDs: 6e15ffff541dffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1481,10 +1481,10 @@ MonoBehaviour:
     m_IsLocked: 0
   m_LastLocalAssetsSearchArea: 1
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 42}
-    m_SelectedIDs: c4b50000
-    m_LastClickedID: 46532
-    m_ExpandedIDs: 0000000072b30000c2b50000c6b50000cab500001cb6000020b6000000ca9a3b
+    scrollPos: {x: 0, y: 58}
+    m_SelectedIDs: 50160100
+    m_LastClickedID: 71248
+    m_ExpandedIDs: 000000003e1601005216010000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1513,7 +1513,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 0000000072b30000
+    m_ExpandedIDs: 
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1541,7 +1541,7 @@ MonoBehaviour:
   m_ListAreaState:
     m_SelectedInstanceIDs: 
     m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 1
+    m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs: c62300006c020000f86f0000846e0000303300001e7700008471000090b2000098bb00006a720000b4760000ce7200005e350000e2720000b27100000000000046b00000b6730000b8b30000d46e000082b300008cb3000088200100a8b3000050b800009cf30000f6b10000c4b20000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
