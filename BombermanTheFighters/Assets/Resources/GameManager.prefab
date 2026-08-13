@@ -80,10 +80,10 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 1a5fc5f8b1ad40a45b65c8d2c56fa619, type: 3}
     showCharacterInMenu: 1
     normalFace: {fileID: 2100000, guid: cf3c8bff2369b134fb5ce7d4df300df0, type: 2}
-    happyFace: {fileID: 0}
+    happyFace: {fileID: 2100000, guid: d2d5822915b79f94a92d029d15a99086, type: 2}
     angryFace: {fileID: 2100000, guid: bab17ad2ae8a25749aea3160007e283f, type: 2}
     hurtFace: {fileID: 2100000, guid: a9a04d5772c7276468ba149054409296, type: 2}
-    dizzyFace: {fileID: 0}
+    dizzyFace: {fileID: 2100000, guid: 734fcac6589a0a442807298bc4d2aea5, type: 2}
     announceNameSound: Announcer_Shirobon
     attackSound: Bomberman_Attack
     specialSound: Shirobon_Special
@@ -99,14 +99,14 @@ MonoBehaviour:
     - characterPrefab: Kurobon/Outfit2
       uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
     uiIcon:
-    - {fileID: 21300000, guid: f9ca55de08824bb4bb66a10d217e1246, type: 3}
-    - {fileID: 21300000, guid: f9ca55de08824bb4bb66a10d217e1246, type: 3}
+    - {fileID: 21300000, guid: dcbb043899971214f8584ecc4636207d, type: 3}
+    - {fileID: 21300000, guid: 807387c3616c35c4c99fb2fdd695e947, type: 3}
     showCharacterInMenu: 1
     normalFace: {fileID: 2100000, guid: cf3c8bff2369b134fb5ce7d4df300df0, type: 2}
-    happyFace: {fileID: 0}
+    happyFace: {fileID: 2100000, guid: d2d5822915b79f94a92d029d15a99086, type: 2}
     angryFace: {fileID: 2100000, guid: bab17ad2ae8a25749aea3160007e283f, type: 2}
     hurtFace: {fileID: 2100000, guid: a9a04d5772c7276468ba149054409296, type: 2}
-    dizzyFace: {fileID: 0}
+    dizzyFace: {fileID: 2100000, guid: 734fcac6589a0a442807298bc4d2aea5, type: 2}
     announceNameSound: Announcer_Kurobon
     attackSound: Bomberman_Attack
     specialSound: Kurobon_Special

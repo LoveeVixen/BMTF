@@ -10,7 +10,7 @@ namespace UI
 {
     public class CharacterSelectUI : MonoBehaviour
     {
-        [SerializeField] bool openMenuOnAwake = true;
+        [SerializeField] bool openMenuOnStart = true;
         [SerializeField] bool showCharacterDisplay = true;
         [SerializeField] bool playMusicOnOpen = true;
         [SerializeField] bool resetConfirmSelectOnOpen = false;
@@ -29,9 +29,8 @@ namespace UI
         private List<SelectableCharacterUI> selectableCharacterUI = new List<SelectableCharacterUI>();
         [SerializeField] bool timeLimit = true;
         [SerializeField] float timer = 20f;
-        //private bool[] confirmedSelect = new bool[4];
         [SerializeField] GridLayoutGroup grid;
-        private Menu menu;
+        [SerializeField] Menu menu;
         private Camera cam;
         private bool initiated;
         private bool opened;
@@ -49,8 +48,11 @@ namespace UI
             menu = GetComponent<Menu>();
             exitAfterConfirmDelayTimer = exitAfterConfirmDelayTime;
             cam = Camera.main;
+        }
 
-            if (openMenuOnAwake)
+        private void Start()
+        {
+            if (openMenuOnStart)
                 menu.Open();
         }
 
@@ -100,11 +102,6 @@ namespace UI
                                     ConfirmSelectedCharacter(i, RandomAvailableCharacter(), 1);
                             }
                         }
-                        /*else
-                        {
-                            if (InputReader.AllPlayersInputData()[i].pressing1)
-                                CancelSelectedCharacter(i);
-                        }*/
                     }
                 }
 

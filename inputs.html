@@ -43,6 +43,7 @@
         <p style="font-size: 30px;">Click on a character to see their movesets!</p>
         <button onclick="DisplayCharacterMoveset('Universal')" style="background:none; border: none;"><img src="WebsiteContents/CharacterIcons/universal.gif" width="100"></button>
         <button onclick="DisplayCharacterMoveset('Shirobon')" style="background:none; border: none;"><img src="WebsiteContents/CharacterIcons/shirobon.gif" width="100"></button>
+        <button onclick="DisplayCharacterMoveset('Kurobon')" style="background:none; border: none;"><img src="WebsiteContents/CharacterIcons/kurobon.gif" width="100"></button>
 
         <div class="inputGuideBox">
             <h2 id="characterNameDisplay"></h2>
@@ -140,7 +141,7 @@
 
         var kurobon = new Character("Kurobon");
         kurobon.combos.push(new Combo("Two-jab to roundhouse", ["2", "3", "1"]));
-        kurobon.combos.push(new Combo("Dragon initiate", "f", ["n", "d", "fd"]));
+        kurobon.combos.push(new Combo("Dragon initiate", ["f", "n", "d", "fd"]));
         kurobon.combos.push(new Combo("Cast bomb", ["d", "23"]));
         kurobon.combos.push(new Combo("Drop bomb", ["d", "3"], "After Cast Bomb"));
         kurobon.combos.push(new Combo("Throw bomb", ["b", "03"], "After Cast Bomb"));

@@ -325,6 +325,7 @@ MonoBehaviour:
   openMenuOnAwake: 1
   showCharacterDisplay: 1
   playMusicOnOpen: 1
+  resetConfirmSelectOnOpen: 0
   playMusic: Top Top Bombers
   selectableCharacterIconContainer: {fileID: 2394415704826593798}
   selectableCharacterUIPrefab: {fileID: 5888397267901609512, guid: 8eba14bca4d99724f9655dcfc0a506cf, type: 3}
@@ -336,6 +337,7 @@ MonoBehaviour:
   timeLimit: 1
   timer: 20
   grid: {fileID: 475876740424876005}
+  menu: {fileID: 4590267830724562418}
 --- !u!114 &4590267830724562418
 MonoBehaviour:
   m_ObjectHideFlags: 0

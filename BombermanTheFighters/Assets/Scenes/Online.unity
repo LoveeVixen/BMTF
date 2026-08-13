@@ -2313,9 +2313,9 @@ RectTransform:
   - {fileID: 1030562351}
   - {fileID: 2009399816}
   - {fileID: 539874864}
+  - {fileID: 1125517912}
   - {fileID: 1847985107}
   - {fileID: 146273154}
-  - {fileID: 1125517912}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3534,6 +3534,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4308197394143396635, guid: 2fcd409fba38dcb4b8d94bd2d2784036, type: 3}
       propertyPath: openMenuOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4308197394143396635, guid: 2fcd409fba38dcb4b8d94bd2d2784036, type: 3}
+      propertyPath: openMenuOnStart
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4308197394143396635, guid: 2fcd409fba38dcb4b8d94bd2d2784036, type: 3}

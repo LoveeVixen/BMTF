@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UI;
 using Audio;
+using Photon.Pun;
 
 public class GameManager : MonoBehaviour
 {
@@ -379,7 +380,9 @@ public class GameManager : MonoBehaviour
     public void Pause()
     {
         isPaused = true;
-        Time.timeScale = 0f;
+
+        if(PhotonNetwork.OfflineMode)
+            Time.timeScale = 0f;
     }
 
     public void Unpause()

@@ -37,8 +37,6 @@ namespace EntitySystem
                     // Calculate direction hit target will stumble towards after being hit.
                     Player player = otherHitbox.GetEntity() as Player;
                     Vector3 stumbleDir = new Vector3(-otherHitbox.GetEntity().transform.forward.x, 0f, -otherHitbox.GetEntity().transform.forward.z);
-                    if (player != null)
-                        stumbleDir = new Vector3(transform.forward.x, 0f, transform.forward.z);
 
                     // Register hit into session manager.
                     HitData hitData = new HitData();

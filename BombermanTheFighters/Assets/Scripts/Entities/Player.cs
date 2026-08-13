@@ -2,6 +2,7 @@
 using Audio;
 using InputSystem;
 using Photon.Pun;
+using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -397,6 +398,10 @@ namespace EntitySystem
             anim.SetBool("Backward", walkDirection == WalkDirection.backward);
             anim.SetBool("Left", walkDirection == WalkDirection.left);
             anim.SetBool("Right", walkDirection == WalkDirection.right);
+
+            // Set face to dizzy when KO.
+            if (GetHealth().IsKnockedOut() && face.GetExpression() != FacialExpression.dizzy)
+                SetFacialExpression(FacialExpression.dizzy);
         }
 
         public override void OnLand()
@@ -430,6 +435,7 @@ namespace EntitySystem
             ResetComboSystem();
             PlayAnimation("Idle");
             attackStroll = false;
+            stumbleSpeed = 0f;
             SetFacialExpression(FacialExpression.normal);
             SetCurrentState(CurrentState.idle);
             DisableAttackForAllHitboxes();
@@ -441,6 +447,7 @@ namespace EntitySystem
             PlayAnimation("Lay");
             attackStroll = false;
             rollMovement = false;
+            stumbleSpeed = 0f;
             SetCurrentState(CurrentState.lay);
             DisableAttackForAllHitboxes();
         }
@@ -675,7 +682,8 @@ namespace EntitySystem
 
         public void SetFacialExpression(FacialExpression set)
         {
-            photonView.RPC("RPC_SetFacialExpression", RpcTarget.All, (int)set);
+            if(photonView.IsMine)
+                photonView.RPC("RPC_SetFacialExpression", RpcTarget.All, (int)set);
         }
 
         [PunRPC]
@@ -883,7 +891,7 @@ namespace EntitySystem
                 if (weldBomb != null) DropBomb();
 
                 // Cast new bomb.
-                GameObject projectile = PhotonNetwork.Instantiate("Projectiles/Bomb", Pos(), Quaternion.identity);
+                GameObject projectile = PhotonNetwork.Instantiate("Projectiles/Bomb", Pos(), Quaternion.Euler(transform.forward));
                 weldBomb = projectile.GetComponent<Bomb>();
                 weldBomb.EffectedByGravity = false;
             }

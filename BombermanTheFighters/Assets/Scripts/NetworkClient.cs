@@ -101,6 +101,8 @@ public class NetworkClient : MonoBehaviourPunCallbacks
     [PunRPC]
     void RPC_ExitGameScene()
     {
+        AudioManager.instance.StopMusic();
+
         if (SessionManager.instance.GetDoAfterMatch() == SessionManager.DoAfterMatch.index)
         {
             PhotonNetwork.Disconnect();
@@ -111,7 +113,5 @@ public class NetworkClient : MonoBehaviourPunCallbacks
             NetworkManager.instance.OpenLobbyOnLoadOnlineScene = true;
             PhotonNetwork.LoadLevel("Online");
         }
-
-        AudioManager.instance.StopMusic();
     }
 }

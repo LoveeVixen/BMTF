@@ -170,6 +170,9 @@ public class SessionManager : MonoBehaviour
         {
             centerPos = GameObject.Find("PlayerCenterPosition").transform;
 
+            // Set round timer.
+            timer = Gamerules.usingGamerules.roundTime;
+
             // Spawn players.
             GameObject player1Obj = null;
             GameObject player2Obj = null;
@@ -640,12 +643,20 @@ public class SessionManager : MonoBehaviour
                 {
                     float calcDamage = registeredHit.GetHitData().damage;
                     float calcStumbleSpeed = registeredHit.GetHitData().stumbleSpeed;
+                    float calcYVel = registeredHit.GetHitData().yVelocityLaunch;
                     player.SetStumbleTimer(registeredHit.GetHitData().stumbleTime);
                     player.SetStumbleDirection(registeredHit.GetHitData().stumbleDirection);
 
                     if (!blockedAttack)
                     {
-                        player.SetYVelocity(registeredHit.GetHitData().yVelocityLaunch);
+                        // Prevents entity from continously being kept up in air.
+                        if (player.IsAirborne())
+                        {
+                            calcYVel = 25f;
+                            calcStumbleSpeed += (registeredHit.GetHitData().yVelocityLaunch / 1.5f);
+                        }
+
+                        player.SetYVelocity(calcYVel);
 
                         if (registeredHit.GetHitData().attackType == (int)AttackType.stumble)
                             player.HighHit();

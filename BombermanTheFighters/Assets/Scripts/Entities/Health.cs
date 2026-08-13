@@ -64,7 +64,6 @@ namespace EntitySystem
                         // Entity has been knocked out.
                         health = 0;
 
-                        // Play knockout sound.
                         if (player != null)
                             player.PlayVoice(player.GetLoadedCharacter().knockoutSound);
                     }

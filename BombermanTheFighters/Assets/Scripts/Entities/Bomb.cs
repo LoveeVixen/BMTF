@@ -61,7 +61,7 @@ namespace EntitySystem
         {
             if (photonView.IsMine && !defused)
             {
-                GameObject projectile = PhotonNetwork.Instantiate("Projectiles/Explosion", Pos(), Quaternion.identity);
+                GameObject projectile = PhotonNetwork.Instantiate("Projectiles/Explosion", Pos(), Quaternion.Euler(transform.forward));
                 projectile.transform.localScale = new Vector3(explosionSize, explosionSize, explosionSize);
             }
         }
