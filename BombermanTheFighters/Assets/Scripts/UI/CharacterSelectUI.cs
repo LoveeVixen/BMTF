@@ -142,7 +142,7 @@ namespace UI
                 {
                     for (int i = 0; i < Character.confirmedSelect.Length; i++)
                     {
-                        if (!Character.confirmedSelect[i])
+                        if (!Character.confirmedSelect[i] && GameManager.instance.IsPlaying()[i])
                             ConfirmSelectedCharacter(i, RandomAvailableCharacter(), 0);
                     }
                 }
@@ -292,11 +292,15 @@ namespace UI
                 Character.selectedCharacter[localPlayer] = character.name;
                 Character.selectedOutfitIndex[localPlayer] = useOutfit;
 
+                // Play select sound and character's name.
                 ShowHighlightedCharacters();
                 AudioManager.instance.PlayNonDiegeticSound(playSoundOnSelect);
 
+                string announceCharacterNameSound = GameManager.instance.FindCharacter(Character.selectedCharacter[localPlayer]).announceNameSound;
+                if(announceCharacterNameSound != "") AudioManager.instance.PlayNonDiegeticSound(announceCharacterNameSound);
+
                 // Display confirmed character.
-                if(showCharacterDisplay) characterDisplays[localPlayer].DisplayCharacter(Character.selectedCharacter[localPlayer], useOutfit);
+                if (showCharacterDisplay) characterDisplays[localPlayer].DisplayCharacter(Character.selectedCharacter[localPlayer], useOutfit);
             }
         }
 

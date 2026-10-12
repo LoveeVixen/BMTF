@@ -16,6 +16,9 @@ namespace EntitySystem
         [SerializeField] float dashSpeed = 0.5f;
         [SerializeField] float attackStrollSpeed = 1f;
         [SerializeField] float rollSpeed = 0.8f;
+        [SerializeField] float sideRollSpeed = 0.4f;
+        private float sideRollCooldownTime = 0.02f;
+        private float sideRollCooldownTimer;
         [SerializeField] float guardAngleRange = 5f;
         private bool rollMovement = false;
         private bool halfWaveDashMovement = false;
@@ -73,6 +76,7 @@ namespace EntitySystem
             base.OnAwake();
             anim = GetComponent<Animator>();
             combineInputTimer = combineInputTime;
+            sideRollCooldownTimer = sideRollCooldownTime;
         }
 
         private void Start()
@@ -213,6 +217,10 @@ namespace EntitySystem
                             RollBackward();
                         else if (inputData.holdingRight)
                             RollForward();
+                        else if (inputData.holding2)
+                            RollLeft();
+                        else if (inputData.holding3)
+                            RollRight();
                     }
                 }
                 else
@@ -224,6 +232,10 @@ namespace EntitySystem
                             RollForward();
                         else if (inputData.holdingRight)
                             RollBackward();
+                        else if (inputData.holding2)
+                            RollRight();
+                        else if (inputData.holding3)
+                            RollLeft();
                     }
                 }
             }
@@ -306,8 +318,40 @@ namespace EntitySystem
                         MoveDirection(-transform.forward * rollSpeed);
                 }
 
+                if (currentState == CurrentState.rollLeft)
+                {
+                    if (rollMovement)
+                    {
+                        MoveDirection(-transform.right * sideRollSpeed);
+                        if (IsOpponentToLeft())
+                            transform.Rotate(0f, -1f, 0f);
+                        else if(IsOpponentToRight())
+                            transform.Rotate(0f, 1f, 0f);
+                    }
+                }
+
+                if (currentState == CurrentState.rollRight)
+                {
+                    if (rollMovement)
+                    {
+                        MoveDirection(transform.right * sideRollSpeed);
+                        if (IsOpponentToLeft())
+                            transform.Rotate(0f, -1f, 0f);
+                        else if (IsOpponentToRight())
+                            transform.Rotate(0f, 1f, 0f);
+                    }
+                }
+
+                // Tick down cooldown timer for when player can side roll again.
+                if(sideRollCooldownTimer > 0f && currentState != CurrentState.rollLeft && currentState != CurrentState.rollRight)
+                {
+                    sideRollCooldownTimer -= Time.deltaTime;
+                    if(sideRollCooldownTimer < 0f)
+                        sideRollCooldownTimer = 0f;
+                }
+
                 // Make sure player is not standing when they're KO.
-                if(GetHealth().IsKnockedOut())
+                if (GetHealth().IsKnockedOut())
                 {
                     if (weldBomb != null) DropBomb();
 
@@ -400,8 +444,11 @@ namespace EntitySystem
             anim.SetBool("Right", walkDirection == WalkDirection.right);
 
             // Set face to dizzy when KO.
-            if (GetHealth().IsKnockedOut() && face.GetExpression() != FacialExpression.dizzy)
-                SetFacialExpression(FacialExpression.dizzy);
+            if (face != null)
+            {
+                if (GetHealth().IsKnockedOut() && face.GetExpression() != FacialExpression.dizzy)
+                    SetFacialExpression(FacialExpression.dizzy);
+            }
         }
 
         public override void OnLand()
@@ -512,10 +559,20 @@ namespace EntitySystem
                 ApplyImmunity();
                 SetFacialExpression(FacialExpression.hurt);
 
-                if (currentAnimationName == "HighHit1")
-                    PlayAnimation("HighHit2");
+                if (!IsAirborne())
+                {
+                    if (currentAnimationName == "HighHit1")
+                        PlayAnimation("HighHit2");
+                    else
+                        PlayAnimation("HighHit1");
+                }
                 else
-                    PlayAnimation("HighHit1");
+                {
+                    if (currentAnimationName == "AirborneHit1")
+                        PlayAnimation("AirborneHit2");
+                    else
+                        PlayAnimation("AirborneHit1");
+                }
             }
         }
 
@@ -527,7 +584,15 @@ namespace EntitySystem
                 ApplyImmunity();
                 SetFacialExpression(FacialExpression.hurt);
 
-                PlayAnimation("LaunchHit");
+                if (!IsAirborne())
+                    PlayAnimation("LaunchHit");
+                else
+                {
+                    if (currentAnimationName == "AirborneHit1")
+                        PlayAnimation("AirborneHit2");
+                    else
+                        PlayAnimation("AirborneHit1");
+                }
             }
         }
 
@@ -635,6 +700,26 @@ namespace EntitySystem
             SetCurrentState(CurrentState.rollBackward);
         }
 
+        public void RollLeft()
+        {
+            if (sideRollCooldownTimer == 0f)
+            {
+                sideRollCooldownTimer = sideRollCooldownTime;
+                PlayAnimation("RollLeft");
+                SetCurrentState(CurrentState.rollLeft);
+            }
+        }
+
+        public void RollRight()
+        {
+            if (sideRollCooldownTimer == 0f)
+            {
+                sideRollCooldownTimer = sideRollCooldownTime;
+                PlayAnimation("RollRight");
+                SetCurrentState(CurrentState.rollRight);
+            }
+        }
+
         public void EnableRollMovement() { rollMovement = true; }
         public void ReduceWaveDashMovement() {  halfWaveDashMovement = true; }
 
@@ -740,7 +825,7 @@ namespace EntitySystem
             characterObj.name = "Character";
             loadedCharacterPrefab = characterObj;
             face = characterObj.GetComponentInChildren<Face>();
-            face.SetCharacter(characterData);
+            if(face != null) face.SetCharacter(characterData);
             loadedCharacter = characterData;
             gameObject.name = characterName;
 
@@ -806,7 +891,7 @@ namespace EntitySystem
         // Check that the player's facing angle from it's opponent is small enough to guard blockable attacks.
         public bool CanGuard()
         {
-            if(Mathf.Abs(OpponentAngleDifference()) < guardAngleRange)
+            if(Mathf.Abs(OpponentAngleDifference()) > guardAngleRange)
                 return false;
 
             if (currentState != CurrentState.idle && currentState != CurrentState.stun)
@@ -818,12 +903,18 @@ namespace EntitySystem
             return true;
         }
 
+        public bool IsOpponentToRight() { return OpponentAngleDifference() > 0f; }
+
+        public bool IsOpponentToLeft() { return OpponentAngleDifference() < 0f; }
+
+        public Animator GetAnim() { return anim; }
         public CurrentState GetCurrentState() { return currentState; }
         public string GetCurrentAnimationName() { return currentAnimationName; }
 
         public ComboReader GetComboReader() { return comboReader; }
 
         public ComboGraph GetComboGraph(){ return comboGraph; }
+        public GameObject GetLoadedCharacterPrefab() {  return loadedCharacterPrefab; }
         public Character GetLoadedCharacter() {  return loadedCharacter; }
 
         public void ReadCombos() { readCombos = true; }
@@ -839,7 +930,11 @@ namespace EntitySystem
 
         public ComboGraph.Branch LastPerformedCombo() { return performedCombos[performedCombos.Count - 1]; }
         public void SetStumbleTimer(float setStumbleTimer) { stumbleTimer = setStumbleTimer; }
-        public float OpponentAngleDifference() { return Vector3.SignedAngle(transform.forward, opponent.transform.forward, Vector3.up); }
+        public float OpponentAngleDifference()
+        {
+            Vector3 targetDir = opponent.Pos() - Pos();
+            return Vector3.SignedAngle(transform.forward, targetDir, Vector3.up);
+        }
 
         // Universal character attacks/abilities
         #region

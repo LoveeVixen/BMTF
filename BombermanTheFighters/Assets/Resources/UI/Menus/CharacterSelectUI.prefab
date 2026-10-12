@@ -322,7 +322,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb19345a96a7ad44a9b270b34da29b29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  openMenuOnAwake: 1
+  openMenuOnStart: 1
   showCharacterDisplay: 1
   playMusicOnOpen: 1
   resetConfirmSelectOnOpen: 0
@@ -410,4 +410,4 @@ MonoBehaviour:
   m_CellSize: {x: 60, y: 60}
   m_Spacing: {x: 2, y: 2}
   m_Constraint: 1
-  m_ConstraintCount: 10
+  m_ConstraintCount: 11

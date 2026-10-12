@@ -21,6 +21,8 @@ MonoBehaviour:
     followUpCombos: []
   - attack: {fileID: 11400000, guid: 3d55477d475eae94cae03a15b9467f24, type: 2}
     followUpCombos: []
+  - attack: {fileID: 11400000, guid: 5b6e9d527d465d14d8280a16829fe681, type: 2}
+    followUpCombos: []
   - attack: {fileID: 11400000, guid: 3a16695f8b5aae7449ab6571ed497323, type: 2}
     followUpCombos: []
   - attack: {fileID: 11400000, guid: f58a1c63940f980419ba16301d005a41, type: 2}
@@ -50,4 +52,8 @@ MonoBehaviour:
   - attack: {fileID: 11400000, guid: c3bb4105777d07b47a5b7367d3a84363, type: 2}
     followUpCombos: []
   - attack: {fileID: 11400000, guid: 0db26bd6f51acda4aba3a9aeafb4e3a5, type: 2}
+    followUpCombos: []
+  - attack: {fileID: 11400000, guid: 7c41d6d76dcf642479df6d42d88b23a9, type: 2}
+    followUpCombos: []
+  - attack: {fileID: 11400000, guid: c0526927388f939409b1e592403b083e, type: 2}
     followUpCombos: []

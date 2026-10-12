@@ -140,6 +140,12 @@ MonoBehaviour:
   - name: Announcer_Plasma_Bomber
     clips:
     - {fileID: 8300000, guid: 8e6df4c25a1816c4885448c6d906132d, type: 3}
+  - name: Announcer_Sirius
+    clips:
+    - {fileID: 8300000, guid: cfb15af61c4faba4c9976365a715b75b, type: 3}
+  - name: Announcer_Bagura
+    clips:
+    - {fileID: 8300000, guid: c59e54858e7e3b148b61cd09e243d800, type: 3}
   - name: Hit
     clips:
     - {fileID: 8300000, guid: d69437ccb8f77a247ba073c79d38c2c8, type: 3}
@@ -155,6 +161,18 @@ MonoBehaviour:
     clips:
     - {fileID: 8300000, guid: 8ce938620af88a743a9853ecd11031ff, type: 3}
     - {fileID: 8300000, guid: f0f46e8708ebe6549a93f04ba226820d, type: 3}
+  - name: Menu_Highlight
+    clips:
+    - {fileID: 8300000, guid: 6466bd2a1df7af7479f30133a247a614, type: 3}
+  - name: Menu_Select
+    clips:
+    - {fileID: 8300000, guid: 4e8fb771ef19bd84bb9af84dff5600b1, type: 3}
+  - name: Menu_Error
+    clips:
+    - {fileID: 8300000, guid: 19fb2ecef145b314d88fb1b8fe9d90e7, type: 3}
+  - name: Challenger
+    clips:
+    - {fileID: 8300000, guid: 761d71ecc085ac14b99c53f35de0d50f, type: 3}
   - name: Bomberman_Attack
     clips:
     - {fileID: 8300000, guid: a5caf1afef3b787478ffd192304d9cc6, type: 3}
@@ -181,18 +199,114 @@ MonoBehaviour:
   - name: Kurobon_KO
     clips:
     - {fileID: 8300000, guid: 11b312b6bb35c3e44a5fe8a212bfa2c2, type: 3}
-  - name: Menu_Highlight
+  - name: Regulus_Attack
     clips:
-    - {fileID: 8300000, guid: 6466bd2a1df7af7479f30133a247a614, type: 3}
-  - name: Menu_Select
+    - {fileID: 8300000, guid: 8447205a049549347b6f3cdbb44c2dc4, type: 3}
+    - {fileID: 8300000, guid: 23b58419877406f489ce21c27ac9d3d6, type: 3}
+    - {fileID: 8300000, guid: 23b58419877406f489ce21c27ac9d3d6, type: 3}
+  - name: Regulus_Special
     clips:
-    - {fileID: 8300000, guid: 4e8fb771ef19bd84bb9af84dff5600b1, type: 3}
-  - name: Menu_Error
+    - {fileID: 8300000, guid: 068e8a6c288b5724db3246c7b670c70b, type: 3}
+  - name: Regulus_Hit
     clips:
-    - {fileID: 8300000, guid: 19fb2ecef145b314d88fb1b8fe9d90e7, type: 3}
-  - name: Challenger
+    - {fileID: 8300000, guid: 46331b81771bfe24a8a367a96122bf1f, type: 3}
+  - name: Regulus_KO
     clips:
-    - {fileID: 8300000, guid: 761d71ecc085ac14b99c53f35de0d50f, type: 3}
+    - {fileID: 8300000, guid: 3c255353c6daea8489a407dd12e2cdbf, type: 3}
+  - name: Pretty_Bomber_Attack
+    clips:
+    - {fileID: 8300000, guid: 1925bd8ad0b59b24fac103501947eaf8, type: 3}
+    - {fileID: 8300000, guid: 45be218c12200b04c832297045d5bbbe, type: 3}
+  - name: Pretty_Bomber_Special
+    clips:
+    - {fileID: 8300000, guid: 4b7dc6d98a86a7a4eafa7c2d4123b123, type: 3}
+  - name: Pretty_Bomber_Hit
+    clips:
+    - {fileID: 8300000, guid: a0caa4645fbf10c4bac6f9c9b6c3848e, type: 3}
+    - {fileID: 8300000, guid: b69d3fa276323c547a95678187f0febf, type: 3}
+  - name: Pretty_Bomber_KO
+    clips:
+    - {fileID: 8300000, guid: 179545015df991447bd897ef50765f8f, type: 3}
+  - name: Max_Attack
+    clips:
+    - {fileID: 8300000, guid: e1fb2a1f71a0e6b43ba8a7bfba08d6d0, type: 3}
+    - {fileID: 8300000, guid: c9ba604d0c0572a469e5f23efaafa9e6, type: 3}
+    - {fileID: 8300000, guid: 0c28e06dd1f1b45409876d262f27d566, type: 3}
+  - name: Max_Special
+    clips:
+    - {fileID: 8300000, guid: 3be73ed48f4a4974ca85dc18dac930b6, type: 3}
+  - name: Max_Hit
+    clips:
+    - {fileID: 8300000, guid: 57f20eac4c4a92f4b8dedfc8fa05d324, type: 3}
+    - {fileID: 8300000, guid: 0eaf130bbbb4d8e47af17c58411c83f8, type: 3}
+  - name: Max_KO
+    clips:
+    - {fileID: 8300000, guid: d8e0852314382b448a5cf3dd5a0643b7, type: 3}
+  - name: Lilith_Attack
+    clips:
+    - {fileID: 8300000, guid: 13f3a0bd59ce0b5448db587cb920912e, type: 3}
+    - {fileID: 8300000, guid: 0adabbc749a0ea54f9f5aad3f7f9cdfb, type: 3}
+    - {fileID: 8300000, guid: 6474c8f0edd42de4f82de86c57d53260, type: 3}
+  - name: Lilith_Special
+    clips:
+    - {fileID: 8300000, guid: 13740ee0f52a0ef42bc210af8fe0ce31, type: 3}
+  - name: Lilith_Hit
+    clips:
+    - {fileID: 8300000, guid: ea5ec03c4c36b604582b348567ef4cc9, type: 3}
+  - name: Lilith_KO
+    clips:
+    - {fileID: 8300000, guid: 457c4c61aab4233478bc5d35bfecb0ac, type: 3}
+  - name: Honey_Attack
+    clips:
+    - {fileID: 8300000, guid: 95576b8a9ba32cb4c8b0122ec3deffde, type: 3}
+    - {fileID: 8300000, guid: 199c4177e01d650459d215d80c337cb1, type: 3}
+  - name: Honey_Special
+    clips:
+    - {fileID: 8300000, guid: 14d3d93bc700e3c4d9ae9e8daf069b7e, type: 3}
+  - name: Honey_Hit
+    clips:
+    - {fileID: 8300000, guid: 8554046bd386c2f438443d67d79fa6e4, type: 3}
+  - name: Honey_KO
+    clips:
+    - {fileID: 8300000, guid: c2e2837fb91b4904f928e98c7330a2c7, type: 3}
+  - name: Kotetsu_Attack
+    clips:
+    - {fileID: 8300000, guid: 84755299a4bb9e04b8d4308e58d2ec88, type: 3}
+  - name: Kotetsu_Special
+    clips:
+    - {fileID: 8300000, guid: 53d331f2e19ba974f87382c4c3917ad2, type: 3}
+  - name: Kotetsu_Hit
+    clips:
+    - {fileID: 8300000, guid: 1268818b810db3243962c4397b4d777d, type: 3}
+  - name: Kotetsu_KO
+    clips:
+    - {fileID: 8300000, guid: 4b1b49d1a71ca7f41b2b47c9daa21544, type: 3}
+  - name: Sirius_Attack
+    clips:
+    - {fileID: 8300000, guid: e0640123637127e45b98adef56a9faa3, type: 3}
+  - name: Sirius_Special
+    clips:
+    - {fileID: 8300000, guid: ca924411bef702a45bbd9d83098ce23b, type: 3}
+  - name: Sirius_Hit
+    clips:
+    - {fileID: 8300000, guid: b757daccc49857343823bf53f1c8d760, type: 3}
+  - name: Sirius_KO
+    clips:
+    - {fileID: 8300000, guid: bc252e8bd14cfdc49a624a2fe39a117d, type: 3}
+  - name: Bagura_Attack
+    clips:
+    - {fileID: 8300000, guid: f5be2920b8acd304dbdef820a7fcc968, type: 3}
+    - {fileID: 8300000, guid: 8163882f384a8b24ca16215154103e03, type: 3}
+  - name: Bagura_Special
+    clips:
+    - {fileID: 8300000, guid: ea429b586345daf408c618a7d01897b0, type: 3}
+  - name: Bagura_Hit
+    clips:
+    - {fileID: 8300000, guid: 32b94d88801d2ec49bf3de32ea659715, type: 3}
+    - {fileID: 8300000, guid: 7a1071c79b478b24ea96c847b758748d, type: 3}
+  - name: Bagura_KO
+    clips:
+    - {fileID: 8300000, guid: 7ce8c4d93e9f7bb4899faea052c9d35e, type: 3}
   music:
   - name: Debug
     composer: LoveeVixen

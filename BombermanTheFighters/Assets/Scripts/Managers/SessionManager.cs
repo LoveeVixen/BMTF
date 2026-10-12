@@ -15,7 +15,10 @@ public class SessionManager : MonoBehaviour
 
     private bool initiated = false;
     private List<Frame> frames = new List<Frame>();
-    private int currentFrame = 0;
+    private bool recordFrames = true;
+    [SerializeField] GameObject replayDummyPrefab;
+    private List<ReplayDummy> replayDummies = new List<ReplayDummy>();
+    private bool finishedReplay = false;
     private Transform centerPos;
     [SerializeField] bool flipCamera;
     private Cam cam;
@@ -159,7 +162,8 @@ public class SessionManager : MonoBehaviour
         }
 
         // Record tick for replay data.
-        RecordFrame();
+        if(recordFrames)
+            RecordFrame();
     }
 
     // Session setup.
@@ -211,8 +215,17 @@ public class SessionManager : MonoBehaviour
                 }
             }
 
+            // Setup replay dummies for replay mode.
+            /*for(int i = 0; i < 2; i++)
+            {
+                GameObject replayDummyObj = Instantiate(replayDummyPrefab, playerSpawns[i], playerStartEulerAngles[i]);
+                ReplayDummy replayDummy = replayDummyObj.GetComponent<ReplayDummy>();
+                replayDummies.Add(replayDummyObj.GetComponent<ReplayDummy>());
+                replayDummy.Hide();
+            }*/
+
             // Load stage.
-            Stage stage = Stage.Find("Snowy");
+            Stage stage = Stage.Find("Grid");
             Stage.LoadStageIntoScene(stage);
             AudioManager.instance.PlayMusic(stage.music);
 
@@ -234,7 +247,8 @@ public class SessionManager : MonoBehaviour
                 {
                     players[i] = new Participate(player);
                     player.LoadCharacter(Character.selectedCharacter[i], Character.selectedOutfitIndex[i]);
-
+                    //replayDummies[i].LoadCharacter(Character.selectedCharacter[i], Character.selectedOutfitIndex[i]);
+                    //replayDummies[i].Hide();
                     break;
                 }
             }
@@ -247,6 +261,8 @@ public class SessionManager : MonoBehaviour
                 players[1] = new Participate(player);
 
             player.LoadCharacter(Character.selectedCharacter[0], Character.selectedOutfitIndex[0]);
+            //replayDummies[0].LoadCharacter(Character.selectedCharacter[0], Character.selectedOutfitIndex[0]);
+            //replayDummies[0].Hide();
         }
 
         // Check that all players have been loaded in.
@@ -275,6 +291,7 @@ public class SessionManager : MonoBehaviour
 
     IEnumerator IBeginRound()
     {
+        recordFrames = true;
         string roundNumber = "ROUND " + currentRound;
 
         // Set 'opponent' as the opposing player for each player.
@@ -565,7 +582,7 @@ public class SessionManager : MonoBehaviour
             NetworkClient networkClient = FindFirstObjectByType<NetworkClient>();
             networkClient.photonView.RPC("RPC_EndRound", RpcTarget.All, winningPlayerIndex.ToArray(), knockoutPlayerIndex.ToArray(), announcementMsgIndex);
 
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSeconds(2f);
 
             // Figure out which player is determined the winner of the overall game, or move onto next round.
             int finalWinners = 0; // 0 = No final winner, move onto next round. 1 = Final determined winner. 2+ = Game tie.
@@ -583,6 +600,13 @@ public class SessionManager : MonoBehaviour
 
             if (finalWinners == 1)
                 finalWinnerIndex = foundFinalWinnerIndex;
+
+            recordFrames = false;
+
+            // Enter replay mode for continuing to next round or concluding game.
+            /*ReplayMode(0, frames.Count - 1);
+            while (!finishedReplay)
+                yield return 0;*/
 
             // Move onto next round, or conclude final winner.
             if (finalWinners == 0)
@@ -604,6 +628,50 @@ public class SessionManager : MonoBehaviour
     {
         NetworkClient networkClient = FindFirstObjectByType<NetworkClient>();
         networkClient.photonView.RPC("RPC_ExitGameScene", RpcTarget.All);
+    }
+
+    public void ReplayMode(int startFrame, int lastFrame)
+    {
+        StartCoroutine(IReplayMode(startFrame, lastFrame));
+    }
+
+    IEnumerator IReplayMode(int startFrame, int lastFrame)
+    {
+        finishedReplay = false;
+        int currentFrame = startFrame;
+
+        for(int i = 0; i < players.Length; i++)
+            players[i].GetPlayer().GetLoadedCharacterPrefab().SetActive(false);
+
+        for (int i = 0; i < replayDummies.Count; i++)
+            replayDummies[i].Show();
+
+        while (currentFrame < lastFrame)
+        {
+            Frame frame = frames[currentFrame];
+
+            for (int i = 0; i < replayDummies.Count; i++)
+            {
+                replayDummies[i].transform.position = frame.replayDummyFrameData[i].GetPlayerTransform().position;
+                replayDummies[i].transform.rotation = frame.replayDummyFrameData[i].GetPlayerTransform().rotation;
+                replayDummies[i].transform.localScale = frame.replayDummyFrameData[i].GetPlayerTransform().localScale;
+
+                replayDummies[i].GetAnim().Play(frame.replayDummyFrameData[i].GetAnimationName(), 0, frame.replayDummyFrameData[i].GetAnimationFrameTime());
+            }
+
+            yield return new WaitForSeconds(frame.frameTime / 2f);
+
+            currentFrame++;
+        }
+
+        // Hide dummies again and show real player gameobjects.
+        for (int i = 0; i < replayDummies.Count; i++)
+            replayDummies[i].Hide();
+
+        for (int i = 0; i < players.Length; i++)
+            players[i].GetPlayer().GetLoadedCharacterPrefab().SetActive(true);
+
+        finishedReplay = true;
     }
 
     public void EnterChallenger()
@@ -711,13 +779,15 @@ public class SessionManager : MonoBehaviour
     Frame RecordFrame()
     {
         Frame frame = new Frame();
+        frame.frameTime = Time.deltaTime;
+        //frame.replayDummyFrameData.Add(new Frame.ReplayDummyFrameData(GetParticipate(0).GetPlayer()));
+        //frame.replayDummyFrameData.Add(new Frame.ReplayDummyFrameData(GetParticipate(1).GetPlayer()));
 
         // Add frame to frames list.
-        currentFrame++;
         frames.Add(frame);
 
         // Clear up previous frames if there becomes too many.
-        int maxRecordedFrames = 1000;
+        int maxRecordedFrames = 2000;
         if(frames.Count > maxRecordedFrames)
         {
             int removeCount = frames.Count - maxRecordedFrames;
@@ -741,7 +811,6 @@ public class SessionManager : MonoBehaviour
 
     public bool HasInitiated() { return initiated; }
     public bool PauseTimer { get { return pauseTimer; } set { pauseTimer = value; } }
-    public int GetCurrentFrame() {  return currentFrame; }
     public Participate GetParticipate(int index) { return players[index]; }
     public Transform GetPlayerCenterPos() { return centerPos; }
     public bool GetFlipCamera() {  return flipCamera; }
