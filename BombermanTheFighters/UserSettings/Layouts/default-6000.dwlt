@@ -118,7 +118,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 112}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 1
-  controlID: 45
+  controlID: 41
   draggingID: 0
 --- !u!114 &6
 MonoBehaviour:
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 112}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 46
+  controlID: 42
   draggingID: 0
 --- !u!114 &7
 MonoBehaviour:
@@ -170,7 +170,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 112}
   m_MaxSize: {x: 16192, y: 16192}
   vertical: 1
-  controlID: 47
+  controlID: 43
   draggingID: 0
 --- !u!114 &8
 MonoBehaviour:
@@ -196,7 +196,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 56}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 48
+  controlID: 44
   draggingID: 0
 --- !u!114 &9
 MonoBehaviour:
@@ -234,7 +234,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 1
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: SceneView
+  m_Name: GameView
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
@@ -245,14 +245,14 @@ MonoBehaviour:
     height: 975
   m_MinSize: {x: 202, y: 226}
   m_MaxSize: {x: 4002, y: 4026}
-  m_ActualView: {fileID: 16}
+  m_ActualView: {fileID: 14}
   m_Panes:
   - {fileID: 16}
   - {fileID: 14}
   - {fileID: 17}
   - {fileID: 18}
-  m_Selected: 0
-  m_LastSelected: 1
+  m_Selected: 1
+  m_LastSelected: 0
 --- !u!114 &11
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -646,7 +646,7 @@ MonoBehaviour:
     m_HSlider: 0
     m_VSlider: 0
     m_IgnoreScrollWheelUntilClicked: 0
-    m_EnableMouseInput: 0
+    m_EnableMouseInput: 1
     m_EnableSliderZoomHorizontal: 0
     m_EnableSliderZoomVertical: 0
     m_UniformScale: 1
@@ -723,14 +723,8 @@ MonoBehaviour:
       m_LastClickedID:
         m_Data: 0
       m_ExpandedIDs:
-      - m_Data: -58088
-      - m_Data: -53702
-      - m_Data: -48494
-      - m_Data: -41632
-      - m_Data: -24620
-      - m_Data: -19602
-      - m_Data: -15004
-      - m_Data: -1380
+      - m_Data: -67684
+      - m_Data: -64634
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1780,7 +1774,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/CharacterAttacks/MoveSets
+    - Assets/Resources/Stages
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -1790,26 +1784,25 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/CharacterAttacks/MoveSets
+  - Assets/Resources/Stages
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\Semfh\Documents\Github Repos\BMTF\BombermanTheFighters
   m_LockTracker:
     m_IsLocked: 0
   m_LastLocalAssetsSearchArea: 1
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 16}
+    scrollPos: {x: 0, y: 176}
     m_SelectedIDs:
-    - m_Data: 50170
+    - m_Data: 78054
     m_LastClickedID:
-      m_Data: 50170
+      m_Data: 78054
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 49920
-    - m_Data: 49922
-    - m_Data: 49924
-    - m_Data: 49926
-    - m_Data: 50032
-    - m_Data: 50062
+    - m_Data: 76220
+    - m_Data: 76226
+    - m_Data: 76232
+    - m_Data: 76238
+    - m_Data: 76246
     - m_Data: 1000000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -1841,12 +1834,7 @@ MonoBehaviour:
     m_SelectedIDs: []
     m_LastClickedID:
       m_Data: 0
-    m_ExpandedIDs:
-    - m_Data: 0
-    - m_Data: 49920
-    - m_Data: 49922
-    - m_Data: 49924
-    - m_Data: 49926
+    m_ExpandedIDs: []
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1988,7 +1976,7 @@ MonoBehaviour:
     m_DynamicPanelBehavior: 0
   m_LockTracker:
     m_IsLocked: 0
-  m_LastSelectedObjectID: 0
+  m_LastSelectedObjectID: 56674
 --- !u!114 &22
 MonoBehaviour:
   m_ObjectHideFlags: 52
