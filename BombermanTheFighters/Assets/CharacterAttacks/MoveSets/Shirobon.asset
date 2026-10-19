@@ -13,39 +13,7 @@ MonoBehaviour:
   m_Name: Shirobon
   m_EditorClassIdentifier: 
   branches:
-  - attack: {fileID: 11400000, guid: c192d15500f4028489a4d346bc30fbd8, type: 2}
-    followUpCombos: []
-  - attack: {fileID: 11400000, guid: 02143a4388f72034d883eed57ad87398, type: 2}
-    followUpCombos: []
-  - attack: {fileID: 11400000, guid: bf97ca9f7178a00409bfe70e770454f3, type: 2}
-    followUpCombos: []
-  - attack: {fileID: 11400000, guid: 3d55477d475eae94cae03a15b9467f24, type: 2}
-    followUpCombos: []
-  - attack: {fileID: 11400000, guid: 5b6e9d527d465d14d8280a16829fe681, type: 2}
-    followUpCombos: []
-  - attack: {fileID: 11400000, guid: 3a16695f8b5aae7449ab6571ed497323, type: 2}
-    followUpCombos: []
-  - attack: {fileID: 11400000, guid: f58a1c63940f980419ba16301d005a41, type: 2}
-    followUpCombos: []
   - attack: {fileID: 11400000, guid: f7441b9d2cc4d844a843622033087d66, type: 2}
-    followUpCombos: []
-  - attack: {fileID: 11400000, guid: 27bab1be8a319604ea178e4168c586c4, type: 2}
-    followUpCombos: []
-  - attack: {fileID: 11400000, guid: 783087abc5ef6e843a8e72c7c10004c8, type: 2}
-    followUpCombos:
-    - attack: {fileID: 11400000, guid: 27bab1be8a319604ea178e4168c586c4, type: 2}
-      followUpCombos:
-      - attack: {fileID: 11400000, guid: 29edde669d016c74ea98010ecdda3543, type: 2}
-        followUpCombos: []
-  - attack: {fileID: 11400000, guid: 27bab1be8a319604ea178e4168c586c4, type: 2}
-    followUpCombos: []
-  - attack: {fileID: 11400000, guid: 29edde669d016c74ea98010ecdda3543, type: 2}
-    followUpCombos: []
-  - attack: {fileID: 11400000, guid: b91ad9997a2be6a488c4d5ddae7ee00e, type: 2}
-    followUpCombos: []
-  - attack: {fileID: 11400000, guid: 9bd55b99295c625488f35607d7058db6, type: 2}
-    followUpCombos: []
-  - attack: {fileID: 11400000, guid: ae4772178b1e4984c921ef3627866651, type: 2}
     followUpCombos: []
   - attack: {fileID: 11400000, guid: b4a5b420f36d4844f8c65c9f5cc05d08, type: 2}
     followUpCombos: []
@@ -55,5 +23,4 @@ MonoBehaviour:
     followUpCombos: []
   - attack: {fileID: 11400000, guid: 7c41d6d76dcf642479df6d42d88b23a9, type: 2}
     followUpCombos: []
-  - attack: {fileID: 11400000, guid: c0526927388f939409b1e592403b083e, type: 2}
-    followUpCombos: []
+  ignoreFromUniversalMoveset: 

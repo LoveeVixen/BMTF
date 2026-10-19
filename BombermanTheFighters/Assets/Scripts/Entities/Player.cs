@@ -34,12 +34,13 @@ namespace EntitySystem
         private Face face;
 
         // Player state
-        public enum CurrentState { idle, running, dashForward, dashBackward, dashLeft, dashRight, waveDash, attacking, hit, lay, rollForward, rollBackward, rollLeft, rollRight, stun };
+        public enum CurrentState { idle, running, dashForward, dashBackward, dashLeft, dashRight, waveDash, attacking, hit, lay, rollForward, rollBackward, rollLeft, rollRight, grab, captive, stun };
         private CurrentState currentState;
 
         [Header("Attack/Combo system")]
         [SerializeField] ComboReader comboReader = new ComboReader();
-        [SerializeField] ComboGraph comboGraph;
+        //[SerializeField] ComboGraph comboGraph;
+        [SerializeField] List<ComboGraph.Branch> branches = new List<ComboGraph.Branch>();
         [SerializeField] float resetComboReaderTime = 0.3f;
         private float resetComboReaderTimer;
         [SerializeField] float attackCooldownTime = 0.2f;
@@ -50,6 +51,10 @@ namespace EntitySystem
         private Renderer headMeshRender;
         private Transform weldingLimb;
         private Bomb weldBomb;
+
+        // Grab attack functionality.
+        private string executeAnimationOnGrab = "";
+        private GrabInteraction grabInteraction;
 
         // Attack stroll (Player movement while attacking)
         private bool attackStroll = false;
@@ -75,6 +80,7 @@ namespace EntitySystem
         {
             base.OnAwake();
             anim = GetComponent<Animator>();
+            grabInteraction = GetComponent<GrabInteraction>();
             combineInputTimer = combineInputTime;
             sideRollCooldownTimer = sideRollCooldownTime;
         }
@@ -176,7 +182,7 @@ namespace EntitySystem
                 // Combo initiators.
                 if (GetInputtedCombosCount() == 0 && readyToAttack)
                 {
-                    foreach (ComboGraph.Branch branch in comboGraph.branches)
+                    foreach (ComboGraph.Branch branch in branches)
                     {
                         if (branch.attack.MatchesRequiredInputs(comboReader.inputs) && MatchesRequiredStateForAttack(branch.attack))
                             ExecuteAttack(branch);
@@ -467,6 +473,18 @@ namespace EntitySystem
             photonView.RPC("RPC_PlayVoice", RpcTarget.All, soundName);
         }
 
+        // Plays loaded character's attack sound.
+        public void PlayGrunt()
+        {
+            photonView.RPC("RPC_PlayVoice", RpcTarget.All, loadedCharacter.attackSound);
+        }
+
+        // Plays loaded character's hit sound.
+        public void PlayHurt()
+        {
+            photonView.RPC("RPC_PlayVoice", RpcTarget.All, loadedCharacter.hitSound);
+        }
+
         [PunRPC]
         void RPC_PlayVoice(string soundName)
         {
@@ -480,6 +498,7 @@ namespace EntitySystem
         public void Idle()
         {
             ResetComboSystem();
+            grabInteraction.ReleaseCaptive();
             PlayAnimation("Idle");
             attackStroll = false;
             stumbleSpeed = 0f;
@@ -491,11 +510,24 @@ namespace EntitySystem
         public void Lay()
         {
             ResetComboSystem();
+            grabInteraction.ReleaseCaptive();
             PlayAnimation("Lay");
             attackStroll = false;
             rollMovement = false;
             stumbleSpeed = 0f;
             SetCurrentState(CurrentState.lay);
+            DisableAttackForAllHitboxes();
+        }
+
+        public void Captive()
+        {
+            ResetComboSystem();
+            grabInteraction.ReleaseCaptive();
+            EffectedByGravity = false;
+            attackStroll = false;
+            stumbleSpeed = 0f;
+            SetFacialExpression(FacialExpression.hurt);
+            SetCurrentState(CurrentState.captive);
             DisableAttackForAllHitboxes();
         }
 
@@ -514,23 +546,31 @@ namespace EntitySystem
                 if(!branch.attack.avoidApplyingAttackCooldown)
                     attackCooldownTimer = attackCooldownTime;
 
-                // Play attack animation.
-                bool hasAltLeftFacingAnimation = branch.attack.playLeftFacingAnimation != "";
-                if (!IsFacingRight() && hasAltLeftFacingAnimation)
-                    PlayAnimation(branch.attack.playLeftFacingAnimation);
-                else if(branch.attack.playAnimation != "")
-                    PlayAnimation(branch.attack.playAnimation);
+                // Play attack animation. (Do grab animation instead if attack is a grab type.)
+                if (branch.attack.attackType != AttackType.grab)
+                {
+                    bool hasAltLeftFacingAnimation = branch.attack.playLeftFacingAnimation != "";
+                    if (!IsFacingRight() && hasAltLeftFacingAnimation)
+                        PlayAnimation(branch.attack.playLeftFacingAnimation);
+                    else if (branch.attack.playAnimation != "")
+                        PlayAnimation(branch.attack.playAnimation);
+                }
+                else
+                {
+                    executeAnimationOnGrab = branch.attack.playAnimation;
+                    PlayAnimation("Grab");
+                }
 
                 // Make player move while attacking.
                 attackStroll = branch.attack.enableAttackStroll;
                 attackStrollSpeed = branch.attack.attackStrollSpeed;
 
                 // Play attack sound.
-                if(branch.attack.playSoundOnExecute == Attack.PlaySoundOnExecute.playCharacterAttack)
-                    PlayVoice(loadedCharacter.attackSound);
+                if (branch.attack.playSoundOnExecute == Attack.PlaySoundOnExecute.playCharacterAttack)
+                    PlayGrunt();
                 else if (branch.attack.playSoundOnExecute == Attack.PlaySoundOnExecute.playCharacterSpecial)
                     PlayVoice(loadedCharacter.specialSound);
-                else if(branch.attack.playSoundOnExecute == Attack.PlaySoundOnExecute.playOverrideSound)
+                else if (branch.attack.playSoundOnExecute == Attack.PlaySoundOnExecute.playOverrideSound)
                     PlayVoice(branch.attack.playOverrideSound);
 
                 // Change facial expression.
@@ -555,6 +595,7 @@ namespace EntitySystem
         {
             if (immunityTimer == 0)
             {
+                grabInteraction.ReleaseCaptive();
                 SetCurrentState(CurrentState.hit);
                 ApplyImmunity();
                 SetFacialExpression(FacialExpression.hurt);
@@ -580,6 +621,7 @@ namespace EntitySystem
         {
             if (immunityTimer == 0)
             {
+                grabInteraction.ReleaseCaptive();
                 SetCurrentState(CurrentState.hit);
                 ApplyImmunity();
                 SetFacialExpression(FacialExpression.hurt);
@@ -604,6 +646,7 @@ namespace EntitySystem
 
         public void DizzyFall()
         {
+            grabInteraction.ReleaseCaptive();
             SetCurrentState(CurrentState.hit);
             SetFacialExpression(FacialExpression.dizzy);
             PlayAnimation("DizzyFall");
@@ -611,6 +654,7 @@ namespace EntitySystem
 
         public void Stun()
         {
+            grabInteraction.ReleaseCaptive();
             SetCurrentState(CurrentState.stun);
             if (currentAnimationName == "Guard1")
                 PlayAnimation("Guard2");
@@ -782,12 +826,12 @@ namespace EntitySystem
         {
             bool facingRight = false;
 
-            if (this == SessionManager.instance.GetParticipate(0).GetPlayer() && !SessionManager.instance.GetFlipCamera())
+            if (this == SessionManager.instance.GetParticipate(0).GetPlayer() && !SessionManager.instance.FlipCamera)
                 facingRight = true;
             else if (this == SessionManager.instance.GetParticipate(0).GetPlayer())
                 facingRight = false;
 
-            if (this == SessionManager.instance.GetParticipate(1).GetPlayer() && SessionManager.instance.GetFlipCamera())
+            if (this == SessionManager.instance.GetParticipate(1).GetPlayer() && SessionManager.instance.FlipCamera)
                 facingRight = true;
             else if (this == SessionManager.instance.GetParticipate(1).GetPlayer())
                 facingRight = false;
@@ -829,6 +873,15 @@ namespace EntitySystem
             loadedCharacter = characterData;
             gameObject.name = characterName;
 
+            // Load the character's moveset.
+            LoadCharacterMoveset();
+
+            // Setup grab point.
+            GameObject grabPoint = new GameObject();
+            grabPoint.transform.SetParent(characterObj.transform);
+            grabPoint.name = "GrabPoint";
+            grabInteraction.GrabPoint = grabPoint.transform;
+
             // Setup animator.
             anim.runtimeAnimatorController = characterData.runtimeAnimator;
             PhotonAnimatorView animView = GetComponent<PhotonAnimatorView>();
@@ -845,10 +898,42 @@ namespace EntitySystem
             weldingLimb = FindHitbox("RightHand").transform;
         }
 
+        void LoadCharacterMoveset()
+        {
+            ComboGraph uniMoveset = GameManager.instance.GetUniversalMoveset();
+            ComboGraph charMoveset = loadedCharacter.comboGraph;
+
+            // Clear up any prior combo graph data.
+            branches.RemoveRange(0, branches.Count);
+
+            // Load the universal moveset before adding the character's unique moves.
+            for(int i = 0; i < uniMoveset.branches.Length; i++)
+            {
+                bool ignoreCombo = false;
+                for (int e = 0; e < charMoveset.ignoreFromUniversalMoveset.Length; e++)
+                {
+                    if (charMoveset.ignoreFromUniversalMoveset[e] == i)
+                    {
+                        ignoreCombo = true;
+                        break;
+                    }
+                }
+
+                if (ignoreCombo)
+                    continue;
+                else
+                    branches.Add(uniMoveset.branches[i]);
+            }
+
+            // Load the character's unique combos.
+            for (int i = 0; i < charMoveset.branches.Length; i++)
+                branches.Add(charMoveset.branches[i]);
+        }
+
         void SetCurrentState(CurrentState setCurrentState)
         {
-            if(photonView.IsMine)
-                RPC_SetCurrentState((int)setCurrentState);
+            if (photonView.IsMine)
+                photonView.RPC("RPC_SetCurrentState", RpcTarget.All, (int)setCurrentState);
         }
 
         [PunRPC]
@@ -910,10 +995,11 @@ namespace EntitySystem
         public Animator GetAnim() { return anim; }
         public CurrentState GetCurrentState() { return currentState; }
         public string GetCurrentAnimationName() { return currentAnimationName; }
+        public string GetExecuteAnimationOnGrab() {  return executeAnimationOnGrab; }
 
         public ComboReader GetComboReader() { return comboReader; }
 
-        public ComboGraph GetComboGraph(){ return comboGraph; }
+        //public List<ComboGraph.Branch> GetComboBranches(){ return branches; }
         public GameObject GetLoadedCharacterPrefab() {  return loadedCharacterPrefab; }
         public Character GetLoadedCharacter() {  return loadedCharacter; }
 
@@ -976,6 +1062,23 @@ namespace EntitySystem
             PlayAnimation("DashRight");
             SetCurrentState(CurrentState.dashRight);
             ResetComboSystem();
+        }
+
+        public void TryGrab()
+        {
+            if(photonView.IsMine)
+            {
+                Player other = grabInteraction.FindPlayerInFront();
+                if (other != null)
+                {
+                    if (other.GetCurrentState() != CurrentState.lay)
+                    {
+                        grabInteraction.Grab(other, executeAnimationOnGrab);
+                        PlayAnimation(executeAnimationOnGrab);
+                        SetCurrentState(CurrentState.grab);
+                    }
+                }
+            }
         }
 
         public void CastBomb()

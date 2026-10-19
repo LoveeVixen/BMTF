@@ -225,7 +225,7 @@ public class SessionManager : MonoBehaviour
             }*/
 
             // Load stage.
-            Stage stage = Stage.Find("Grid");
+            Stage stage = Stage.Find("Graveyard");
             Stage.LoadStageIntoScene(stage);
             AudioManager.instance.PlayMusic(stage.music);
 
@@ -292,6 +292,7 @@ public class SessionManager : MonoBehaviour
     IEnumerator IBeginRound()
     {
         recordFrames = true;
+        flipCamera = false;
         string roundNumber = "ROUND " + currentRound;
 
         // Set 'opponent' as the opposing player for each player.
@@ -813,7 +814,8 @@ public class SessionManager : MonoBehaviour
     public bool PauseTimer { get { return pauseTimer; } set { pauseTimer = value; } }
     public Participate GetParticipate(int index) { return players[index]; }
     public Transform GetPlayerCenterPos() { return centerPos; }
-    public bool GetFlipCamera() {  return flipCamera; }
+    public Cam GetCam() {  return cam; }
+    public bool FlipCamera { get { return flipCamera; } set { flipCamera = value; } }
     public float PlayerDistance() { return Vector3.Distance(players[0].GetPlayer().Pos(), players[1].GetPlayer().Pos()); }
     public float GetMinPlayerDistance() {  return minPlayerDistance; }
     public float GetMaxPlayerDistance() { return maxPlayerDistance; }

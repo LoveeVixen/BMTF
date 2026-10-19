@@ -49,6 +49,7 @@ MonoBehaviour:
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
     unlockedByDefault: 1
+    ignoreFromUniversalMoveset: 
     outfits:
     - characterPrefab: Dummy/Outfit1
       uiColor: {r: 1, g: 1, b: 1, a: 1}
@@ -72,6 +73,7 @@ MonoBehaviour:
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
     unlockedByDefault: 0
+    ignoreFromUniversalMoveset: 
     outfits:
     - characterPrefab: Dummy/Outfit1
       uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
@@ -95,6 +97,7 @@ MonoBehaviour:
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
     unlockedByDefault: 1
+    ignoreFromUniversalMoveset: 
     outfits:
     - characterPrefab: Dummy/Outfit1
       uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
@@ -118,20 +121,21 @@ MonoBehaviour:
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
     unlockedByDefault: 1
+    ignoreFromUniversalMoveset: 
     outfits:
-    - characterPrefab: Dummy/Outfit1
+    - characterPrefab: PrettyBomber/Outfit1
       uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
-    - characterPrefab: Dummy/Outfit1
+    - characterPrefab: PrettyBomber/Outfit2
       uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
     uiIcon:
-    - {fileID: 21300000, guid: f9ca55de08824bb4bb66a10d217e1246, type: 3}
-    - {fileID: 21300000, guid: f9ca55de08824bb4bb66a10d217e1246, type: 3}
-    showCharacterInMenu: 0
-    normalFace: {fileID: 0}
-    happyFace: {fileID: 0}
-    angryFace: {fileID: 0}
-    hurtFace: {fileID: 0}
-    dizzyFace: {fileID: 0}
+    - {fileID: 21300000, guid: 9fba596e337974840b532d91878e27f8, type: 3}
+    - {fileID: 21300000, guid: 48cf1425dcc25dd419fe811f83f0804b, type: 3}
+    showCharacterInMenu: 1
+    normalFace: {fileID: 2100000, guid: 9d64de370e209f64387dd807a00fa7d9, type: 2}
+    happyFace: {fileID: 2100000, guid: 6720f53eb2a7a5c4b9a2c34fb9bf53be, type: 2}
+    angryFace: {fileID: 2100000, guid: 3b203f149617fe140b581043a653ed12, type: 2}
+    hurtFace: {fileID: 2100000, guid: 53cb1bf7e6180cd4c9b38e6d95bc8a1f, type: 2}
+    dizzyFace: {fileID: 2100000, guid: 23df03d29c8076f4da8643965d715498, type: 2}
     announceNameSound: Announcer_Pretty_Bomber
     attackSound: Pretty_Bomber_Attack
     specialSound: Pretty_Bomber_Special
@@ -141,14 +145,17 @@ MonoBehaviour:
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
     unlockedByDefault: 1
+    ignoreFromUniversalMoveset: 
     outfits:
     - characterPrefab: Regulus/Outfit1
       uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
     - characterPrefab: Regulus/Outfit2
       uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
     uiIcon:
-    - {fileID: 21300000, guid: f9ca55de08824bb4bb66a10d217e1246, type: 3}
-    - {fileID: 21300000, guid: f9ca55de08824bb4bb66a10d217e1246, type: 3}
+    - {fileID: 21300000, guid: 1d2e1f475183d3a4abd252fc275952fd, type: 3}
+    - {fileID: 21300000, guid: c4362c015b83f5a47ad88e32f3dfc2d1, type: 3}
+    - {fileID: 21300000, guid: a5367c0a60590c846ac4573eddcfbc62, type: 3}
+    - {fileID: 21300000, guid: bcf3539aabbab4b47b7559f905cbc2a6, type: 3}
     showCharacterInMenu: 1
     normalFace: {fileID: 2100000, guid: cf3c8bff2369b134fb5ce7d4df300df0, type: 2}
     happyFace: {fileID: 2100000, guid: d2d5822915b79f94a92d029d15a99086, type: 2}
@@ -164,6 +171,7 @@ MonoBehaviour:
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
     unlockedByDefault: 1
+    ignoreFromUniversalMoveset: 04000000
     outfits:
     - characterPrefab: Shirobon/Outfit1
       uiColor: {r: 1, g: 1, b: 1, a: 1}
@@ -187,6 +195,7 @@ MonoBehaviour:
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
     unlockedByDefault: 1
+    ignoreFromUniversalMoveset: 
     outfits:
     - characterPrefab: Kurobon/Outfit1
       uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
@@ -210,6 +219,7 @@ MonoBehaviour:
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
     unlockedByDefault: 1
+    ignoreFromUniversalMoveset: 
     outfits:
     - characterPrefab: Dummy/Outfit1
       uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
@@ -233,6 +243,7 @@ MonoBehaviour:
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
     unlockedByDefault: 1
+    ignoreFromUniversalMoveset: 
     outfits:
     - characterPrefab: Dummy/Outfit1
       uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
@@ -256,6 +267,7 @@ MonoBehaviour:
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
     unlockedByDefault: 1
+    ignoreFromUniversalMoveset: 
     outfits:
     - characterPrefab: Dummy/Outfit1
       uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
@@ -279,6 +291,7 @@ MonoBehaviour:
     comboGraph: {fileID: 11400000, guid: 2b7e4f54a49eca3429e67ba4d6673bac, type: 2}
     runtimeAnimator: {fileID: 9100000, guid: 828be7cb8a3b6ea4f85192b0e9d2861d, type: 2}
     unlockedByDefault: 0
+    ignoreFromUniversalMoveset: 
     outfits:
     - characterPrefab: Dummy/Outfit1
       uiColor: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
@@ -298,8 +311,13 @@ MonoBehaviour:
     specialSound: Bagura_Special
     hitSound: Bagura_Hit
     knockoutSound: Bagura_KO
+  universalMoveset: {fileID: 11400000, guid: 4e6ff3f3dd4698c46af344c24276a10d, type: 2}
   effectStatuses:
   - name: Burn
     reverseName: 
     particlesPrefab: {fileID: 1505123056252088956, guid: d2b0d224fdec9fd42ace44487389ed32, type: 3}
   isPlaying: 00000000
+  rainParticlesPrefab: {fileID: 3401372089357822296, guid: 54a1dfe24a4a6ce42b98e22562a03f53, type: 3}
+  snowParticlesPrefab: {fileID: 910817682044898084, guid: 18b102fc6f2659342b695ed78ed43723, type: 3}
+  stormSystemPrefab: {fileID: 6874608178367585829, guid: e4def9ecedca1334ebbedc65e31aa8cd, type: 3}
+  darknessSpotlightPrefab: {fileID: 5030029131302712441, guid: ce90def728c8fbb4798d03a6cbc4930c, type: 3}

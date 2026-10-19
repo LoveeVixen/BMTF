@@ -16,6 +16,6 @@ MonoBehaviour:
   floor: {fileID: 2100000, guid: dc1c51e6034d00348a49755375585961, type: 2}
   skybox: {fileID: 2100000, guid: c5d14c8e6bd924d4a978bcd21f71d9ba, type: 2}
   music: Cold Cold Heart
-  weather: 0
+  weather: 2
   isDark: 0
   selectableAtRandom: 1

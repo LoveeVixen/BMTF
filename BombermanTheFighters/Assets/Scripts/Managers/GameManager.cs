@@ -10,10 +10,17 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     [SerializeField] List<Character> characters = new List<Character>();
+    [SerializeField] ComboGraph universalMoveset;
     [SerializeField] List<EffectStatus> effectStatuses = new List<EffectStatus>();
     [SerializeField] bool[] isPlaying = new bool[4];
     private bool localPlayersCanJoin = true;
     private bool isPaused = false;
+
+    [Header("Stage Setup")]
+    [SerializeField] GameObject rainParticlesPrefab;
+    [SerializeField] GameObject snowParticlesPrefab;
+    [SerializeField] GameObject stormSystemPrefab;
+    [SerializeField] GameObject darknessSpotlightPrefab;
 
     private void Awake()
     {
@@ -30,7 +37,6 @@ public class GameManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        //Application.targetFrameRate = targetFramerate;
         Stage.LoadStagesFromResources();
 
         // Setup list of characters that are locked by default.
@@ -423,6 +429,7 @@ public class GameManager : MonoBehaviour
 
 
     public List<Character> GetCharactersList() { return characters; }
+    public ComboGraph GetUniversalMoveset() {  return universalMoveset; }
     public List<EffectStatus> GetEffectStatuses() { return effectStatuses; }
     public bool[] IsPlaying() { return isPlaying; }
 
@@ -436,4 +443,9 @@ public class GameManager : MonoBehaviour
     }
 
     public bool IsPaused() { return isPaused; }
+
+    public GameObject GetRainParticlesPrefab() { return rainParticlesPrefab; }
+    public GameObject GetSnowParticlesPrefab() {  return snowParticlesPrefab; }
+    public GameObject GetStormSystemPrefab() { return stormSystemPrefab; }
+    public GameObject GetDarknessSpotlightPrefab() { return darknessSpotlightPrefab; }
 }

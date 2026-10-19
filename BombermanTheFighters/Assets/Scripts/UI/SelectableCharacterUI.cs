@@ -1,6 +1,7 @@
 // LOVEEVIXEN
 using InputSystem;
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,19 +17,28 @@ namespace UI
         private int columnIndex = 1;
         private int rowIndex = 1;
         private bool isRandomSelect = false;
-        private float returnToInitialFrameTime = 0.2f;
-        private float returnToInitialFrameTimer = 0f;
+        private int frameAnimIndex = 0;
+        private float nextFrameTime = 0.1f;
+        private float nextFrameTimer = 0f;
         private CharacterSelectUI characterSelectMenu;
 
         private void Update()
         {
-            if(returnToInitialFrameTimer > 0f)
+            if(nextFrameTimer > 0f)
             {
-                returnToInitialFrameTimer -= Time.deltaTime;
-                if (returnToInitialFrameTimer <= 0f)
+                nextFrameTimer -= Time.deltaTime;
+                if (nextFrameTimer <= 0f)
                 {
-                    returnToInitialFrameTimer = 0f;
-                    iconDisplay.sprite = iconFrames[0];
+                    frameAnimIndex++;
+                    if (frameAnimIndex < iconFrames.Length)
+                        nextFrameTimer = nextFrameTime;
+                    else
+                    {
+                        nextFrameTimer = 0f;
+                        frameAnimIndex = 0;
+                    }
+                        
+                    iconDisplay.sprite = iconFrames[frameAnimIndex];
                 }
             }
         }
@@ -95,10 +105,7 @@ namespace UI
         public void PlaySelectAnimation()
         {
             if (!isRandomSelect)
-            {
-                returnToInitialFrameTimer = returnToInitialFrameTime;
-                iconDisplay.sprite = iconFrames[1];
-            }
+                nextFrameTimer = nextFrameTime;
         }
 
         public Character GetCharacter() { return character; }

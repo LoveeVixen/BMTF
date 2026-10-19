@@ -157,7 +157,34 @@ namespace EntitySystem
 
         public void SetupCharacterHitbox()
         {
-            EntityHitbox[] hb = GetComponentsInChildren<EntityHitbox>();
+            Transform[] childObj = GetComponentsInChildren<Transform>(true);
+            foreach(Transform t in childObj)
+            {
+                // Ignore the parent gameobject.
+                if (t == transform) continue;
+
+                // Check that the child object is one of the character's limbs, apply collision physics to it.
+                foreach(string limb in Character.applyPhysicsToLimbs)
+                {
+                    if(t.gameObject.name == limb)
+                    {
+                        GameObject limbObj = t.gameObject;
+                        MeshFilter meshFilter = limbObj.GetComponent<MeshFilter>();
+
+                        // Setup box collider.
+                        BoxCollider limbCol = limbObj.AddComponent<BoxCollider>();
+                        limbCol.isTrigger = true;
+                        if (meshFilter == null) limbCol.size = Character.defaultPhysicsColliderSize;
+
+                        // Setup entity hitbox system.
+                        EntityHitbox hitbox = limbObj.AddComponent<EntityHitbox>();
+                        hitbox.HitboxName = limb;
+                    }
+                }
+            }
+
+            // Add all hitboxes into entity's hitbox list.
+            EntityHitbox[] hb = GetComponentsInChildren<EntityHitbox>(true);
             foreach (EntityHitbox hitbox in hb)
                 hitboxes.Add(hitbox);
         }
@@ -221,7 +248,7 @@ namespace EntitySystem
         {
             foreach(EntityHitbox hitbox in hitboxes)
             {
-                if(hitbox.GetHitboxName() == hitboxName)
+                if(hitbox.HitboxName == hitboxName)
                     return hitbox;
             }
 

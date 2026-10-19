@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46b826a11a44f8c40a73047be477315b, type: 3}
+  m_Name: Graveyard
+  m_EditorClassIdentifier: 
+  stageName: Graveyard
+  floor: {fileID: 2100000, guid: 200db18bc29f9f8498bdfefa75c57d95, type: 2}
+  skybox: {fileID: 2100000, guid: b71ee5d1a74ed734ca51892efd1c7f86, type: 2}
+  music: A Bad Omen Comes
+  weather: 3
+  isDark: 1
+  selectableAtRandom: 1

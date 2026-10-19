@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace InputSystem
 {
-    public enum AttackType { stumble, launch, stun };
+    public enum AttackType { stumble, launch, stun, grab };
 
     [CreateAssetMenu(fileName = "Attack", menuName = "Attack and Combo System/Attack", order = 1)]
     public class Attack : ScriptableObject
@@ -35,6 +35,7 @@ namespace InputSystem
         public float stumbleTime = 0.3f;
         public AttackType attackType;
         public bool canGuard = true;
+        public bool flipCameraAfterGrab = true;
 
         [Header("Apply effect status on hit")]
         public int applyEffectStatus = -1;

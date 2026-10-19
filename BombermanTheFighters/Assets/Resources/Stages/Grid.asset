@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageName: Grid
   floor: {fileID: 2100000, guid: ef7326e3fb18fee4d89d41895d169f17, type: 2}
-  skybox: {fileID: 2100000, guid: 149dbbc78c131db43a503963136544ee, type: 2}
-  music: Cold Cold Heart
+  skybox: {fileID: 2100000, guid: 3c1a1a563775470419a6ee965254ee27, type: 2}
+  music: Graveyard
   weather: 0
   isDark: 0
   selectableAtRandom: 1

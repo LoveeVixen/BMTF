@@ -118,7 +118,7 @@ namespace UI
                 // Exit character select after confirming all player's characters.
                 if (exitAfterConfirmDelayTimer == 0f)
                 {
-                    selectableCharacterUI.RemoveRange(0, selectableCharacterUI.Count);
+                    //selectableCharacterUI.RemoveRange(0, selectableCharacterUI.Count);
                     menu.Close();
                     if (doAfterCharacterSelect == DoAfterCharacterSelect.gameScene)
                         PhotonNetwork.LoadLevel("Game");
@@ -243,14 +243,13 @@ namespace UI
         void OnOpen()
         {
             if(!initiated) Initiate();
+            if (resetConfirmSelectOnOpen) Character.UndoConfirmedSelectedCharacters();
             ShowHighlightedCharacters();
-            if(resetConfirmSelectOnOpen)
-                Character.UndoConfirmedSelectedCharacters();
         }
 
         void OnClose()
         {
-            
+            exitAfterConfirmDelayTimer = exitAfterConfirmDelayTime;
         }
 
         // Local player input.

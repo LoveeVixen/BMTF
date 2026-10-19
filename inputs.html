@@ -45,6 +45,8 @@
         </br>
         <p style="font-size: 30px;">Click on a character to see their movesets!</p>
         <button onclick="DisplayCharacterMoveset('Universal')" style="background:none; border: none;"><img src="WebsiteContents/CharacterIcons/universal.gif" width="100"></button>
+        <button onclick="DisplayCharacterMoveset('Pretty Bomber')" style="background:none; border: none;"><img src="WebsiteContents/CharacterIcons/pretty_bomber.gif" width="100"></button>
+        <button onclick="DisplayCharacterMoveset('Regulus')" style="background:none; border: none;"><img src="WebsiteContents/CharacterIcons/regulus.gif" width="100"></button>
         <button onclick="DisplayCharacterMoveset('Shirobon')" style="background:none; border: none;"><img src="WebsiteContents/CharacterIcons/shirobon.gif" width="100"></button>
         <button onclick="DisplayCharacterMoveset('Kurobon')" style="background:none; border: none;"><img src="WebsiteContents/CharacterIcons/kurobon.gif" width="100"></button>
 
@@ -129,6 +131,7 @@
         universal.combos.push(new Combo("Right Punch", ["3"]));
         universal.combos.push(new Combo("Left Kick", ["0"]));
         universal.combos.push(new Combo("Right Kick", ["1"]));
+        universal.combos.push(new Combo("Throw", ["13"]));
         universal.combos.push(new Combo("Left Uppercut", ["fd", "2"]));
         universal.combos.push(new Combo("Right Uppercut", ["fd", "3"]));
         universal.combos.push(new Combo("Quickstand", ["u"], "While laying"));
@@ -151,5 +154,9 @@
         kurobon.combos.push(new Combo("Cast bomb", ["d", "23"]));
         kurobon.combos.push(new Combo("Drop bomb", ["d", "3"], "After Cast Bomb"));
         kurobon.combos.push(new Combo("Throw bomb", ["b", "03"], "After Cast Bomb"));
+
+        var regulus = new Character("Regulus");
+
+        var prettyBomber = new Character("Pretty Bomber");
     </script>
 </html>

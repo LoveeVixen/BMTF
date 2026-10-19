@@ -1,5 +1,6 @@
 // LOVEEVIXEN
 using UnityEngine;
+using EntitySystem;
 
 public class Cam : MonoBehaviour
 {
@@ -8,6 +9,9 @@ public class Cam : MonoBehaviour
     [SerializeField][Range(10f, 30f)] float forwardOffset = 16f;
     [SerializeField][Range(2f, 10f)] float upOffset = 6f;
     [SerializeField][Range(1f, 50f)] float lerpSpeed = 5f;
+    private enum CameraViewMode { normal, focusPlayer, replay };
+    private CameraViewMode viewMode = CameraViewMode.normal;
+    private Player focus;
 
     private void Awake()
     {
@@ -27,7 +31,20 @@ public class Cam : MonoBehaviour
 
             // Move camera position to it's target destination.
             Vector3 currentPos = transform.position;
-            Vector3 targetPos = target.position + (target.forward * -forwardOffset) + (target.up * upOffset);
+            Vector3 targetPos = Vector3.zero;
+
+            if (viewMode == CameraViewMode.normal)
+            {
+                // Show view of both opponents facing each other.
+                targetPos = target.position + (target.forward * -forwardOffset) + (target.up * upOffset);
+            }
+            else if (viewMode == CameraViewMode.focusPlayer)
+            {
+                target = focus.transform;
+                targetPos = target.position + (target.forward * forwardOffset) + (target.up * (upOffset + 2.5f)) + (target.right * 5f);
+            }
+
+            // Apply calculated camera position.
             transform.position = Vector3.Lerp(currentPos, targetPos, Time.deltaTime * lerpSpeed);
 
             // Update stage planes if camera moves too far away from center plane.
@@ -56,6 +73,18 @@ public class Cam : MonoBehaviour
             if (Vector3.Distance(currentPos, Stage.GetWestPlane().transform.position) < movePlaneDistance)
                 Stage.MovePlaneTo(Stage.GetWestPlane().transform.position);
         }
+    }
+
+    public void Normal()
+    {
+        focus = null;
+        viewMode = CameraViewMode.normal;
+    }
+
+    public void FocusOnPlayer(Player set)
+    {
+        focus = set;
+        viewMode = CameraViewMode.focusPlayer;
     }
 
     public Vector3 GetAwakePos() { return awakePos; }

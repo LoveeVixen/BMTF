@@ -57,6 +57,9 @@ MonoBehaviour:
   - RPC_SetFace
   - RPC_SetExpression
   - RPC_SetFacialExpression
+  - RPC_Grab
+  - RPC_ReleaseCaptive
+  - RPC_CameraFlip
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

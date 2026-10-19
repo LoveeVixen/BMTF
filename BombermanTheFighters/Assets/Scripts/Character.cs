@@ -11,6 +11,7 @@ public class Character
     public RuntimeAnimatorController runtimeAnimator;
 
     public bool unlockedByDefault = true;
+
     public static List<string> isLocked = new List<string>();
     public static int[] highlightColumnIndex = { 1, 2, 1, 1 };
     public static int[] highlightRowIndex = { 1, 1, 5, 6 };
@@ -21,6 +22,26 @@ public class Character
         "Shirobon",
         "Kurobon",
     };
+
+    public static string[] applyPhysicsToLimbs =
+    {
+        "LowerTorso",
+        "UpperLeftLeg",
+        "LowerLeftLeg",
+        "LeftFoot",
+        "UpperRightLeg",
+        "LowerRightLeg",
+        "RightFoot",
+        "UpperTorso",
+        "UpperLeftArm",
+        "LowerLeftArm",
+        "LeftHand",
+        "UpperRightArm",
+        "LowerRightArm",
+        "RightHand",
+        "Head"
+    };
+    public static Vector3 defaultPhysicsColliderSize = new Vector3(0.5f, 0.5f, 0.5f);
 
     public static int[] selectedOutfitIndex = { 0, 0, 1, 1 };
     public static bool[] confirmedSelect = { false, false, false, false };

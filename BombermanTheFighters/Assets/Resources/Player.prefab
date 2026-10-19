@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6380690008264297037}
   - component: {fileID: 894159452840470461}
   - component: {fileID: 185518697369958269}
+  - component: {fileID: -9042096713568452790}
   - component: {fileID: 704326129466670097}
   - component: {fileID: 8893387134151339990}
   - component: {fileID: 5226533385523755680}
@@ -118,6 +119,20 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-9042096713568452790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6245655008100914865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b9ee34890fcf24c952a999b20090d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EntitySystem.GrabInteraction
+  grabDistance: 10
+  grabPoint: {fileID: 0}
 --- !u!54 &704326129466670097
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -14,7 +14,7 @@ namespace InputSystem
             public Attack attack;
             public Branch[] followUpCombos;
         }
-
         public Branch[] branches;
+        public int[] ignoreFromUniversalMoveset; // Use index values to avoid loading combos from the universal movesets for specific characters.
     }
 }

@@ -121,7 +121,7 @@ namespace EntitySystem
         }
 
         public Entity GetEntity() {  return entity; }
-        public string GetHitboxName() { return hitboxName; }
+        public string HitboxName { get { return hitboxName; } set { hitboxName = value; } }
         public HitboxType GetHitboxType() { return hitboxType; }
         public void SetPerformingAttack(Attack setPerformingAttack) { performingAttack = setPerformingAttack; }
         public void HasHitTarget() { hasHit = true; }

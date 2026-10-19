@@ -1,6 +1,9 @@
 // LOVEEVIXEN
-using UnityEngine;
+using Audio;
+using EntitySystem;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Rendering;
 
 [CreateAssetMenu(fileName="Stage", menuName="Stage")]
 [System.Serializable]
@@ -30,6 +33,13 @@ public class Stage : ScriptableObject
     private static GameObject southWestPlane;
     private static GameObject westPlane;
 
+    // Additional stage setup.
+    private static GameObject weatherParticles;
+    private static List<DarknessSpotlight> darknessSpotlights = new List<DarknessSpotlight>();
+    private static Light directionalLight;
+    private static AudioObject rainSoundObj;
+    private static StormSystem stormSystem;
+
     // Load and return all stage files from resources folder.
     public static Stage[] LoadStagesFromResources()
     {
@@ -45,6 +55,34 @@ public class Stage : ScriptableObject
     // Load stage data into currently loaded scene.
     public static void LoadStageIntoScene(Stage getStage)
     {
+        bool enableDirectionalLight = true;
+        bool enableFog = false;
+
+        // Clear up previously loaded stage remains if necessary.
+        if(weatherParticles != null) Destroy(weatherParticles);
+        foreach (DarknessSpotlight spotlight in darknessSpotlights)
+        {
+            if (spotlight != null) Destroy(spotlight.gameObject);
+        }
+
+        darknessSpotlights.RemoveRange(0, darknessSpotlights.Count);
+        if(rainSoundObj != null) Destroy(rainSoundObj.gameObject);
+        if(stormSystem != null) Destroy(stormSystem.gameObject);
+
+        // Setup directional light reference.
+        if (directionalLight == null)
+        {
+            Light[] lightSources = FindObjectsByType<Light>(FindObjectsSortMode.None);
+            for (int i = 0; i < lightSources.Length; i++)
+            {
+                if (lightSources[i].type == LightType.Directional)
+                {
+                    directionalLight = lightSources[i];
+                    break;
+                }
+            }
+        }
+
         // Setup stage plane and insert floor texture.
         for (int i = 0; i < stagePlanes.Length; i++)
         {
@@ -73,6 +111,69 @@ public class Stage : ScriptableObject
 
         // Insert skybox into scene.
         RenderSettings.skybox = getStage.skybox;
+
+        // Setup weather.
+        GameObject particles = null;
+        if (getStage.weather == Weather.rain)
+        {
+            // Rain particles.
+            particles = Instantiate(GameManager.instance.GetRainParticlesPrefab());
+            weatherParticles = particles;
+
+            // Play rain sound.
+            SoundProperties prop = new SoundProperties();
+            prop.loop = true;
+            rainSoundObj = AudioManager.instance.PlayNonDiegeticSound("Rain", prop);
+        }
+        else if (getStage.weather == Weather.snow)
+        {
+            // Snow particles.
+            particles = Instantiate(GameManager.instance.GetSnowParticlesPrefab());
+            weatherParticles = particles;
+        }
+        else if(getStage.weather == Weather.storm)
+        {
+            // Rain particles
+            particles = Instantiate(GameManager.instance.GetRainParticlesPrefab());
+            weatherParticles = particles;
+
+            // Play rain sound.
+            SoundProperties prop = new SoundProperties();
+            prop.loop = true;
+            rainSoundObj = AudioManager.instance.PlayNonDiegeticSound("Rain", prop);
+
+            // Add storm system.
+            GameObject stormSystemObj = Instantiate(GameManager.instance.GetStormSystemPrefab());
+            stormSystem = stormSystemObj.GetComponent<StormSystem>();
+        }
+
+        // Setup darkness.
+        if(getStage.isDark)
+        {
+            enableFog = true;
+            enableDirectionalLight = false;
+            RenderSettings.fogDensity = 0.06f;
+            RenderSettings.fogColor = Color.black;
+            RenderSettings.ambientMode = AmbientMode.Flat;
+            RenderSettings.ambientSkyColor = new Color(0.3f, 0.3f, 0.3f);
+
+            // Setup darkness spotlights for entities that need it.
+            Entity[] entities = FindObjectsByType<Entity>(FindObjectsSortMode.None);
+            for(int i = 0; i < entities.Length; i++)
+            {
+                Player player = entities[i] as Player;
+                if(player != null)
+                {
+                    GameObject spotlightObj = Instantiate(GameManager.instance.GetDarknessSpotlightPrefab());
+                    DarknessSpotlight spotlight = spotlightObj.GetComponent<DarknessSpotlight>();
+                    spotlight.FollowEntity(player);
+                    darknessSpotlights.Add(spotlight);
+                }
+            }
+        }
+
+        directionalLight.gameObject.SetActive(enableDirectionalLight);
+        RenderSettings.fog = enableFog;
     }
 
     public static void MovePlaneTo(Vector3 setPos)
