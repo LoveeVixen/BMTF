@@ -37,8 +37,9 @@ namespace UI
                         nextFrameTimer = 0f;
                         frameAnimIndex = 0;
                     }
-                        
-                    iconDisplay.sprite = iconFrames[frameAnimIndex];
+
+                    if(!character.IsLocked())
+                        iconDisplay.sprite = iconFrames[frameAnimIndex];
                 }
             }
         }
@@ -47,8 +48,17 @@ namespace UI
         {
             isRandomSelect = false;
             character = setCharacter;
-            iconFrames = setCharacter.uiIcon;
-            iconDisplay.sprite = iconFrames[0];
+
+            if (!setCharacter.IsLocked())
+            {
+                iconFrames = setCharacter.uiIcon;
+                iconDisplay.sprite = iconFrames[0];
+            }
+            else
+            {
+                iconFrames = setCharacter.uiIcon;
+                iconDisplay.sprite = GameManager.instance.GetLockedCharacterIcon();
+            }
         }
 
         public void SetToRandomSelect()

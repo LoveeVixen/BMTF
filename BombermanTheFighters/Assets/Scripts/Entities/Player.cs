@@ -5,6 +5,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine;
+using static InputSystem.ComboGraph;
 
 namespace EntitySystem
 {
@@ -179,13 +180,15 @@ namespace EntitySystem
             // Execute combo moves if combo is successful.
             if (IsReadingCombos())
             {
+                List<ComboGraph.Branch> executeAttack = new List<ComboGraph.Branch>();
+
                 // Combo initiators.
                 if (GetInputtedCombosCount() == 0 && readyToAttack)
                 {
                     foreach (ComboGraph.Branch branch in branches)
                     {
-                        if (branch.attack.MatchesRequiredInputs(comboReader.inputs) && MatchesRequiredStateForAttack(branch.attack))
-                            ExecuteAttack(branch);
+                        if (branch.MatchesRequiredInputs(comboReader.inputs) && MatchesRequiredStateForAttack(branch))
+                            executeAttack.Add(branch);
                     }
                 }
                 else
@@ -196,11 +199,27 @@ namespace EntitySystem
                     {
                         foreach (ComboGraph.Branch branch in performedCombos[playerPerformedCombosCount - 1].followUpCombos)
                         {
-                            if (branch.attack.MatchesRequiredInputs(comboReader.inputs) && MatchesRequiredStateForAttack(branch.attack))
-                                ExecuteAttack(branch);
+                            if (branch.MatchesRequiredInputs(comboReader.inputs) && MatchesRequiredStateForAttack(branch))
+                                executeAttack.Add(branch);
                         }
                     }
                 }
+
+                // Prioritize executing whichever attack requires most inputs.
+                int foundInputAmountIndex = -1;
+                int highestFoundInputAmount = 0;
+                for(int i = 0; i < executeAttack.Count; i++)
+                {
+                    //int lastIndex = executeAttack[i].requiredInputs.Length - 1;
+                    if (executeAttack[i].InputAmount() > highestFoundInputAmount)
+                    {
+                        foundInputAmountIndex = i;
+                        highestFoundInputAmount = executeAttack[i].InputAmount();
+                    }
+                }
+
+                if(foundInputAmountIndex != -1)
+                    ExecuteAttack(executeAttack[foundInputAmountIndex]);
             }
 
             //  Determine if player should face it's opponent depending on it's current state.
@@ -942,31 +961,31 @@ namespace EntitySystem
             currentState = (CurrentState)setCurrentState;
         }
 
-        bool MatchesRequiredStateForAttack(Attack attack)
+        bool MatchesRequiredStateForAttack(ComboGraph.Branch attack)
         {
-            if (attack.requiredState == Attack.RequiredState.none && currentState != CurrentState.lay && currentState != CurrentState.rollForward)
+            if (attack.requiredState == RequiredState.none && currentState != CurrentState.lay && currentState != CurrentState.rollForward)
                 return true;
             else
             {
-                if (currentState == CurrentState.idle && attack.requiredState == Attack.RequiredState.idle)
+                if (currentState == CurrentState.idle && attack.requiredState == RequiredState.idle)
                     return true;
-                else if (currentState == CurrentState.dashForward && attack.requiredState == Attack.RequiredState.dashForward)
+                else if (currentState == CurrentState.dashForward && attack.requiredState == RequiredState.dashForward)
                     return true;
-                else if (currentState == CurrentState.dashBackward && attack.requiredState == Attack.RequiredState.dashBackward)
+                else if (currentState == CurrentState.dashBackward && attack.requiredState == RequiredState.dashBackward)
                     return true;
-                else if (currentState == CurrentState.dashLeft && attack.requiredState == Attack.RequiredState.dashLeft)
+                else if (currentState == CurrentState.dashLeft && attack.requiredState == RequiredState.dashLeft)
                     return true;
-                else if (currentState == CurrentState.dashRight && attack.requiredState == Attack.RequiredState.dashRight)
+                else if (currentState == CurrentState.dashRight && attack.requiredState == RequiredState.dashRight)
                     return true;
-                else if (currentState == CurrentState.waveDash && attack.requiredState == Attack.RequiredState.waveDash)
+                else if (currentState == CurrentState.waveDash && attack.requiredState == RequiredState.waveDash)
                     return true;
-                else if (weldBomb != null && attack.requiredState == Attack.RequiredState.weldBomb)
+                else if (weldBomb != null && attack.requiredState == RequiredState.weldBomb)
                     return true;
-                else if (weldBomb == null && attack.requiredState == Attack.RequiredState.notWeldBomb)
+                else if (weldBomb == null && attack.requiredState == RequiredState.notWeldBomb)
                     return true;
-                else if (currentState == CurrentState.lay && attack.requiredState == Attack.RequiredState.lay)
+                else if (currentState == CurrentState.lay && attack.requiredState == RequiredState.lay)
                     return true;
-                else if (currentState == CurrentState.rollForward && attack.requiredState == Attack.RequiredState.rollForward)
+                else if (currentState == CurrentState.rollForward && attack.requiredState == RequiredState.rollForward)
                     return true;
             }
 

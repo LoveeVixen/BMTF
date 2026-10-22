@@ -1,0 +1,107 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed383daf92ef7044fbe5d506f78212b7, type: 3}
+  m_Name: Kurobon
+  m_EditorClassIdentifier: 
+  branches:
+  - attack: {fileID: 11400000, guid: 783087abc5ef6e843a8e72c7c10004c8, type: 2}
+    followUpCombos:
+    - attack: {fileID: 11400000, guid: 27bab1be8a319604ea178e4168c586c4, type: 2}
+      followUpCombos:
+      - attack: {fileID: 11400000, guid: 29edde669d016c74ea98010ecdda3543, type: 2}
+        followUpCombos: []
+        requiredInputs:
+        - inputDirection: 0
+          pressing0: 0
+          pressing1: 1
+          pressing2: 0
+          pressing3: 0
+        requiredState: 0
+      requiredInputs:
+      - inputDirection: 0
+        pressing0: 0
+        pressing1: 0
+        pressing2: 0
+        pressing3: 1
+      requiredState: 0
+    requiredInputs:
+    - inputDirection: 0
+      pressing0: 0
+      pressing1: 0
+      pressing2: 1
+      pressing3: 0
+    requiredState: 0
+  - attack: {fileID: 11400000, guid: f7441b9d2cc4d844a843622033087d66, type: 2}
+    followUpCombos: []
+    requiredInputs:
+    - inputDirection: 3
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    - inputDirection: 5
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    - inputDirection: 4
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    requiredState: 0
+  - attack: {fileID: 11400000, guid: b4a5b420f36d4844f8c65c9f5cc05d08, type: 2}
+    followUpCombos: []
+    requiredInputs:
+    - inputDirection: 5
+      pressing0: 0
+      pressing1: 0
+      pressing2: 1
+      pressing3: 1
+    requiredState: 0
+  - attack: {fileID: 11400000, guid: c3bb4105777d07b47a5b7367d3a84363, type: 2}
+    followUpCombos: []
+    requiredInputs:
+    - inputDirection: 5
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 1
+    requiredState: 7
+  - attack: {fileID: 11400000, guid: 0db26bd6f51acda4aba3a9aeafb4e3a5, type: 2}
+    followUpCombos: []
+    requiredInputs:
+    - inputDirection: 7
+      pressing0: 1
+      pressing1: 0
+      pressing2: 0
+      pressing3: 1
+    requiredState: 7
+  - attack: {fileID: 11400000, guid: 7b82846379b601948b224dc02db1df19, type: 2}
+    followUpCombos: []
+    requiredInputs:
+    - inputDirection: 0
+      pressing0: 0
+      pressing1: 0
+      pressing2: 1
+      pressing3: 0
+    requiredState: 6
+  - attack: {fileID: 11400000, guid: 1b926e3a5926db849849a527fbcc42c8, type: 2}
+    followUpCombos: []
+    requiredInputs:
+    - inputDirection: 0
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 1
+    requiredState: 6
+  ignoreFromUniversalMoveset: 07000000

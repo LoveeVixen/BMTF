@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     [SerializeField] List<Character> characters = new List<Character>();
+    [SerializeField] Sprite lockedCharacterIcon;
     [SerializeField] ComboGraph universalMoveset;
     [SerializeField] List<EffectStatus> effectStatuses = new List<EffectStatus>();
     [SerializeField] bool[] isPlaying = new bool[4];
@@ -369,7 +370,7 @@ public class GameManager : MonoBehaviour
                     if (characterSelectUI != null)
                     {
                         characterSelectUI.ShowHighlightedCharacters();
-                        if(characterSelectUI.ShowCharacterDisplay())
+                        if(characterSelectUI.ShowCharacterDisplay() && !characterSelectUI.GetHighlightedCharacters()[i].IsRandomSelect())
                             characterSelectUI.GetCharacterDisplays()[i].DisplayCharacter(characterSelectUI.GetHighlightedCharacters()[i].GetCharacter().name, 0);
 
                         AudioManager.instance.PlayNonDiegeticSound("Challenger");
@@ -429,6 +430,7 @@ public class GameManager : MonoBehaviour
 
 
     public List<Character> GetCharactersList() { return characters; }
+    public Sprite GetLockedCharacterIcon() { return lockedCharacterIcon; }
     public ComboGraph GetUniversalMoveset() {  return universalMoveset; }
     public List<EffectStatus> GetEffectStatuses() { return effectStatuses; }
     public bool[] IsPlaying() { return isPlaying; }

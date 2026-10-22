@@ -229,10 +229,12 @@ namespace UI
                     Vector3 upOffset = cam.transform.up * -6f;
 
                     characterDisplays[0] = Instantiate(characterDisplayPrefab, forwardOffset + -sideOffset + upOffset, Quaternion.Euler(0f, 90f, 0f));
-                    if (GameManager.instance.IsPlaying()[0]) characterDisplays[0].DisplayCharacter(highlightedCharacters[0].GetCharacter().name, Character.selectedOutfitIndex[0]);
+                    if (GameManager.instance.IsPlaying()[0] && !highlightedCharacters[0].IsRandomSelect())
+                        characterDisplays[0].DisplayCharacter(highlightedCharacters[0].GetCharacter().name, Character.selectedOutfitIndex[0]);
 
                     characterDisplays[1] = Instantiate(characterDisplayPrefab, forwardOffset + sideOffset + upOffset, Quaternion.Euler(0f, 270f, 0f));
-                    if (GameManager.instance.IsPlaying()[1]) characterDisplays[1].DisplayCharacter(highlightedCharacters[1].GetCharacter().name, Character.selectedOutfitIndex[1]);
+                    if (GameManager.instance.IsPlaying()[1] && !highlightedCharacters[1].IsRandomSelect())
+                        characterDisplays[1].DisplayCharacter(highlightedCharacters[1].GetCharacter().name, Character.selectedOutfitIndex[1]);
                 }
 
                 // Play character select music.

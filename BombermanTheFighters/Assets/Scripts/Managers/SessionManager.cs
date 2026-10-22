@@ -388,6 +388,7 @@ public class SessionManager : MonoBehaviour
                 players[i].GetPlayer().Idle();
                 players[i].GetPlayer().transform.position = playerSpawns[i];
                 players[i].GetPlayer().transform.rotation = playerStartEulerAngles[i];
+                players[i].GetPlayer().StopMovement();
             }
         }
 

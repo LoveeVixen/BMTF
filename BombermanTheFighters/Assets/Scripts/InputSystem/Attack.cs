@@ -6,13 +6,13 @@ using UnityEngine;
 namespace InputSystem
 {
     public enum AttackType { stumble, launch, stun, grab };
+    public enum RequiredState { none, idle, dashForward, dashBackward, dashLeft, dashRight, waveDash, weldBomb, notWeldBomb, lay, rollForward };
 
     [CreateAssetMenu(fileName = "Attack", menuName = "Attack and Combo System/Attack", order = 1)]
     public class Attack : ScriptableObject
     {
         public string playAnimation = "";
         public ComboInputData[] requiredInputs = new ComboInputData[1];
-        public enum RequiredState { none, idle, dashForward, dashBackward, dashLeft, dashRight, waveDash, weldBomb, notWeldBomb, lay, rollForward };
         public RequiredState requiredState;
         public bool avoidPlayerStateUpdate = false;
         public bool avoidApplyingAttackCooldown = false;

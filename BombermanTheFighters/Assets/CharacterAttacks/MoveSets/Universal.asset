@@ -15,41 +15,193 @@ MonoBehaviour:
   branches:
   - attack: {fileID: 11400000, guid: c192d15500f4028489a4d346bc30fbd8, type: 2}
     followUpCombos: []
+    requiredInputs:
+    - inputDirection: 3
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    - inputDirection: 3
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    requiredState: 0
   - attack: {fileID: 11400000, guid: 02143a4388f72034d883eed57ad87398, type: 2}
     followUpCombos: []
+    requiredInputs:
+    - inputDirection: 7
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    - inputDirection: 7
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    requiredState: 0
   - attack: {fileID: 11400000, guid: bf97ca9f7178a00409bfe70e770454f3, type: 2}
     followUpCombos: []
+    requiredInputs:
+    - inputDirection: 1
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    - inputDirection: 1
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    requiredState: 0
   - attack: {fileID: 11400000, guid: 3d55477d475eae94cae03a15b9467f24, type: 2}
     followUpCombos: []
-  - attack: {fileID: 11400000, guid: 5b6e9d527d465d14d8280a16829fe681, type: 2}
-    followUpCombos: []
-  - attack: {fileID: 11400000, guid: 3a16695f8b5aae7449ab6571ed497323, type: 2}
-    followUpCombos: []
-  - attack: {fileID: 11400000, guid: f58a1c63940f980419ba16301d005a41, type: 2}
-    followUpCombos: []
+    requiredInputs:
+    - inputDirection: 5
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    - inputDirection: 5
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    requiredState: 0
   - attack: {fileID: 11400000, guid: 654b00dbcdf0cad4c85a5e8ea2bd5ae3, type: 2}
     followUpCombos: []
+    requiredInputs:
+    - inputDirection: 0
+      pressing0: 0
+      pressing1: 1
+      pressing2: 0
+      pressing3: 1
+    requiredState: 0
   - attack: {fileID: 11400000, guid: 3e7c57a71e325a946a4fe734a6e42cae, type: 2}
     followUpCombos: []
+    requiredInputs:
+    - inputDirection: 0
+      pressing0: 1
+      pressing1: 0
+      pressing2: 1
+      pressing3: 0
+    requiredState: 0
   - attack: {fileID: 11400000, guid: 27bab1be8a319604ea178e4168c586c4, type: 2}
     followUpCombos: []
+    requiredInputs:
+    - inputDirection: 0
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 1
+    requiredState: 0
   - attack: {fileID: 11400000, guid: 783087abc5ef6e843a8e72c7c10004c8, type: 2}
     followUpCombos:
     - attack: {fileID: 11400000, guid: 27bab1be8a319604ea178e4168c586c4, type: 2}
       followUpCombos:
       - attack: {fileID: 11400000, guid: 29edde669d016c74ea98010ecdda3543, type: 2}
         followUpCombos: []
-  - attack: {fileID: 11400000, guid: 27bab1be8a319604ea178e4168c586c4, type: 2}
-    followUpCombos: []
+        requiredInputs:
+        - inputDirection: 0
+          pressing0: 0
+          pressing1: 0
+          pressing2: 0
+          pressing3: 0
+        requiredState: 0
+      requiredInputs:
+      - inputDirection: 0
+        pressing0: 0
+        pressing1: 0
+        pressing2: 0
+        pressing3: 0
+      requiredState: 0
+    requiredInputs:
+    - inputDirection: 0
+      pressing0: 0
+      pressing1: 0
+      pressing2: 1
+      pressing3: 0
+    requiredState: 0
   - attack: {fileID: 11400000, guid: 29edde669d016c74ea98010ecdda3543, type: 2}
     followUpCombos: []
+    requiredInputs:
+    - inputDirection: 0
+      pressing0: 0
+      pressing1: 1
+      pressing2: 0
+      pressing3: 0
+    requiredState: 0
   - attack: {fileID: 11400000, guid: b91ad9997a2be6a488c4d5ddae7ee00e, type: 2}
     followUpCombos: []
-  - attack: {fileID: 11400000, guid: 9bd55b99295c625488f35607d7058db6, type: 2}
-    followUpCombos: []
+    requiredInputs:
+    - inputDirection: 0
+      pressing0: 1
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    requiredState: 0
   - attack: {fileID: 11400000, guid: ae4772178b1e4984c921ef3627866651, type: 2}
     followUpCombos: []
+    requiredInputs:
+    - inputDirection: 4
+      pressing0: 0
+      pressing1: 0
+      pressing2: 1
+      pressing3: 0
+    requiredState: 0
+  - attack: {fileID: 11400000, guid: 9bd55b99295c625488f35607d7058db6, type: 2}
+    followUpCombos: []
+    requiredInputs:
+    - inputDirection: 4
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 1
+    requiredState: 0
+  - attack: {fileID: 11400000, guid: 5b6e9d527d465d14d8280a16829fe681, type: 2}
+    followUpCombos: []
+    requiredInputs:
+    - inputDirection: 1
+      pressing0: 0
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    requiredState: 9
   - attack: {fileID: 11400000, guid: 7c41d6d76dcf642479df6d42d88b23a9, type: 2}
     followUpCombos: []
+    requiredInputs:
+    - inputDirection: 0
+      pressing0: 0
+      pressing1: 1
+      pressing2: 0
+      pressing3: 0
+    requiredState: 9
   - attack: {fileID: 11400000, guid: c0526927388f939409b1e592403b083e, type: 2}
     followUpCombos: []
+    requiredInputs:
+    - inputDirection: 0
+      pressing0: 1
+      pressing1: 0
+      pressing2: 0
+      pressing3: 0
+    requiredState: 9
+  - attack: {fileID: 11400000, guid: 3a16695f8b5aae7449ab6571ed497323, type: 2}
+    followUpCombos: []
+    requiredInputs:
+    - inputDirection: 7
+      pressing0: 1
+      pressing1: 1
+      pressing2: 0
+      pressing3: 0
+    requiredState: 9
+  - attack: {fileID: 11400000, guid: f58a1c63940f980419ba16301d005a41, type: 2}
+    followUpCombos: []
+    requiredInputs:
+    - inputDirection: 0
+      pressing0: 0
+      pressing1: 0
+      pressing2: 1
+      pressing3: 1
+    requiredState: 10
+  ignoreFromUniversalMoveset: 

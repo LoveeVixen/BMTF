@@ -73,5 +73,18 @@ namespace InputSystem
 
             return matches;
         }
+
+        // Return the value of how many inputs are being used in this input data.
+        public int InputAmount()
+        {
+            int amount = 0;
+            if (pressing0) amount++;
+            if (pressing1) amount++;
+            if (pressing2) amount++;
+            if (pressing3) amount++;
+            if(inputDirection != InputDirection.none) amount++;
+
+            return amount;
+        }
     }
 }

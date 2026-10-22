@@ -128,6 +128,12 @@ namespace InputSystem
             if(printMessage != "") Debug.Log(printMessage);
         }
 
+        public static PlayerInputData NoInput()
+        {
+            PlayerInputData data = new PlayerInputData();
+            return data;
+        }
+
         public bool RegPressingUp  { get { return regPressingUp; } set { regPressingUp = value; } }
         public bool RegPressingRight { get { return regPressingRight; } set { regPressingRight = value; } }
         public bool RegPressingDown { get { return regPressingDown; } set { regPressingDown = value; } }
